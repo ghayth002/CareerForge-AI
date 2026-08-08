@@ -215,11 +215,15 @@ async function sendTelegramAlert(job) {
   const strengthsText = Array.isArray(job.strengths) ? job.strengths.join('\n  • ') : job.strengths;
   const missingText = Array.isArray(job.missing_skills) ? job.missing_skills.join(', ') : job.missing_skills;
 
+  const autoApplyStatusTag = job.auto_applied_email ? `✅ *AUTO-APPLIED VIA EMAIL* to \`${job.auto_applied_email}\`` : `🚀 *APPLICATION PACKAGE READY*`;
+
   const msg = `🚀 *NEW JOB MATCH* (${score}% Match)
 
 🏢 *${job.company}*
 💼 ${job.title}
 📍 ${job.location || 'Remote'}
+
+${autoApplyStatusTag}
 
 📊 *Scores:*
   Overall:   ${fill(score)} ${score}%
@@ -231,7 +235,7 @@ async function sendTelegramAlert(job) {
 
 ⚠️ *Gaps:* ${missingText}
 
-🤖 *AI Reasoning:*
+🤖 *AI Rationale:*
 ${job.reasoning || 'Strong technical candidate match.'}
 
 ✉️ *Cover Note:*
@@ -286,14 +290,28 @@ async function main() {
   console.log(`\n[ STEP 4 ] Generating Application PDFs & Sending Alerts (${matched.length} strong matches)...`);
 
   for (const match of matched) {
-    // Generate PDF CV & Cover Letter using Python script
+    // 1. Generate PDF CV & Cover Letter
     try {
       execSync(`python scripts/generate_pdf.py --company "${match.company.replace(/"/g, '')}" --title "${match.title.replace(/"/g, '')}" --summary "${(match.custom_summary||'').replace(/"/g, '')}" --cover_note "${(match.cover_note||'').replace(/"/g, '')}"`, { stdio: 'inherit' });
     } catch (e) {
       console.log(`  ⚠ PDF Generation notice: ${e.message}`);
     }
 
-    // Send Telegram alert
+    // 2. Smart Auto-Apply: Extract email if present in job description or URL
+    const emailMatch = (match.description || '').match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
+    if (emailMatch && process.env.SMTP_USER && process.env.SMTP_PASS) {
+      const applyEmail = emailMatch[0];
+      console.log(`  📧 Detected application email: ${applyEmail}. Executing Auto-Apply Email...`);
+      try {
+        const cvPath = path.join(__dirname, '../data/cv/base/Ghaith_Oueslati_CV.pdf');
+        execSync(`node scripts/email-auto-apply.js --to "${applyEmail}" --company "${match.company.replace(/"/g, '')}" --title "${match.title.replace(/"/g, '')}" --cv "${cvPath}"`, { stdio: 'inherit' });
+        match.auto_applied_email = applyEmail;
+      } catch (e) {
+        console.log(`  ⚠ Auto-Apply Email error: ${e.message}`);
+      }
+    }
+
+    // 3. Send Telegram alert with status
     await sendTelegramAlert(match);
   }
 
