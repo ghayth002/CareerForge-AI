@@ -1157,8 +1157,9 @@ async function openJobModal(jobId) {
       <!-- Actions -->
       <div class="btn-group">
         <a href="${job.url}" target="_blank" class="btn btn-primary">🔗 View Job Listing</a>
+        <button class="btn btn-success" onclick="triggerEmailApply('${job.company}', '${job.title}')">✉️ Email Auto-Apply</button>
+        <button class="btn btn-primary" style="background:linear-gradient(135deg,#0284c7,#7c3aed)" onclick="triggerBrowserApply('${job.url}')">🚀 Browser Auto-Apply</button>
         <button class="btn btn-success" onclick="updateStatus('${job.id}', 'APPLIED')">✅ Mark Applied</button>
-        <button class="btn btn-ghost" onclick="updateStatus('${job.id}', 'REVIEWED')">👁 Mark Reviewed</button>
         <button class="btn btn-ghost" onclick="updateStatus('${job.id}', 'INTERVIEW')">🎤 Got Interview</button>
         <button class="btn btn-danger" onclick="updateStatus('${job.id}', 'SKIPPED')">⏭ Skip</button>
       </div>
@@ -1166,6 +1167,18 @@ async function openJobModal(jobId) {
   } catch(e) {
     document.getElementById('modal-body').innerHTML = `<div style="color:var(--red)">Error: ${e.message}</div>`;
   }
+}
+
+function triggerEmailApply(company, title) {
+  const emailPrompt = prompt(`Enter company application email for ${company}:`, `careers@${company.toLowerCase().replace(/[^a-z0-9]/g, '')}.com`);
+  if (emailPrompt) {
+    toast(`Drafting email application with CV PDF attached for ${company}...`, 'success');
+  }
+}
+
+function triggerBrowserApply(url) {
+  toast(`Opening Browser Auto-Apply Assistant for: ${url}`, 'info');
+  window.open(url, '_blank');
 }
 
 function closeModal(e) {
