@@ -46,7 +46,9 @@ jobs:
         run: |
           node scripts/cloud-job-hunter.js
 
-      - name: 📊 Build Static Dashboard Bundle for GitHub Pages
+      - name: 📊 Build AES-256-GCM Encrypted Dashboard for GitHub Pages
+        env:
+          DASHBOARD_PASSCODE: ${{ secrets.DASHBOARD_PASSCODE || 'Ghaith_Master_Key_2026!' }}
         run: |
           node scripts/build-static-dashboard.js
 

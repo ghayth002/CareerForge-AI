@@ -1,0 +1,276 @@
+{
+  "stats": {
+    "total_jobs": 6,
+    "discovered_today": 6,
+    "matched_70_plus": 3,
+    "matched_80_plus": 2,
+    "matched_90_plus": 0,
+    "remote_jobs": 4,
+    "last_updated": "2026-08-08T14:52:29.314Z"
+  },
+  "jobs": [
+    {
+      "id": "job-1",
+      "source": "sample",
+      "source_job_id": "test-devsecops-001",
+      "company": "TechCorp Berlin",
+      "title": "DevSecOps Engineer",
+      "location": "Berlin, Germany",
+      "remote": true,
+      "employment_type": "full-time",
+      "url": "https://example.com/jobs/devsecops-001",
+      "description": "We are looking for a DevSecOps Engineer to join our security-focused platform team. You will integrate security tools into CI/CD pipelines, work with Docker containers, and implement SAST/DAST scanning. Requirements: experience with GitLab CI/CD or GitHub Actions, familiarity with OWASP ZAP or Trivy or SonarQube, Python or JavaScript scripting, Docker, cloud experience (AWS/Azure/GCP). Nice to have: Terraform, Kubernetes, SIEM tools. We are a remote-first company with engineers across Europe. Visa sponsorship available for exceptional candidates. English required.",
+      "salary": "€55,000 - €75,000",
+      "posted_at": "2026-08-07T09:00:00Z",
+      "language": "en",
+      "skills": [
+        "GitLab CI/CD",
+        "OWASP ZAP",
+        "Trivy",
+        "Docker",
+        "Python",
+        "Azure",
+        "DevSecOps",
+        "SAST",
+        "DAST"
+      ],
+      "match_score": 89,
+      "technical_score": 94,
+      "experience_score": 84,
+      "strengths": [
+        "Hands-on DevSecOps automation and CI/CD security pipeline experience at SeekMake",
+        "Proven performance optimization (83% backend latency reduction & Gemini API integration)"
+      ],
+      "missing_skills": [
+        "Role-specific enterprise cloud domain features"
+      ],
+      "ai_reasoning": "Strong technical match with verified achievements from CV. Candidate satisfies DevSecOps Engineer core criteria.",
+      "custom_summary": "DevSecOps & Backend Engineer graduating ESPRIT (2026) with proven experience optimizing CI/CD pipelines, cutting triage effort by 60%, and engineering backend services.",
+      "cover_note": "I am eager to apply for the DevSecOps Engineer role at TechCorp Berlin. My background in security automation, cloud migrations, and API performance optimization aligns directly with your goals.",
+      "custom_bullets": [
+        "Cut manual security triage time by 60% by integrating Google Gemini API into CI/CD pipeline.",
+        "Reduced backend API response latency by 83% via MongoDB aggregation optimization and caching.",
+        "Built AI-powered test generation agent (5,200+ lines) achieving 75%+ test coverage with Vertex AI."
+      ]
+    },
+    {
+      "id": "job-2",
+      "source": "sample",
+      "source_job_id": "test-backend-002",
+      "company": "CloudBase Amsterdam",
+      "title": "Backend Engineer (Node.js / NestJS)",
+      "location": "Amsterdam, Netherlands",
+      "remote": true,
+      "employment_type": "full-time",
+      "url": "https://example.com/jobs/backend-002",
+      "description": "Join our backend team building high-performance microservices. We use NestJS, MongoDB, PostgreSQL, and deploy on AWS. You will design and build REST APIs, optimize database performance, and maintain CI/CD pipelines. Requirements: 1+ years backend development, Node.js/NestJS or Express.js, MongoDB or PostgreSQL, REST API design, Docker, Git. Nice to have: AWS, TypeScript, Redis, Kafka, Microservices architecture. We offer relocation support and visa sponsorship. Team speaks English.",
+      "salary": "€50,000 - €70,000",
+      "posted_at": "2026-08-06T14:00:00Z",
+      "language": "en",
+      "skills": [
+        "NestJS",
+        "Node.js",
+        "MongoDB",
+        "PostgreSQL",
+        "Docker",
+        "AWS",
+        "TypeScript",
+        "REST APIs",
+        "Microservices"
+      ],
+      "match_score": 82,
+      "technical_score": 87,
+      "experience_score": 77,
+      "strengths": [
+        "Hands-on DevSecOps automation and CI/CD security pipeline experience at SeekMake",
+        "Proven performance optimization (83% backend latency reduction & Gemini API integration)"
+      ],
+      "missing_skills": [
+        "Role-specific enterprise cloud domain features"
+      ],
+      "ai_reasoning": "Strong technical match with verified achievements from CV. Candidate satisfies Backend Engineer (Node.js / NestJS) core criteria.",
+      "custom_summary": "DevSecOps & Backend Engineer graduating ESPRIT (2026) with proven experience optimizing CI/CD pipelines, cutting triage effort by 60%, and engineering backend services.",
+      "cover_note": "I am eager to apply for the Backend Engineer (Node.js / NestJS) role at CloudBase Amsterdam. My background in security automation, cloud migrations, and API performance optimization aligns directly with your goals.",
+      "custom_bullets": [
+        "Cut manual security triage time by 60% by integrating Google Gemini API into CI/CD pipeline.",
+        "Reduced backend API response latency by 83% via MongoDB aggregation optimization and caching.",
+        "Built AI-powered test generation agent (5,200+ lines) achieving 75%+ test coverage with Vertex AI."
+      ]
+    },
+    {
+      "id": "job-3",
+      "source": "sample",
+      "source_job_id": "test-cloud-003",
+      "company": "RemoteFirst Inc",
+      "title": "Cloud Engineer (AWS/Azure)",
+      "location": "Remote",
+      "remote": true,
+      "employment_type": "full-time",
+      "url": "https://example.com/jobs/cloud-003",
+      "description": "We need a Cloud Engineer to help migrate and manage our multi-cloud infrastructure (AWS + Azure). You will write Terraform modules, set up CI/CD pipelines, work with container services, and implement monitoring. Requirements: AWS (EC2, Lambda, S3, IAM), Azure (Container Apps, Front Door), Terraform, Docker, CI/CD pipelines (GitHub Actions or GitLab), scripting (Python or Bash). Nice to have: GCP, Kubernetes, GitOps, Grafana. Fully remote, work from anywhere. No visa restrictions.",
+      "salary": "$60,000 - $85,000",
+      "posted_at": "2026-08-08T08:00:00Z",
+      "language": "en",
+      "skills": [
+        "AWS",
+        "Azure",
+        "Terraform",
+        "Docker",
+        "Python",
+        "CI/CD",
+        "Azure Container Apps",
+        "Azure Front Door",
+        "GitLab CI/CD"
+      ],
+      "match_score": 70,
+      "technical_score": 75,
+      "experience_score": 65,
+      "strengths": [
+        "Hands-on DevSecOps automation and CI/CD security pipeline experience at SeekMake",
+        "Proven performance optimization (83% backend latency reduction & Gemini API integration)"
+      ],
+      "missing_skills": [
+        "Role-specific enterprise cloud domain features"
+      ],
+      "ai_reasoning": "Strong technical match with verified achievements from CV. Candidate satisfies Cloud Engineer (AWS/Azure) core criteria.",
+      "custom_summary": "DevSecOps & Backend Engineer graduating ESPRIT (2026) with proven experience optimizing CI/CD pipelines, cutting triage effort by 60%, and engineering backend services.",
+      "cover_note": "I am eager to apply for the Cloud Engineer (AWS/Azure) role at RemoteFirst Inc. My background in security automation, cloud migrations, and API performance optimization aligns directly with your goals.",
+      "custom_bullets": [
+        "Cut manual security triage time by 60% by integrating Google Gemini API into CI/CD pipeline.",
+        "Reduced backend API response latency by 83% via MongoDB aggregation optimization and caching.",
+        "Built AI-powered test generation agent (5,200+ lines) achieving 75%+ test coverage with Vertex AI."
+      ]
+    },
+    {
+      "id": "job-4",
+      "source": "sample",
+      "source_job_id": "test-platform-004",
+      "company": "FinTech London",
+      "title": "Platform Engineer",
+      "location": "London, UK",
+      "remote": false,
+      "employment_type": "full-time",
+      "url": "https://example.com/jobs/platform-004",
+      "description": "Platform Engineer to maintain and improve our cloud infrastructure on AWS. You will manage Kubernetes clusters, write Terraform IaC, and maintain CI/CD pipelines. Requirements: 3+ years platform/infrastructure experience, Kubernetes (EKS/AKS), Terraform, AWS or Azure, GitLab CI/CD or Jenkins, monitoring (Grafana/Prometheus). Must be eligible to work in the UK. Sponsorship considered for strong candidates.",
+      "salary": "£60,000 - £80,000",
+      "posted_at": "2026-08-05T10:00:00Z",
+      "language": "en",
+      "skills": [
+        "Kubernetes",
+        "Terraform",
+        "AWS",
+        "Azure",
+        "GitLab CI/CD",
+        "Grafana",
+        "Docker",
+        "Jenkins"
+      ],
+      "match_score": 67,
+      "technical_score": 72,
+      "experience_score": 62,
+      "strengths": [
+        "Hands-on DevSecOps automation and CI/CD security pipeline experience at SeekMake",
+        "Proven performance optimization (83% backend latency reduction & Gemini API integration)"
+      ],
+      "missing_skills": [
+        "Role-specific enterprise cloud domain features"
+      ],
+      "ai_reasoning": "Strong technical match with verified achievements from CV. Candidate satisfies Platform Engineer core criteria.",
+      "custom_summary": "DevSecOps & Backend Engineer graduating ESPRIT (2026) with proven experience optimizing CI/CD pipelines, cutting triage effort by 60%, and engineering backend services.",
+      "cover_note": "I am eager to apply for the Platform Engineer role at FinTech London. My background in security automation, cloud migrations, and API performance optimization aligns directly with your goals.",
+      "custom_bullets": [
+        "Cut manual security triage time by 60% by integrating Google Gemini API into CI/CD pipeline.",
+        "Reduced backend API response latency by 83% via MongoDB aggregation optimization and caching.",
+        "Built AI-powered test generation agent (5,200+ lines) achieving 75%+ test coverage with Vertex AI."
+      ]
+    },
+    {
+      "id": "job-5",
+      "source": "sample",
+      "source_job_id": "test-filtered-005",
+      "company": "StartupXYZ Paris",
+      "title": "Java Senior Developer",
+      "location": "Paris, France",
+      "remote": false,
+      "employment_type": "full-time",
+      "url": "https://example.com/jobs/java-005",
+      "description": "Nous cherchons un développeur Java senior. Vous devez parler français couramment. 7+ years d'expérience requis. Spring Boot, Oracle DB, Maven. Présentiel obligatoire à Paris.",
+      "salary": "€70,000 - €90,000",
+      "posted_at": "2026-08-07T11:00:00Z",
+      "language": "fr",
+      "skills": [
+        "Java",
+        "Spring Boot",
+        "Oracle",
+        "Maven"
+      ],
+      "match_score": 64,
+      "technical_score": 69,
+      "experience_score": 59,
+      "strengths": [
+        "Hands-on DevSecOps automation and CI/CD security pipeline experience at SeekMake",
+        "Proven performance optimization (83% backend latency reduction & Gemini API integration)"
+      ],
+      "missing_skills": [
+        "Role-specific enterprise cloud domain features"
+      ],
+      "ai_reasoning": "Strong technical match with verified achievements from CV. Candidate satisfies Java Senior Developer core criteria.",
+      "custom_summary": "DevSecOps & Backend Engineer graduating ESPRIT (2026) with proven experience optimizing CI/CD pipelines, cutting triage effort by 60%, and engineering backend services.",
+      "cover_note": "I am eager to apply for the Java Senior Developer role at StartupXYZ Paris. My background in security automation, cloud migrations, and API performance optimization aligns directly with your goals.",
+      "custom_bullets": [
+        "Cut manual security triage time by 60% by integrating Google Gemini API into CI/CD pipeline.",
+        "Reduced backend API response latency by 83% via MongoDB aggregation optimization and caching.",
+        "Built AI-powered test generation agent (5,200+ lines) achieving 75%+ test coverage with Vertex AI."
+      ]
+    },
+    {
+      "id": "job-6",
+      "source": "sample",
+      "source_job_id": "test-sre-006",
+      "company": "SRECloud Zurich",
+      "title": "Site Reliability Engineer",
+      "location": "Zurich, Switzerland",
+      "remote": true,
+      "employment_type": "full-time",
+      "url": "https://example.com/jobs/sre-006",
+      "description": "SRE role focused on reliability, observability, and automation. You will work with Kubernetes, Terraform, AWS, and build monitoring pipelines. Requirements: experience with cloud infrastructure, Docker/Kubernetes, CI/CD, Grafana/Prometheus, Python scripting. Junior/mid level welcome. Visa sponsorship available for EU Blue Card. English team.",
+      "salary": "CHF 90,000 - CHF 120,000",
+      "posted_at": "2026-08-08T07:00:00Z",
+      "language": "en",
+      "skills": [
+        "Kubernetes",
+        "AWS",
+        "Docker",
+        "Terraform",
+        "Python",
+        "Grafana",
+        "CI/CD",
+        "SRE"
+      ],
+      "match_score": 61,
+      "technical_score": 66,
+      "experience_score": 56,
+      "strengths": [
+        "Hands-on DevSecOps automation and CI/CD security pipeline experience at SeekMake",
+        "Proven performance optimization (83% backend latency reduction & Gemini API integration)"
+      ],
+      "missing_skills": [
+        "Role-specific enterprise cloud domain features"
+      ],
+      "ai_reasoning": "Strong technical match with verified achievements from CV. Candidate satisfies Site Reliability Engineer core criteria.",
+      "custom_summary": "DevSecOps & Backend Engineer graduating ESPRIT (2026) with proven experience optimizing CI/CD pipelines, cutting triage effort by 60%, and engineering backend services.",
+      "cover_note": "I am eager to apply for the Site Reliability Engineer role at SRECloud Zurich. My background in security automation, cloud migrations, and API performance optimization aligns directly with your goals.",
+      "custom_bullets": [
+        "Cut manual security triage time by 60% by integrating Google Gemini API into CI/CD pipeline.",
+        "Reduced backend API response latency by 83% via MongoDB aggregation optimization and caching.",
+        "Built AI-powered test generation agent (5,200+ lines) achieving 75%+ test coverage with Vertex AI."
+      ]
+    }
+  ],
+  "candidate": {
+    "name": "Ghaith Oueslati",
+    "email": "ghaythweslaty002@gmail.com",
+    "linkedin": "ghayth-weslati",
+    "github": "ghayth002"
+  }
+}
