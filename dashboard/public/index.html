@@ -1144,8 +1144,29 @@ async function openJobModal(jobId) {
       
       <!-- Cover Note -->
       ${job.cover_note ? `<div class="content-section">
-        <div class="content-label">✉️ Cover Note</div>
+        <div class="content-label">✉️ Humanized Cover Note (Copy & Paste)</div>
         <div class="content-text" style="font-style:italic;border-left:2px solid var(--accent2);padding-left:12px">${job.cover_note}</div>
+      </div>` : ''}
+      
+      <!-- Step-by-Step Application Field Guide -->
+      ${job.form_field_guide ? `<div class="content-section" style="border-color:var(--accent);">
+        <div class="content-label" style="color:var(--accent3);">📋 Step-by-Step Application Form Guide (For LinkedIn / Portals)</div>
+        <div style="font-size:0.82rem;color:var(--text-muted);margin-bottom:10px;">Use these pre-computed answers when applying manually on LinkedIn, Greenhouse, or Lever:</div>
+        
+        <div style="margin-bottom:8px;">
+          <div style="font-size:0.75rem;font-weight:700;color:var(--text-dim);">Q: Why are you interested in ${job.company}?</div>
+          <div style="font-size:0.85rem;color:var(--text);background:var(--bg);padding:8px 10px;border-radius:6px;margin-top:2px;user-select:all;">${job.form_field_guide.why_interested || ''}</div>
+        </div>
+
+        <div style="margin-bottom:8px;">
+          <div style="font-size:0.75rem;font-weight:700;color:var(--text-dim);">Q: What is your biggest technical achievement?</div>
+          <div style="font-size:0.85rem;color:var(--text);background:var(--bg);padding:8px 10px;border-radius:6px;margin-top:2px;user-select:all;">${job.form_field_guide.biggest_achievement || ''}</div>
+        </div>
+
+        <div style="margin-bottom:8px;">
+          <div style="font-size:0.75rem;font-weight:700;color:var(--text-dim);">Q: Notice Period & Availability</div>
+          <div style="font-size:0.85rem;color:var(--text);background:var(--bg);padding:8px 10px;border-radius:6px;margin-top:2px;user-select:all;">${job.form_field_guide.notice_period || 'Available upon graduation (June 2026) / Immediate for remote'}</div>
+        </div>
       </div>` : ''}
       
       <!-- Skills -->

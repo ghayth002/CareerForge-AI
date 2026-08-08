@@ -112,11 +112,30 @@ async function fetchLiveJobs() {
     console.log(`  ⚠ RemoteOK fetch notice: ${e.message}`);
   }
 
-  // Fallback to sample jobs if APIs rate limit
-  if (rawJobs.length === 0) {
-    console.log('  ℹ Using sample jobs dataset...');
-    const samples = JSON.parse(fs.readFileSync(path.join(__dirname, '../data/jobs/sample/sample_jobs.json'), 'utf8'));
-    rawJobs.push(...samples);
+  // Arbeitnow EU Jobs API
+  try {
+    const res = await fetch('https://www.arbeitnow.com/api/job-board-api');
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data.data)) {
+        const jobs = data.data.slice(0, 30).map(j => ({
+          source: 'arbeitnow_eu',
+          source_job_id: String(j.slug || j.title || ''),
+          company: j.company_name || 'Unknown',
+          title: j.title || '',
+          location: j.location || 'Europe',
+          remote: j.remote || false,
+          employment_type: (j.job_types || ['full-time'])[0] || 'full-time',
+          url: j.url || '',
+          description: (j.description || '').replace(/<[^>]+>/g, ' ').substring(0, 4000),
+          language: 'en'
+        }));
+        rawJobs.push(...jobs);
+        console.log(`  ✓ Arbeitnow EU: fetched ${jobs.length} live jobs`);
+      }
+    }
+  } catch (e) {
+    console.log(`  ⚠ Arbeitnow fetch notice: ${e.message}`);
   }
 
   return rawJobs;
@@ -153,16 +172,25 @@ function preFilter(jobs) {
   return passed;
 }
 
-// 4. OpenRouter AI Scoring
+// 4. OpenRouter AI Scoring & Form Field Guide Generation
 async function scoreJobWithAI(job) {
-  const prompt = `You are a senior technical recruiter. Evaluate candidate fit for this job. Return ONLY JSON.
+  const prompt = `You are a senior technical recruiter writing on behalf of a candidate.
+
+STRICT WRITING TONE RULES:
+- Write in a natural, ultra-professional HUMAN tone.
+- ZERO AI clichés: DO NOT use words like "thrilled", "enthusiastic", "seamlessly", "spearheaded", "leveraged", "delighted", "testament", "fast-paced".
+- Be direct, concise, and metric-focused. Sound like a real senior software engineer.
 
 CANDIDATE PROFILE:
 Name: Ghaith Oueslati
-Role: DevSecOps & Backend Engineer (ESPRIT 2026)
-Experience: SeekMake (DevSecOps & Backend), Cube IT (Mobile), Barmej Tech (Fullstack)
-Skills: Docker, Terraform, GitHub Actions, GitLab CI/CD, AWS (EC2, Lambda), Azure (Container Apps, Front Door, ACR), GCP (Cloud Run), NestJS, Node.js, Python, OWASP ZAP, Trivy, MongoDB, PostgreSQL.
-Achievements: Cut security triage 60% with Gemini API in CI/CD, reduced backend latency 83% via MongoDB optimization, built AI test generator agent (5200+ lines).
+Education: B.Eng. Computer Engineering (TWIN), ESPRIT (June 2026)
+Current Role: DevSecOps & Backend Engineer at SeekMake
+Experience & Metrics:
+- Cut CI/CD security triage time by 60% using Google Gemini API for OWASP ZAP & Trivy SAST/DAST findings.
+- Reduced backend API latency by 83% via MongoDB aggregation pipeline optimization and Redis caching.
+- Built AI-powered unit test generator agent (5,200+ lines of TypeScript/Vertex AI) reaching 75%+ unit test coverage.
+- Migrated 38+ CI/CD pipelines from GitHub Actions to GitLab CI/CD with self-hosted runner architecture.
+- Migrated 8 microservices from GCP Cloud Run to Azure Container Apps with Azure Front Door routing.
 
 TARGET JOB:
 Title: ${job.title}
@@ -170,16 +198,23 @@ Company: ${job.company}
 Location: ${job.location}
 Description: ${job.description.substring(0, 2000)}
 
-Return ONLY JSON:
+INSTRUCTIONS:
+Return ONLY valid JSON (no markdown formatting outside JSON):
 {
   "match_score": 85,
   "technical_score": 90,
   "experience_score": 80,
-  "strengths": ["Strength 1", "Strength 2"],
-  "missing_skills": ["Missing 1"],
-  "reasoning": "Brief rationale",
-  "custom_summary": "Tailored 2-sentence summary for this application",
-  "cover_note": "Short 3-sentence cover note"
+  "strengths": ["Direct metric 1", "Direct metric 2"],
+  "missing_skills": ["Missing skill 1"],
+  "reasoning": "Direct 2-sentence rationale.",
+  "custom_summary": "Clean 2-sentence summary without AI buzzwords.",
+  "cover_note": "Direct 3-sentence professional email/note focusing on SeekMake achievements.",
+  "form_field_guide": {
+    "why_interested": "Concise answer for why interested in ${job.company}",
+    "biggest_achievement": "Concise answer highlighting 60% triage reduction and 83% latency fix",
+    "notice_period": "Available upon graduation (June 2026) / Immediate for remote",
+    "salary_expectation": "Negotiable based on market rate for ${job.title}"
+  }
 }`;
 
   try {
