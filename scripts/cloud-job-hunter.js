@@ -9,6 +9,30 @@ const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
 
+// Read .env fallback for local CLI runs
+const envPath = path.join(__dirname, '../.env');
+if (fs.existsSync(envPath)) {
+  const envContent = fs.readFileSync(envPath, 'utf8');
+  envContent.split('\n').forEach(line => {
+    const trimmed = line.trim();
+    if (trimmed.startsWith('OPENROUTER_API_KEY=') && !process.env.OPENROUTER_API_KEY) {
+      process.env.OPENROUTER_API_KEY = trimmed.split('=')[1].trim();
+    }
+    if (trimmed.startsWith('SMTP_USER=') && !process.env.SMTP_USER) {
+      process.env.SMTP_USER = trimmed.split('=')[1].trim();
+    }
+    if (trimmed.startsWith('SMTP_PASS=') && !process.env.SMTP_PASS) {
+      process.env.SMTP_PASS = trimmed.split('=')[1].trim();
+    }
+    if (trimmed.startsWith('TELEGRAM_BOT_TOKEN=') && !process.env.TELEGRAM_BOT_TOKEN) {
+      process.env.TELEGRAM_BOT_TOKEN = trimmed.split('=')[1].trim();
+    }
+    if (trimmed.startsWith('TELEGRAM_CHAT_ID=') && !process.env.TELEGRAM_CHAT_ID) {
+      process.env.TELEGRAM_CHAT_ID = trimmed.split('=')[1].trim();
+    }
+  });
+}
+
 // 1. Environment & Secrets
 const apiKey = process.env.OPENROUTER_API_KEY;
 const model = process.env.OPENROUTER_MODEL || 'openrouter/free';
@@ -171,7 +195,7 @@ Return ONLY JSON:
         model: model,
         messages: [{ role: 'user', content: prompt }],
         temperature: 0.1,
-        max_tokens: 700
+        max_tokens: 1000
       })
     });
 
