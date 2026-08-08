@@ -407,6 +407,14 @@ async function main() {
     await sendTelegramAlert(match);
   }
 
+  // 4. Save discovered & analyzed live jobs to sample_jobs.json so dashboard builder packs them
+  const sampleDir = path.join(__dirname, '../data/jobs/sample');
+  if (!fs.existsSync(sampleDir)) fs.mkdirSync(sampleDir, { recursive: true });
+  
+  const allOutputJobs = [...matched, ...filtered.slice(4)];
+  fs.writeFileSync(path.join(sampleDir, 'sample_jobs.json'), JSON.stringify(allOutputJobs, null, 2));
+  console.log(`  ✓ Saved ${allOutputJobs.length} live jobs to data/jobs/sample/sample_jobs.json for dashboard deployment.`);
+
   console.log('\n====================================================');
   console.log(`✅ CareerForge AI Cloud Run Complete! Analyzed: ${jobsToAnalyze.length}, Matched: ${matched.length}`);
   console.log('====================================================\n');
