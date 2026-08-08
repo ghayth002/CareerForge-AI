@@ -515,6 +515,7 @@ main {
 
     <div class="top-actions">
       <div class="live-badge"><div class="live-dot"></div> Live Encrypted Node</div>
+      <button class="refresh-btn" onclick="relockSession()">🔒 Relock</button>
       <button class="refresh-btn" onclick="loadCurrentPage()">⟳ Refresh</button>
     </div>
   </div>
@@ -819,12 +820,25 @@ function copyText(btn, text) {
   setTimeout(() => btn.textContent = 'Copy', 2000);
 }
 
+function relockSession() {
+  sessionStorage.removeItem('cf_passcode');
+  decryptedStore = null;
+  document.getElementById('auth-passcode').value = '';
+  document.getElementById('auth-overlay').classList.add('open');
+}
+
 // Auto Session Unlock
 window.addEventListener('DOMContentLoaded', async () => {
   const saved = sessionStorage.getItem('cf_passcode');
   if (saved) {
     document.getElementById('auth-passcode').value = saved;
-    handleAuthLogin({ preventDefault: () => {} });
+    try {
+      await handleAuthLogin({ preventDefault: () => {} });
+    } catch(e) {
+      relockSession();
+    }
+  } else {
+    document.getElementById('auth-overlay').classList.add('open');
   }
 });
 </script>
