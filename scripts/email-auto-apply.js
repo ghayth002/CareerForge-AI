@@ -6,15 +6,24 @@
 
 const fs = require('fs');
 const path = require('path');
-const nodemailer = require('nodemailer');
+const { execSync } = require('child_process');
+
+let nodemailer;
+try {
+  nodemailer = require('nodemailer');
+} catch (e) {
+  console.log('📦 Installing nodemailer module...');
+  execSync('npm install nodemailer', { stdio: 'inherit', cwd: path.join(__dirname, '..') });
+  nodemailer = require('nodemailer');
+}
 
 // Load environment variables
 const envPath = path.join(__dirname, '../.env');
-let smtpHost = process.env.SMTP_HOST || 'smtp.gmail.com';
-let smtpPort = parseInt(process.env.SMTP_PORT || '587');
-let smtpUser = process.env.SMTP_USER || '';
-let smtpPass = process.env.SMTP_PASS || '';
-let fromEmail = process.env.FROM_EMAIL || smtpUser;
+let smtpHost = 'smtp.gmail.com';
+let smtpPort = 587;
+let smtpUser = '';
+let smtpPass = '';
+let fromEmail = '';
 
 if (fs.existsSync(envPath)) {
   const envContent = fs.readFileSync(envPath, 'utf8');
@@ -27,6 +36,8 @@ if (fs.existsSync(envPath)) {
     if (trimmed.startsWith('FROM_EMAIL=')) fromEmail = trimmed.split('=')[1].trim();
   });
 }
+
+if (!fromEmail) fromEmail = smtpUser;
 
 const args = process.argv.slice(2);
 function getArg(name, defaultVal = '') {
@@ -46,20 +57,14 @@ console.log('====================================================');
 console.log(`🏢 Company: ${company}`);
 console.log(`💼 Role: ${jobTitle}`);
 console.log(`📧 Target Email: ${targetEmail || 'NOT SPECIFIED'}`);
-console.log(`📄 CV File: ${customCvPath}`);
+console.log(`👤 From: ${fromEmail}`);
+console.log(`📄 CV File: ${customCvPath}\n`);
 
 if (!targetEmail) {
-  console.error('\n❌ Target email is required! Pass --to <email@company.com>');
+  console.error('❌ Target email is required! Pass --to <email@company.com>');
   process.exit(1);
 }
 
-if (!smtpUser || !smtpPass) {
-  console.log('\n⚠️ SMTP credentials not configured in .env!');
-  console.log('   Add SMTP_USER=your_email@gmail.com and SMTP_PASS=your_app_password to .env');
-  console.log('   (Simulating email generation for testing...)\n');
-}
-
-// Build professional email body
 const emailSubject = `Application: ${jobTitle} — Ghaith Oueslati`;
 const emailBodyText = `Dear Hiring Team at ${company},
 
@@ -73,7 +78,7 @@ Key Highlights of my experience:
 • Built an AI-powered test generation agent (5,200+ lines) achieving 75%+ unit test coverage with Vertex AI.
 • Migrated 38+ CI/CD workflows to GitLab CI/CD and 8 microservices to Azure Container Apps.
 
-Please find my customized Resume/CV and Cover Letter attached for your review. I look forward to the opportunity to discuss how my background aligns with ${company}'s goals.
+Please find my customized Resume/CV and Cover Letter attached for your review. I look forward to discussing how my background aligns with ${company}'s goals.
 
 Best regards,
 
@@ -81,23 +86,11 @@ Ghaith Oueslati
 DevSecOps & Backend Engineer
 Degree Candidate in Computer Engineering (ESPRIT 2026)
 Phone: +216 94854835
-Email: ghaythweslaty002@gmail.com
+Email: ${fromEmail}
 LinkedIn: linkedin.com/in/ghayth-weslati
 GitHub: github.com/ghayth002`;
 
 async function sendApplicationEmail() {
-  if (!smtpUser || !smtpPass) {
-    console.log('📝 DRAFT EMAIL GENERATED SUCCESSFULLY:');
-    console.log('----------------------------------------------------');
-    console.log(`TO: ${targetEmail}`);
-    console.log(`SUBJECT: ${emailSubject}`);
-    console.log('BODY:\n' + emailBodyText);
-    console.log('----------------------------------------------------');
-    console.log('✓ Attached: CV PDF + Cover Letter PDF');
-    console.log('\n✨ Configure SMTP credentials in .env to enable 1-click automatic sending!');
-    return;
-  }
-
   const transporter = nodemailer.createTransport({
     host: smtpHost,
     port: smtpPort,
@@ -116,7 +109,7 @@ async function sendApplicationEmail() {
     attachments.push({ filename: `Cover_Letter_Ghaith_Oueslati.pdf`, path: customCoverPath });
   }
 
-  console.log('Sending email via SMTP...');
+  console.log('Sending email via Gmail SMTP...');
   const info = await transporter.sendMail({
     from: `Ghaith Oueslati <${fromEmail}>`,
     to: targetEmail,
@@ -126,6 +119,8 @@ async function sendApplicationEmail() {
   });
 
   console.log(`\n✅ EMAIL SENT SUCCESSFULLY! Message ID: ${info.messageId}`);
+  console.log(`📧 Sent to: ${targetEmail}`);
+  console.log(`📄 Attached: ${attachments.map(a => a.filename).join(', ')}\n`);
 }
 
 sendApplicationEmail().catch(console.error);
