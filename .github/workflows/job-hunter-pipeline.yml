@@ -1,4 +1,4 @@
-name: CareerForge AI — Daily Cloud Job Hunter
+name: CareerForge AI — Daily Cloud Job Hunter & Hosted Dashboard
 
 on:
   schedule:
@@ -7,9 +7,14 @@ on:
   workflow_dispatch:
     # Allows manual trigger anytime from GitHub Actions tab
 
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
 jobs:
   job-hunter:
-    name: Run AI Job Search & Application Generator
+    name: Run AI Job Search, Generate PDFs & Deploy Dashboard
     runs-on: ubuntu-latest
 
     steps:
@@ -40,6 +45,17 @@ jobs:
           MIN_MATCH_SCORE: ${{ secrets.MIN_MATCH_SCORE || '70' }}
         run: |
           node scripts/cloud-job-hunter.js
+
+      - name: 📊 Build Static Dashboard Bundle for GitHub Pages
+        run: |
+          node scripts/build-static-dashboard.js
+
+      - name: 🌐 Deploy Hosted Dashboard to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public
+          force_orphan: true
 
       - name: 📄 Upload Generated PDF Applications
         uses: actions/upload-artifact@v4
