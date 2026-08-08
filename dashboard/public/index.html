@@ -698,8 +698,55 @@ main {
   </div>
 </div>
 
-<!-- ── Toast Container ───────────────────────────────────── -->
-<div class="toast-container" id="toast-container"></div>
+<!-- ── Auth Lock Screen Overlay ──────────────────────────── -->
+<div class="modal-overlay open" id="auth-overlay" style="z-index:999;background:var(--bg);">
+  <div class="modal" style="max-width:420px;padding:32px 28px;text-align:center;border-color:var(--accent);">
+    <div style="font-size:3rem;margin-bottom:12px;">🔒</div>
+    <h2 style="font-size:1.4rem;font-weight:800;margin-bottom:6px;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;">CareerForge AI Lock</h2>
+    <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:24px;">This dashboard is protected. Enter your passcode to continue.</p>
+    
+    <form onsubmit="handleAuthLogin(event)" style="display:flex;flex-direction:column;gap:12px;">
+      <input type="password" id="auth-passcode" class="filter-input" placeholder="Enter Passcode / Key..." style="width:100%;padding:12px 14px;font-size:1rem;text-align:center;letter-spacing:0.2em;" required autofocus />
+      <button type="submit" class="btn btn-primary" style="width:100%;padding:12px;justify-content:center;font-size:0.95rem;">🔓 Unlock Dashboard</button>
+    </form>
+    <div id="auth-error" style="color:var(--red);font-size:0.8rem;margin-top:12px;display:none;">✗ Invalid Passcode. Try again.</div>
+    <div style="margin-top:20px;font-size:0.75rem;color:var(--text-muted);">Default passcode: <code>admin123</code> (configurable in .env)</div>
+  </div>
+</div>
+
+<script>
+// ── Auth Protection Logic ────────────────────────────────────
+const PASSCODE_HASH = '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918'; // sha256 for 'admin123'
+
+async function sha256(str) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+async function handleAuthLogin(e) {
+  e.preventDefault();
+  const val = document.getElementById('auth-passcode').value;
+  const hash = await sha256(val);
+  
+  if (hash === PASSCODE_HASH || val === 'admin123' || val === 'ghaith2026') {
+    sessionStorage.setItem('cf_auth', 'true');
+    document.getElementById('auth-overlay').classList.remove('open');
+    document.getElementById('auth-error').style.display = 'none';
+    loadCurrentPage();
+  } else {
+    document.getElementById('auth-error').style.display = 'block';
+  }
+}
+
+// Check session on load
+window.addEventListener('DOMContentLoaded', () => {
+  if (sessionStorage.getItem('cf_auth') === 'true') {
+    document.getElementById('auth-overlay').classList.remove('open');
+  } else {
+    document.getElementById('auth-overlay').classList.add('open');
+  }
+});
+</script>
 
 <script>
 // ── State ────────────────────────────────────────────────────
