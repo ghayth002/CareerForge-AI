@@ -1,0 +1,249 @@
+{
+  "name": "01 - Job Discovery",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "manual-trigger",
+      "name": "Manual / Sub-workflow Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Determine which sources to fetch from\nconst sources = ['remoteok', 'weworkremotely', 'remotive', 'arbeitnow'];\nreturn sources.map(s => ({ json: { source: s } }));"
+      },
+      "id": "list-sources",
+      "name": "List Enabled Sources",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://remoteok.com/api",
+        "options": {
+          "timeout": 30000,
+          "headers": {
+            "User-Agent": "AI-Job-Hunter/1.0 (personal job search automation)"
+          }
+        }
+      },
+      "id": "fetch-remoteok",
+      "name": "Fetch RemoteOK",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [700, 100]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Normalize RemoteOK jobs\nconst items = $input.all();\nconst rawJobs = items[0].json;\nif (!Array.isArray(rawJobs)) return [];\n\nconst roleKeywords = ['devops', 'devsecops', 'backend', 'cloud', 'platform', 'infrastructure', 'sre', 'site reliability', 'engineer', 'developer', 'fullstack', 'full-stack'];\n\nconst normalized = [];\nfor (const job of rawJobs) {\n  if (!job.company || !job.position) continue; // skip legal notice first entry\n  \n  const title = (job.position || '').toLowerCase();\n  const isRelevant = roleKeywords.some(k => title.includes(k));\n  if (!isRelevant) continue;\n\n  const description = [\n    job.description || '',\n    (job.tags || []).join(', ')\n  ].join(' ').substring(0, 6000);\n\n  normalized.push({\n    json: {\n      source: 'remoteok',\n      source_job_id: String(job.id || job.slug || ''),\n      company: job.company || 'Unknown',\n      title: job.position || '',\n      location: 'Remote',\n      remote: true,\n      employment_type: 'full-time',\n      url: job.url || `https://remoteok.com/remote-jobs/${job.slug}`,\n      description: description,\n      salary: job.salary || null,\n      posted_at: job.date ? new Date(job.date * 1000).toISOString() : null,\n      language: 'en',\n      skills: job.tags || []\n    }\n  });\n}\nreturn normalized;"
+      },
+      "id": "normalize-remoteok",
+      "name": "Normalize RemoteOK",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [920, 100]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://remotive.com/api/remote-jobs?category=software-dev&limit=100",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "fetch-remotive",
+      "name": "Fetch Remotive",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [700, 260]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Normalize Remotive jobs\nconst raw = $input.first().json;\nconst jobs = raw.jobs || [];\nconst roleKeywords = ['devops', 'devsecops', 'backend', 'cloud', 'platform', 'infrastructure', 'sre', 'engineer', 'developer', 'fullstack'];\n\nreturn jobs\n  .filter(j => {\n    const title = (j.job_title || j.title || '').toLowerCase();\n    return roleKeywords.some(k => title.includes(k));\n  })\n  .map(j => ({\n    json: {\n      source: 'remotive',\n      source_job_id: String(j.id),\n      company: j.company_name || 'Unknown',\n      title: j.job_title || j.title || '',\n      location: j.candidate_required_location || 'Remote',\n      remote: true,\n      employment_type: (j.job_type || 'full-time').toLowerCase().replace('_', '-'),\n      url: j.url || '',\n      description: (j.description || '').replace(/<[^>]+>/g, ' ').substring(0, 6000),\n      salary: j.salary || null,\n      posted_at: j.publication_date ? new Date(j.publication_date).toISOString() : null,\n      language: 'en',\n      skills: j.tags || []\n    }\n  }));"
+      },
+      "id": "normalize-remotive",
+      "name": "Normalize Remotive",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [920, 260]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://www.arbeitnow.com/api/job-board-api?page=1",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "fetch-arbeitnow",
+      "name": "Fetch Arbeitnow (EU)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [700, 420]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Normalize Arbeitnow jobs (EU-focused)\nconst raw = $input.first().json;\nconst jobs = raw.data || [];\nconst roleKeywords = ['devops', 'devsecops', 'backend', 'cloud', 'platform', 'infrastructure', 'sre', 'engineer', 'developer', 'fullstack', 'python', 'node', 'java'];\n\nreturn jobs\n  .filter(j => {\n    const title = (j.title || '').toLowerCase();\n    const desc = (j.description || '').toLowerCase();\n    const isRelevant = roleKeywords.some(k => title.includes(k));\n    const isEnglish = !desc.includes('sprichst du') && !desc.includes('vous parlez');\n    return isRelevant && isEnglish;\n  })\n  .map(j => ({\n    json: {\n      source: 'arbeitnow',\n      source_job_id: j.slug || String(j.id || ''),\n      company: j.company_name || 'Unknown',\n      title: j.title || '',\n      location: j.location || 'Europe',\n      remote: j.remote || false,\n      employment_type: 'full-time',\n      url: j.url || `https://www.arbeitnow.com/jobs/${j.slug}`,\n      description: (j.description || '').replace(/<[^>]+>/g, ' ').substring(0, 6000),\n      salary: null,\n      posted_at: j.created_at ? new Date(j.created_at * 1000).toISOString() : null,\n      language: 'en',\n      skills: j.tags || []\n    }\n  }));"
+      },
+      "id": "normalize-arbeitnow",
+      "name": "Normalize Arbeitnow",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [920, 420]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://weworkremotely.com/categories/remote-devops-sysadmin-jobs.rss",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "fetch-wwr-devops",
+      "name": "Fetch WWR DevOps RSS",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [700, 580]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://weworkremotely.com/categories/remote-back-end-programming-jobs.rss",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "fetch-wwr-backend",
+      "name": "Fetch WWR Backend RSS",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [700, 700]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Normalize WWR RSS feeds (both devops + backend)\nconst allItems = $input.all();\nconst normalized = [];\n\nfor (const item of allItems) {\n  const xmlText = item.json.data || '';\n  \n  // Simple XML parsing for RSS\n  const itemMatches = xmlText.matchAll(/<item>([\\s\\S]*?)<\\/item>/g);\n  \n  for (const match of itemMatches) {\n    const itemXml = match[1];\n    \n    const getField = (tag) => {\n      const m = itemXml.match(new RegExp(`<${tag}[^>]*><!\\\\[CDATA\\\\[([\\\\s\\\\S]*?)\\\\]\\\\]><\\/${tag}>|<${tag}[^>]*>([^<]*)<\\/${tag}>`));\n      return m ? (m[1] || m[2] || '').trim() : '';\n    };\n    \n    const title = getField('title');\n    const link = getField('link');\n    const company = getField('region') || 'Unknown';\n    const pubDate = getField('pubDate');\n    const description = getField('description').replace(/<[^>]+>/g, ' ').substring(0, 6000);\n    \n    if (!title || !link) continue;\n    \n    // Extract company from title (format: \"Company: Job Title\")\n    let companyName = 'Unknown';\n    let jobTitle = title;\n    if (title.includes(': ')) {\n      const parts = title.split(': ');\n      companyName = parts[0];\n      jobTitle = parts.slice(1).join(': ');\n    }\n    \n    normalized.push({\n      json: {\n        source: 'weworkremotely',\n        source_job_id: link,\n        company: companyName,\n        title: jobTitle,\n        location: 'Remote',\n        remote: true,\n        employment_type: 'full-time',\n        url: link,\n        description: description,\n        salary: null,\n        posted_at: pubDate ? new Date(pubDate).toISOString() : null,\n        language: 'en',\n        skills: []\n      }\n    });\n  }\n}\n\nreturn normalized;"
+      },
+      "id": "normalize-wwr",
+      "name": "Normalize WWR",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [920, 640]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Merge all normalized jobs from all sources\nconst allJobs = $input.all();\nconsole.log(`Total normalized jobs: ${allJobs.length}`);\nreturn allJobs;"
+      },
+      "id": "merge-jobs",
+      "name": "Merge All Jobs",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1140, 380]
+    },
+    {
+      "parameters": {
+        "jsCode": "// ── DETERMINISTIC PRE-FILTER ──────────────────────────────────\n// Run before AI to save API quota\n\nconst EXCLUDED_ROLES = [\n  'frontend developer', 'ui designer', 'ux designer', 'graphic designer',\n  'product manager', 'data scientist', 'machine learning researcher',\n  'ios developer', 'android developer', 'qa engineer', 'sales engineer',\n  'account manager', 'scrum master', 'agile coach', 'project manager'\n];\n\nconst REQUIRED_ROLE_KEYWORDS = [\n  'devops', 'devsecops', 'backend', 'cloud', 'platform', 'infrastructure',\n  'sre', 'site reliability', 'devops', 'ci/cd', 'cicd', 'pipeline',\n  'software engineer', 'software developer', 'full stack', 'fullstack',\n  'node', 'python', 'java', 'nestjs', 'docker', 'kubernetes', 'terraform',\n  'aws', 'azure', 'gcp', 'engineer'\n];\n\nconst SENIOR_ONLY_TERMS = ['10+ years', '8+ years', '7+ years', 'vp of', 'chief ', 'c-level', 'director of'];\n\nconst MANDATORY_NON_ENGLISH = ['sprichst du', 'nous cherchons', 'vous devez', 'hablas', 'parli italiano', 'vous parlez'];\n\nconst allJobs = $input.all();\nconst passed = [];\nconst rejected = [];\n\nfor (const item of allJobs) {\n  const job = item.json;\n  const title = (job.title || '').toLowerCase();\n  const desc = (job.description || '').toLowerCase();\n  const combined = `${title} ${desc}`;\n  \n  // 1. Check if role is explicitly excluded\n  if (EXCLUDED_ROLES.some(r => title.includes(r))) {\n    rejected.push({ ...job, filter_reason: 'Excluded role type' });\n    continue;\n  }\n  \n  // 2. Must have at least one relevant keyword\n  const hasRelevantKeyword = REQUIRED_ROLE_KEYWORDS.some(k => title.includes(k) || desc.substring(0, 500).includes(k));\n  if (!hasRelevantKeyword) {\n    rejected.push({ ...job, filter_reason: 'No relevant role keywords found' });\n    continue;\n  }\n  \n  // 3. Reject if explicitly too senior\n  if (SENIOR_ONLY_TERMS.some(t => combined.includes(t))) {\n    rejected.push({ ...job, filter_reason: 'Requires too much experience' });\n    continue;\n  }\n  \n  // 4. Reject if mandatory non-English language\n  if (MANDATORY_NON_ENGLISH.some(t => combined.includes(t))) {\n    rejected.push({ ...job, filter_reason: 'Mandatory non-English language' });\n    continue;\n  }\n  \n  // 5. Must have valid URL\n  if (!job.url || !job.url.startsWith('http')) {\n    rejected.push({ ...job, filter_reason: 'Invalid or missing URL' });\n    continue;\n  }\n  \n  // Passed all filters!\n  passed.push({ json: { ...job, filter_passed: true } });\n}\n\nconsole.log(`Pre-filter: ${passed.length} passed, ${rejected.length} rejected from ${allJobs.length} total`);\nreturn passed;"
+      },
+      "id": "pre-filter",
+      "name": "Pre-Filter Jobs",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1360, 380]
+    },
+    {
+      "parameters": {
+        "jsCode": "// ── DEDUPLICATION ────────────────────────────────────────────\n// Check which jobs are already in DB by collecting source+id pairs\n// Return jobs that need to be inserted\nconst jobs = $input.all();\nreturn jobs.map(j => ({\n  json: {\n    ...j.json,\n    dedup_key: `${j.json.source}::${j.json.source_job_id || j.json.url}`\n  }\n}));"
+      },
+      "id": "prepare-dedup",
+      "name": "Prepare Deduplication Keys",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1580, 380]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO jobs (\n  source, source_job_id, company, title, location, remote,\n  employment_type, url, description, salary, posted_at,\n  language, skills, status, filter_passed\n) VALUES (\n  '{{ $json.source }}',\n  '{{ $json.source_job_id }}',\n  '{{ $json.company.replace(/'/g, \"''\") }}',\n  '{{ $json.title.replace(/'/g, \"''\") }}',\n  '{{ ($json.location || \"\").replace(/'/g, \"''\") }}',\n  {{ $json.remote || false }},\n  '{{ $json.employment_type || \"full-time\" }}',\n  '{{ $json.url }}',\n  '{{ ($json.description || \"\").replace(/'/g, \"''\").substring(0, 6000) }}',\n  {{ $json.salary ? \"'\" + $json.salary + \"'\" : 'NULL' }},\n  {{ $json.posted_at ? \"'\" + $json.posted_at + \"'\" : 'NULL' }},\n  'en',\n  '{{ JSON.stringify($json.skills || []) }}'::jsonb,\n  'DISCOVERED',\n  true\n)\nON CONFLICT (source, source_job_id) DO NOTHING\nRETURNING id, company, title;"
+      },
+      "id": "upsert-jobs",
+      "name": "Upsert Jobs to DB",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [1800, 380],
+      "credentials": {
+        "postgres": {
+          "name": "PostgreSQL Job Hunter"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const results = $input.all();\nconst inserted = results.filter(r => r.json.id);\nconsole.log(`Inserted ${inserted.length} new jobs`);\nreturn [{ json: { jobs_inserted: inserted.length, total_processed: results.length } }];"
+      },
+      "id": "log-discovery-result",
+      "name": "Log Discovery Result",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2020, 380]
+    }
+  ],
+  "connections": {
+    "Manual / Sub-workflow Trigger": {
+      "main": [[{"node": "List Enabled Sources", "type": "main", "index": 0}]]
+    },
+    "List Enabled Sources": {
+      "main": [
+        [{"node": "Fetch RemoteOK", "type": "main", "index": 0}],
+        [{"node": "Fetch Remotive", "type": "main", "index": 0}],
+        [{"node": "Fetch Arbeitnow (EU)", "type": "main", "index": 0}],
+        [{"node": "Fetch WWR DevOps RSS", "type": "main", "index": 0}],
+        [{"node": "Fetch WWR Backend RSS", "type": "main", "index": 0}]
+      ]
+    },
+    "Fetch RemoteOK": {
+      "main": [[{"node": "Normalize RemoteOK", "type": "main", "index": 0}]]
+    },
+    "Normalize RemoteOK": {
+      "main": [[{"node": "Merge All Jobs", "type": "main", "index": 0}]]
+    },
+    "Fetch Remotive": {
+      "main": [[{"node": "Normalize Remotive", "type": "main", "index": 0}]]
+    },
+    "Normalize Remotive": {
+      "main": [[{"node": "Merge All Jobs", "type": "main", "index": 0}]]
+    },
+    "Fetch Arbeitnow (EU)": {
+      "main": [[{"node": "Normalize Arbeitnow", "type": "main", "index": 0}]]
+    },
+    "Normalize Arbeitnow": {
+      "main": [[{"node": "Merge All Jobs", "type": "main", "index": 0}]]
+    },
+    "Fetch WWR DevOps RSS": {
+      "main": [[{"node": "Normalize WWR", "type": "main", "index": 0}]]
+    },
+    "Fetch WWR Backend RSS": {
+      "main": [[{"node": "Normalize WWR", "type": "main", "index": 0}]]
+    },
+    "Normalize WWR": {
+      "main": [[{"node": "Merge All Jobs", "type": "main", "index": 0}]]
+    },
+    "Merge All Jobs": {
+      "main": [[{"node": "Pre-Filter Jobs", "type": "main", "index": 0}]]
+    },
+    "Pre-Filter Jobs": {
+      "main": [[{"node": "Prepare Deduplication Keys", "type": "main", "index": 0}]]
+    },
+    "Prepare Deduplication Keys": {
+      "main": [[{"node": "Upsert Jobs to DB", "type": "main", "index": 0}]]
+    },
+    "Upsert Jobs to DB": {
+      "main": [[{"node": "Log Discovery Result", "type": "main", "index": 0}]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": ["job-hunter", "discovery"]
+}

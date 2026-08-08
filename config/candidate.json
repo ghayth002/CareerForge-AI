@@ -1,0 +1,141 @@
+{
+  "_comment": "Candidate configuration - edit this file to customize your job search",
+  "candidate": {
+    "name": "Ghaith Oueslati",
+    "email": "ghaythweslaty002@gmail.com",
+    "linkedin": "ghayth-weslati",
+    "github": "ghayth002",
+    "location": "Tunisia",
+    "nationality": "Tunisian",
+    "languages": ["Arabic", "French", "English", "Italian"]
+  },
+  "target_roles": [
+    "DevSecOps Engineer",
+    "DevOps Engineer",
+    "Backend Engineer",
+    "Cloud Engineer",
+    "Platform Engineer",
+    "Software Engineer",
+    "Backend Cloud Engineer",
+    "SRE",
+    "Infrastructure Engineer",
+    "CI/CD Engineer",
+    "MLOps Engineer"
+  ],
+  "role_keywords": [
+    "devsecops", "devops", "backend", "cloud", "platform", "infrastructure",
+    "sre", "site reliability", "cicd", "ci/cd", "pipeline", "kubernetes",
+    "docker", "terraform", "aws", "azure", "gcp", "nestjs", "node", "python"
+  ],
+  "excluded_roles": [
+    "frontend developer",
+    "ui designer",
+    "ux designer",
+    "graphic designer",
+    "product manager",
+    "data scientist",
+    "machine learning researcher",
+    "mobile developer",
+    "ios developer",
+    "android developer",
+    "qa engineer",
+    "sales engineer",
+    "account manager"
+  ],
+  "seniority_targets": ["junior", "mid", "mid-level", "intermediate", "entry-level"],
+  "seniority_max": "senior",
+  "minimum_match_score": 70,
+  "preferred_match_score": 80,
+  "english_required": true,
+  "allowed_languages": ["English"],
+  "remote_preferred": true,
+  "worldwide": true,
+  "target_countries": [
+    "Remote",
+    "Europe",
+    "UK",
+    "Germany",
+    "Netherlands",
+    "France",
+    "Italy",
+    "Spain",
+    "Switzerland",
+    "Canada",
+    "USA",
+    "Portugal",
+    "Poland",
+    "Czech Republic",
+    "Sweden",
+    "Norway",
+    "Denmark",
+    "Finland",
+    "Ireland",
+    "Belgium",
+    "Austria"
+  ],
+  "skills": {
+    "languages": ["JavaScript", "TypeScript", "Python", "Java", "C#", "C++", "C", "PL/SQL", "SQL"],
+    "frameworks": ["React", "Angular", "Node.js", "NestJS", "Spring Boot", ".NET", "Flutter", "Django", "Laravel", "Symfony"],
+    "databases": ["MySQL", "MongoDB", "PostgreSQL"],
+    "devops_cloud": [
+      "Docker", "Terraform", "GitHub Actions", "GitLab CI/CD",
+      "AWS", "EC2", "Lambda", "Secrets Manager",
+      "Azure", "Azure Container Apps", "Azure Front Door", "Azure Container Registry", "ACR",
+      "GCP", "Cloud Run", "Google Artifact Registry", "GAR"
+    ],
+    "security": ["OWASP ZAP", "Trivy", "SonarQube", "DevSecOps", "SAST", "DAST", "SCA"],
+    "tools": ["Jenkins", "Git", "Swagger", "Postman", "Grafana", "Figma", "Vertex AI", "Google Gemini API"],
+    "concepts": [
+      "REST APIs", "Microservices", "CI/CD", "Infrastructure as Code", "IaC",
+      "JWT", "Keycloak", "MQTT", "Agile", "Scrum", "Blue/Green Deployments"
+    ]
+  },
+  "experience_summary": {
+    "years_total": 1,
+    "internships": [
+      {
+        "company": "SeekMake",
+        "title": "DevSecOps & Backend Engineer",
+        "start": "2026-01",
+        "end": "present",
+        "highlights": [
+          "Cut manual security triage time by 60% integrating Google Gemini API into CI/CD (OWASP ZAP + Trivy)",
+          "Reduced backend API response latency by 83% via MongoDB aggregation optimization and caching",
+          "Built AI-powered test generation agent (5,200+ lines) with Vertex AI, achieving 75%+ unit test coverage",
+          "Migrated 38+ CI/CD workflows from GitHub Actions to GitLab CI/CD",
+          "Migrated 8 of 12 microservices from GCP Cloud Run to Azure Container Apps",
+          "Configured Azure Front Door for production routing",
+          "88% first-submission pull request approval rate in 6-engineer Agile team"
+        ]
+      },
+      {
+        "company": "Cube IT",
+        "title": "Mobile Developer Intern",
+        "start": "2025-06",
+        "end": "present",
+        "highlights": [
+          "Improved travel time estimation accuracy by 15% integrating mapping APIs in cross-platform Flutter transport app",
+          "Built and unit-tested core booking and payment-gateway features in Flutter and Spring Boot"
+        ]
+      },
+      {
+        "company": "Barmej Tech",
+        "title": "Fullstack Developer Intern",
+        "start": "2024-06",
+        "end": "2024-08",
+        "highlights": [
+          "Boosted backend performance by 30% by optimizing SQL queries and implementing caching on HR API endpoints",
+          "Delivered HR leave-tracking and reporting features using REST APIs secured with JWT authentication"
+        ]
+      }
+    ]
+  },
+  "education": {
+    "university": "ESPRIT",
+    "degree": "B.Eng. in Computer Engineering",
+    "specialization": "TWIN - Web & Internet Technologies",
+    "graduation": "2026",
+    "location": "Ariana, Tunisia"
+  },
+  "visa_notes": "Tunisian national - may need visa sponsorship for most countries. EU Blue Card eligible route. Open to relocation."
+}

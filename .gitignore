@@ -1,0 +1,42 @@
+# Secrets
+.env
+*.env.local
+
+# Data (don't commit personal data)
+data/jobs/
+data/applications/
+data/cv/customized/
+
+# Logs
+logs/
+*.log
+
+# Node
+node_modules/
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker volumes (managed by Docker)
+postgres-data/
+n8n-data/
+
+# IDE
+.vscode/settings.json
+.idea/
+
+# Backups
+backups/*.sql
+backups/*.tar.gz
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+
+# Temp
+tmp/
+temp/

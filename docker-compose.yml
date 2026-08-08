@@ -1,0 +1,144 @@
+version: "3.9"
+
+# ==================================================
+# AI Job Hunter - Docker Compose
+# Start with: docker compose up -d
+# ==================================================
+
+services:
+  # ── PostgreSQL ────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: ai-job-hunter-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-jobhunter}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+      POSTGRES_DB: ${POSTGRES_DB:-ai_job_hunter}
+      TZ: ${TZ:-Europe/London}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - ./database/seed.sql:/docker-entrypoint-initdb.d/02-seed.sql:ro
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-jobhunter} -d ${POSTGRES_DB:-ai_job_hunter}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - job-hunter-net
+
+  # ── n8n ────────────────────────────────────────────
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: ai-job-hunter-n8n
+    restart: unless-stopped
+    environment:
+      # Auth
+      N8N_BASIC_AUTH_ACTIVE: "true"
+      N8N_BASIC_AUTH_USER: ${N8N_BASIC_AUTH_USER:-admin}
+      N8N_BASIC_AUTH_PASSWORD: ${N8N_BASIC_AUTH_PASSWORD:-changeme}
+      N8N_ENCRYPTION_KEY: ${N8N_ENCRYPTION_KEY:-changeme_please_generate_proper_key}
+      # Host
+      N8N_HOST: ${N8N_HOST:-localhost}
+      N8N_PORT: ${N8N_PORT:-5678}
+      N8N_PROTOCOL: ${N8N_PROTOCOL:-http}
+      WEBHOOK_URL: ${WEBHOOK_URL:-http://localhost:5678/}
+      # Database (n8n uses its own SQLite inside the volume by default)
+      # You can switch to Postgres by uncommenting below:
+      # DB_TYPE: postgresdb
+      # DB_POSTGRESDB_HOST: postgres
+      # DB_POSTGRESDB_PORT: 5432
+      # DB_POSTGRESDB_DATABASE: n8n
+      # DB_POSTGRESDB_USER: ${POSTGRES_USER}
+      # DB_POSTGRESDB_PASSWORD: ${POSTGRES_PASSWORD}
+      # Execution settings
+      EXECUTIONS_PROCESS: main
+      EXECUTIONS_TIMEOUT: 3600
+      EXECUTIONS_TIMEOUT_MAX: 7200
+      N8N_LOG_LEVEL: info
+      # Generic timezone
+      GENERIC_TIMEZONE: ${TZ:-Europe/London}
+      TZ: ${TZ:-Europe/London}
+      # Pass job hunter env vars to n8n for use in HTTP Request nodes
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY}
+      OPENROUTER_MODEL: ${OPENROUTER_MODEL:-meta-llama/llama-3.1-8b-instruct:free}
+      OPENROUTER_FALLBACK_MODEL: ${OPENROUTER_FALLBACK_MODEL:-mistralai/mistral-7b-instruct:free}
+      OPENROUTER_BASE_URL: ${OPENROUTER_BASE_URL:-https://openrouter.ai/api/v1}
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
+      TELEGRAM_CHAT_ID: ${TELEGRAM_CHAT_ID}
+      POSTGRES_USER: ${POSTGRES_USER:-jobhunter}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+      POSTGRES_DB: ${POSTGRES_DB:-ai_job_hunter}
+      MAX_AI_REQUESTS_PER_DAY: ${MAX_AI_REQUESTS_PER_DAY:-50}
+      MIN_MATCH_SCORE: ${MIN_MATCH_SCORE:-70}
+      PREFERRED_MATCH_SCORE: ${PREFERRED_MATCH_SCORE:-80}
+      JOB_DESCRIPTION_MAX_CHARS: ${JOB_DESCRIPTION_MAX_CHARS:-6000}
+      ENABLE_MOCK_MODE: ${ENABLE_MOCK_MODE:-false}
+    ports:
+      - "5678:5678"
+    volumes:
+      - n8n-data:/home/node/.n8n
+      - ./n8n/workflows:/home/node/workflows:ro
+      - ./n8n/prompts:/home/node/prompts:ro
+      - ./data:/home/node/data
+      - ./config:/home/node/config:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:5678/healthz || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    networks:
+      - job-hunter-net
+
+  # ── Dashboard ──────────────────────────────────────
+  dashboard:
+    build:
+      context: ./dashboard
+      dockerfile: Dockerfile
+    container_name: ai-job-hunter-dashboard
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-jobhunter}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+      POSTGRES_DB: ${POSTGRES_DB:-ai_job_hunter}
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      DASHBOARD_PORT: ${DASHBOARD_PORT:-3000}
+      DASHBOARD_SECRET: ${DASHBOARD_SECRET:-changeme}
+      TZ: ${TZ:-Europe/London}
+    ports:
+      - "${DASHBOARD_PORT:-3000}:3000"
+    volumes:
+      - ./data:/app/data
+      - ./config:/app/config:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3000/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    networks:
+      - job-hunter-net
+
+# ── Volumes ──────────────────────────────────────────
+volumes:
+  postgres-data:
+    driver: local
+  n8n-data:
+    driver: local
+
+# ── Networks ─────────────────────────────────────────
+networks:
+  job-hunter-net:
+    driver: bridge

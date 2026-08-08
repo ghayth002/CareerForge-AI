@@ -1,0 +1,109 @@
+{
+  "name": "07 - Daily Summary",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 24,
+              "triggerAtHour": 20
+            }
+          ]
+        }
+      },
+      "id": "evening-cron",
+      "name": "Evening Trigger (8PM)",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT\n  (SELECT COUNT(*) FROM jobs WHERE discovered_at::date = CURRENT_DATE) as discovered_today,\n  (SELECT COUNT(*) FROM jobs) as total_jobs,\n  (SELECT COUNT(*) FROM jobs WHERE match_score >= 70) as matched_70,\n  (SELECT COUNT(*) FROM jobs WHERE match_score >= 80) as matched_80,\n  (SELECT COUNT(*) FROM jobs WHERE match_score >= 90) as matched_90,\n  (SELECT COUNT(*) FROM applications WHERE status = 'READY') as apps_ready,\n  (SELECT COUNT(*) FROM applications WHERE status = 'APPLIED') as apps_submitted,\n  (SELECT COUNT(*) FROM applications WHERE status = 'INTERVIEW') as interviews,\n  (SELECT requests_made FROM ai_usage WHERE date = CURRENT_DATE) as ai_calls_today,\n  (SELECT requests_limit FROM ai_usage WHERE date = CURRENT_DATE) as ai_limit;"
+      },
+      "id": "get-stats",
+      "name": "Get Daily Stats",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [460, 300],
+      "credentials": {
+        "postgres": {
+          "name": "PostgreSQL Job Hunter"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT j.company, j.title, j.location, j.remote, j.match_score, j.url\nFROM jobs j\nWHERE j.discovered_at::date = CURRENT_DATE\n  AND j.match_score >= 70\nORDER BY j.match_score DESC\nLIMIT 5;"
+      },
+      "id": "get-top-jobs",
+      "name": "Get Top Jobs Today",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [460, 480],
+      "credentials": {
+        "postgres": {
+          "name": "PostgreSQL Job Hunter"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const stats = $('Get Daily Stats').first().json;\nconst topJobs = $('Get Top Jobs Today').all();\n\nconst topJobsText = topJobs.length > 0\n  ? topJobs.map((j, i) => {\n      const loc = j.json.remote ? '🌍 Remote' : j.json.location;\n      return `${i+1}. *${j.json.company}* — ${j.json.title}\\n   ${loc} | ${Math.round(j.json.match_score)}% match`;\n    }).join('\\n')\n  : 'No strong matches found today.';\n\nconst aiUsage = stats.ai_calls_today || 0;\nconst aiLimit = stats.ai_limit || 50;\nconst aiBar = `${aiUsage}/${aiLimit}`;\n\nconst message = `📊 *DAILY JOB REPORT* — ${new Date().toLocaleDateString('en-GB')}\n\n📥 Jobs discovered today: *${stats.discovered_today || 0}*\n📦 Total in database: *${stats.total_jobs || 0}*\n\n🎯 Match Results:\n  ≥70% match: *${stats.matched_70 || 0}*\n  ≥80% match: *${stats.matched_80 || 0}*\n  ≥90% match: *${stats.matched_90 || 0}*\n\n📝 Applications:\n  Ready to submit: *${stats.apps_ready || 0}*\n  Submitted: *${stats.apps_submitted || 0}*\n  Interviews: *${stats.interviews || 0}*\n\n🤖 AI Quota: ${aiBar} requests used\n\n🏆 *Top Matches Today:*\n${topJobsText}\n\n🔗 Dashboard: http://localhost:3000`;\n\nreturn [{ json: { message } }];"
+      },
+      "id": "build-summary",
+      "name": "Build Summary Message",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [700, 380]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "sendMessage",
+        "chatId": "={{ $env.TELEGRAM_CHAT_ID }}",
+        "text": "={{ $json.message }}",
+        "additionalFields": {
+          "parse_mode": "Markdown",
+          "disable_web_page_preview": true
+        }
+      },
+      "id": "send-summary",
+      "name": "Send Daily Summary",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [920, 380],
+      "credentials": {
+        "telegramApi": {
+          "name": "Telegram Job Hunter Bot"
+        }
+      },
+      "continueOnFail": true
+    }
+  ],
+  "connections": {
+    "Evening Trigger (8PM)": {
+      "main": [
+        [{"node": "Get Daily Stats", "type": "main", "index": 0}],
+        [{"node": "Get Top Jobs Today", "type": "main", "index": 0}]
+      ]
+    },
+    "Get Daily Stats": {
+      "main": [[{"node": "Build Summary Message", "type": "main", "index": 0}]]
+    },
+    "Get Top Jobs Today": {
+      "main": [[{"node": "Build Summary Message", "type": "main", "index": 0}]]
+    },
+    "Build Summary Message": {
+      "main": [[{"node": "Send Daily Summary", "type": "main", "index": 0}]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": ["job-hunter", "daily-summary"]
+}

@@ -1,0 +1,108 @@
+{
+  "name": "06 - Telegram Notifications",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "trigger",
+      "name": "Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT\n  j.id as job_id,\n  j.company, j.title, j.location, j.remote, j.url,\n  j.match_score, j.technical_score, j.experience_score,\n  j.strengths, j.missing_skills, j.salary,\n  a.cover_note, a.custom_summary, a.id as application_id\nFROM jobs j\nLEFT JOIN applications a ON a.job_id = j.id\nWHERE j.status = 'MATCHED'\n  AND j.match_score >= {{ $env.MIN_MATCH_SCORE || 70 }}\n  AND j.discovered_at >= NOW() - INTERVAL '25 hours'\nORDER BY j.match_score DESC\nLIMIT 15;"
+      },
+      "id": "fetch-new-matches",
+      "name": "Fetch New Matches",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [460, 300],
+      "credentials": {
+        "postgres": {
+          "name": "PostgreSQL Job Hunter"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Build Telegram message for each matched job\nconst job = $json;\n\nconst strengths = Array.isArray(job.strengths) \n  ? job.strengths.slice(0, 3).join('\\n  • ')\n  : (job.strengths || 'See full analysis');\n\nconst missing = Array.isArray(job.missing_skills) && job.missing_skills.length > 0\n  ? job.missing_skills.slice(0, 3).join(', ')\n  : 'None identified';\n\nconst scoreBar = (score) => {\n  const filled = Math.round(score / 10);\n  return '█'.repeat(filled) + '░'.repeat(10 - filled) + ` ${score}%`;\n};\n\nconst remoteTag = job.remote ? '🌍 Remote' : `📍 ${job.location || 'See listing'}`;\nconst salaryTag = job.salary ? `\\n💰 Salary: ${job.salary}` : '';\nconst tier = job.match_score >= 90 ? '🔥 EXCELLENT MATCH' \n           : job.match_score >= 80 ? '⭐ STRONG MATCH'\n           : '✅ GOOD MATCH';\n\nconst message = `${tier}\n\n🏢 *${job.company}*\n💼 ${job.title}\n${remoteTag}${salaryTag}\n\n📊 Match Scores:\n  Overall:   ${scoreBar(Math.round(job.match_score))}\n  Technical: ${scoreBar(Math.round(job.technical_score))}\n  Experience:${scoreBar(Math.round(job.experience_score))}\n\n✅ *Strengths:*\n  • ${strengths}\n\n⚠️ *Gaps:* ${missing}\n\n🔗 ${job.url}`;\n\nreturn [{\n  json: {\n    job_id: job.job_id,\n    message: message,\n    company: job.company,\n    title: job.title,\n    url: job.url,\n    match_score: job.match_score,\n    application_id: job.application_id\n  }\n}];"
+      },
+      "id": "format-messages",
+      "name": "Format Telegram Messages",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "sendMessage",
+        "chatId": "={{ $env.TELEGRAM_CHAT_ID }}",
+        "text": "={{ $json.message }}",
+        "additionalFields": {
+          "parse_mode": "Markdown",
+          "disable_web_page_preview": true,
+          "reply_markup": {
+            "inline_keyboard": [
+              [
+                {"text": "🔗 View Job", "url": "={{ $json.url }}"},
+                {"text": "📋 View Application", "url": "=http://localhost:3000/application/{{ $json.job_id }}"}
+              ],
+              [
+                {"text": "✅ Mark Applied", "callback_data": "=applied::{{ $json.job_id }}"},
+                {"text": "⏭ Skip", "callback_data": "=skip::{{ $json.job_id }}"}
+              ]
+            ]
+          }
+        }
+      },
+      "id": "send-telegram",
+      "name": "Send Telegram Notification",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [900, 300],
+      "credentials": {
+        "telegramApi": {
+          "name": "Telegram Job Hunter Bot"
+        }
+      },
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO pipeline_logs (source, job_id, operation, status, message)\nVALUES ('telegram', '{{ $('Fetch New Matches').item.json.job_id }}'::uuid,\n  'TELEGRAM_NOTIFICATION_SENT', 'SUCCESS',\n  'Notification sent for {{ $('Fetch New Matches').item.json.company }} - {{ $('Fetch New Matches').item.json.title }}')\nON CONFLICT DO NOTHING;"
+      },
+      "id": "log-notification",
+      "name": "Log Notification",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [1120, 300],
+      "credentials": {
+        "postgres": {
+          "name": "PostgreSQL Job Hunter"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Trigger": {
+      "main": [[{"node": "Fetch New Matches", "type": "main", "index": 0}]]
+    },
+    "Fetch New Matches": {
+      "main": [[{"node": "Format Telegram Messages", "type": "main", "index": 0}]]
+    },
+    "Format Telegram Messages": {
+      "main": [[{"node": "Send Telegram Notification", "type": "main", "index": 0}]]
+    },
+    "Send Telegram Notification": {
+      "main": [[{"node": "Log Notification", "type": "main", "index": 0}]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": ["job-hunter", "telegram"]
+}

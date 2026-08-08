@@ -1,0 +1,1106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AI Job Hunter — Dashboard</title>
+<meta name="description" content="AI-powered job hunting dashboard for Ghaith Oueslati. Track job matches, application packages, and pipeline activity." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+<style>
+/* ── Design Tokens ─────────────────────────────────────────── */
+:root {
+  --bg: #0a0d14;
+  --bg-card: #111722;
+  --bg-card-hover: #141d2b;
+  --bg-panel: #0d1424;
+  --border: #1e2d45;
+  --border-light: #253447;
+  --accent: #00d4ff;
+  --accent2: #7c3aed;
+  --accent3: #10b981;
+  --accent4: #f59e0b;
+  --red: #ef4444;
+  --text: #e2e8f0;
+  --text-muted: #64748b;
+  --text-dim: #94a3b8;
+  --glow: rgba(0, 212, 255, 0.12);
+  --glow2: rgba(124, 58, 237, 0.08);
+  --radius: 12px;
+  --radius-sm: 8px;
+  --shadow: 0 4px 24px rgba(0,0,0,0.4);
+  --shadow-glow: 0 0 40px rgba(0,212,255,0.08);
+}
+
+/* ── Reset & Base ──────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 14px; scroll-behavior: smooth; }
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  line-height: 1.6;
+}
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+button { font-family: inherit; cursor: pointer; }
+code, pre { font-family: 'JetBrains Mono', monospace; }
+
+/* ── Layout ────────────────────────────────────────────────── */
+.layout {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  grid-template-rows: 60px 1fr;
+  grid-template-areas: "nav header" "nav main";
+  min-height: 100vh;
+}
+
+/* ── Header ────────────────────────────────────────────────── */
+header {
+  grid-area: header;
+  background: var(--bg-panel);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  gap: 16px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.header-title { font-size: 1rem; font-weight: 600; color: var(--text-dim); flex: 1; }
+.header-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+.status-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--accent3);
+  box-shadow: 0 0 8px var(--accent3);
+  animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+.refresh-btn {
+  background: var(--border);
+  border: 1px solid var(--border-light);
+  color: var(--text-dim);
+  padding: 6px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  transition: all 0.2s;
+}
+.refresh-btn:hover {
+  background: var(--border-light);
+  color: var(--text);
+  transform: translateY(-1px);
+}
+
+/* ── Sidebar Nav ───────────────────────────────────────────── */
+nav {
+  grid-area: nav;
+  background: var(--bg-panel);
+  border-right: 1px solid var(--border);
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+.nav-logo {
+  padding: 0 8px 24px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 16px;
+}
+.nav-logo h1 {
+  font-size: 1.05rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -0.02em;
+}
+.nav-logo p {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: all 0.15s;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  width: 100%;
+  text-align: left;
+}
+.nav-item:hover { background: var(--border); color: var(--text); }
+.nav-item.active {
+  background: linear-gradient(135deg, rgba(0,212,255,0.15), rgba(124,58,237,0.1));
+  color: var(--accent);
+  border: 1px solid rgba(0,212,255,0.2);
+}
+.nav-icon { font-size: 1rem; width: 20px; text-align: center; }
+
+/* ── Main ──────────────────────────────────────────────────── */
+main {
+  grid-area: main;
+  padding: 24px;
+  overflow-y: auto;
+}
+
+/* ── Pages ─────────────────────────────────────────────────── */
+.page { display: none; }
+.page.active { display: block; animation: fadeIn 0.3s ease; }
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.page-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+.page-subtitle { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 24px; }
+
+/* ── Stats Grid ────────────────────────────────────────────── */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 16px;
+  margin-bottom: 32px;
+}
+.stat-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 2px;
+  background: var(--accent-bar, linear-gradient(90deg, var(--accent), var(--accent2)));
+}
+.stat-card:hover {
+  border-color: var(--border-light);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-glow);
+}
+.stat-label { font-size: 0.75rem; color: var(--text-muted); font-weight: 500; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em; }
+.stat-value { font-size: 2rem; font-weight: 800; color: var(--text); line-height: 1; }
+.stat-sub { font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; }
+
+/* ── Section Headers ───────────────────────────────────────── */
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.section-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+/* ── Filters ───────────────────────────────────────────────── */
+.filters {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.filter-select, .filter-input {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  padding: 8px 12px;
+  font-size: 0.85rem;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.filter-select:focus, .filter-input:focus {
+  border-color: var(--accent);
+}
+
+/* ── Job Cards ─────────────────────────────────────────────── */
+.jobs-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.job-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  transition: all 0.2s;
+  cursor: pointer;
+  position: relative;
+}
+.job-card:hover {
+  border-color: var(--border-light);
+  background: var(--bg-card-hover);
+  transform: translateX(2px);
+  box-shadow: -3px 0 0 var(--accent), var(--shadow);
+}
+.job-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+.job-company {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+.job-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+}
+.job-meta {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+.tag {
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+.tag-remote { background: rgba(16,185,129,0.15); color: var(--accent3); border: 1px solid rgba(16,185,129,0.25); }
+.tag-source { background: rgba(0,212,255,0.1); color: var(--accent); border: 1px solid rgba(0,212,255,0.2); }
+.tag-type { background: rgba(100,116,139,0.2); color: var(--text-dim); border: 1px solid var(--border); }
+.tag-score-high { background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.25); }
+.tag-score-mid { background: rgba(245,158,11,0.15); color: #fbbf24; border: 1px solid rgba(245,158,11,0.25); }
+.tag-score-low { background: rgba(239,68,68,0.1); color: #f87171; border: 1px solid rgba(239,68,68,0.2); }
+
+/* ── Score Badge ───────────────────────────────────────────── */
+.score-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 70px;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  font-weight: 800;
+  font-size: 1.4rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.score-badge .score-label { font-size: 0.65rem; font-weight: 600; margin-top: 2px; text-transform: uppercase; letter-spacing: 0.05em; }
+.score-excellent { background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.3); }
+.score-good { background: rgba(245,158,11,0.15); color: #fbbf24; border: 1px solid rgba(245,158,11,0.3); }
+.score-low { background: rgba(239,68,68,0.1); color: #f87171; border: 1px solid rgba(239,68,68,0.2); }
+
+/* ── Score Bars ────────────────────────────────────────────── */
+.score-bars { margin: 10px 0; }
+.score-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+.score-bar-label { font-size: 0.72rem; color: var(--text-muted); width: 80px; }
+.score-bar-track {
+  flex: 1;
+  height: 5px;
+  background: var(--border);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.score-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--accent2), var(--accent));
+  transition: width 0.8s ease;
+}
+.score-bar-value { font-size: 0.72rem; color: var(--text-dim); width: 32px; text-align: right; }
+
+/* ── Job Detail Modal ──────────────────────────────────────── */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  z-index: 100;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.modal-overlay.open { display: flex; animation: fadeIn 0.2s ease; }
+.modal {
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: 16px;
+  width: 100%;
+  max-width: 780px;
+  max-height: 85vh;
+  overflow-y: auto;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.6);
+}
+.modal-header {
+  padding: 24px 28px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  position: sticky;
+  top: 0;
+  background: var(--bg-card);
+}
+.modal-body { padding: 24px 28px; }
+.modal-close {
+  background: var(--border);
+  border: none;
+  color: var(--text-muted);
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s;
+}
+.modal-close:hover { background: var(--red); color: white; }
+
+/* ── Content Sections ──────────────────────────────────────── */
+.content-section {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  margin-bottom: 16px;
+}
+.content-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+.content-text { font-size: 0.88rem; color: var(--text-dim); line-height: 1.7; }
+.bullet-list { list-style: none; }
+.bullet-list li {
+  padding: 4px 0;
+  padding-left: 16px;
+  position: relative;
+  font-size: 0.88rem;
+  color: var(--text-dim);
+  line-height: 1.6;
+}
+.bullet-list li::before {
+  content: '▸';
+  position: absolute;
+  left: 0;
+  color: var(--accent);
+}
+
+/* ── Action Buttons ────────────────────────────────────────── */
+.btn-group { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
+.btn {
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 0.82rem;
+  font-weight: 600;
+  border: none;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  color: white;
+}
+.btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+.btn-success { background: rgba(16,185,129,0.2); color: var(--accent3); border: 1px solid rgba(16,185,129,0.3); }
+.btn-success:hover { background: rgba(16,185,129,0.3); transform: translateY(-1px); }
+.btn-danger { background: rgba(239,68,68,0.15); color: #f87171; border: 1px solid rgba(239,68,68,0.25); }
+.btn-danger:hover { background: rgba(239,68,68,0.25); transform: translateY(-1px); }
+.btn-ghost { background: var(--border); color: var(--text-dim); border: 1px solid var(--border-light); }
+.btn-ghost:hover { background: var(--border-light); color: var(--text); transform: translateY(-1px); }
+
+/* ── Loading ─────────────────────────────────────────────────── */
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 60px 20px;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+.spinner {
+  width: 24px; height: 24px;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Empty State ─────────────────────────────────────────────── */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-muted);
+}
+.empty-state-icon { font-size: 3rem; margin-bottom: 12px; opacity: 0.4; }
+.empty-state h3 { font-size: 1rem; font-weight: 600; margin-bottom: 8px; }
+.empty-state p { font-size: 0.85rem; }
+
+/* ── Chip Tags ────────────────────────────────────────────── */
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip {
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  background: rgba(124,58,237,0.15);
+  color: #a78bfa;
+  border: 1px solid rgba(124,58,237,0.25);
+}
+
+/* ── Toast ───────────────────────────────────────────────────── */
+.toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.toast {
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  font-size: 0.85rem;
+  color: var(--text);
+  box-shadow: var(--shadow);
+  animation: slideIn 0.3s ease;
+  min-width: 260px;
+}
+.toast.success { border-left: 3px solid var(--accent3); }
+.toast.error { border-left: 3px solid var(--red); }
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+/* ── Logs ────────────────────────────────────────────────────── */
+.log-table { width: 100%; border-collapse: collapse; }
+.log-table th {
+  text-align: left;
+  padding: 8px 12px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border);
+}
+.log-table td {
+  padding: 8px 12px;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+  font-family: 'JetBrains Mono', monospace;
+}
+.log-table tr:hover td { background: rgba(255,255,255,0.02); }
+.log-success { color: var(--accent3); }
+.log-failure { color: var(--red); }
+.log-info { color: var(--accent); }
+
+/* ── Responsive ─────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .layout {
+    grid-template-columns: 1fr;
+    grid-template-areas: "header" "main";
+  }
+  nav { display: none; }
+}
+</style>
+</head>
+<body>
+<div class="layout">
+
+<!-- ── Sidebar ──────────────────────────────────────────── -->
+<nav>
+  <div class="nav-logo">
+    <h1>🎯 Job Hunter</h1>
+    <p>AI-Powered — Ghaith Oueslati</p>
+  </div>
+  <button class="nav-item active" onclick="showPage('dashboard')" id="nav-dashboard">
+    <span class="nav-icon">📊</span> Dashboard
+  </button>
+  <button class="nav-item" onclick="showPage('jobs')" id="nav-jobs">
+    <span class="nav-icon">💼</span> All Jobs
+  </button>
+  <button class="nav-item" onclick="showPage('matches')" id="nav-matches">
+    <span class="nav-icon">⭐</span> Strong Matches
+  </button>
+  <button class="nav-item" onclick="showPage('applications')" id="nav-applications">
+    <span class="nav-icon">📝</span> Applications
+  </button>
+  <button class="nav-item" onclick="showPage('logs')" id="nav-logs">
+    <span class="nav-icon">📋</span> Pipeline Logs
+  </button>
+</nav>
+
+<!-- ── Header ───────────────────────────────────────────── -->
+<header>
+  <div class="header-title" id="page-title">Dashboard Overview</div>
+  <div class="header-status">
+    <div class="status-dot"></div>
+    <span id="last-updated">Loading...</span>
+  </div>
+  <button class="refresh-btn" onclick="loadCurrentPage()">⟳ Refresh</button>
+</header>
+
+<!-- ── Main ─────────────────────────────────────────────── -->
+<main>
+
+  <!-- ── Dashboard Page ──────────────────────────────────── -->
+  <div class="page active" id="page-dashboard">
+    <h1 class="page-title">Dashboard</h1>
+    <p class="page-subtitle">Real-time overview of your job hunt pipeline</p>
+    
+    <div id="stats-grid" class="stats-grid">
+      <div class="loading"><div class="spinner"></div> Loading stats...</div>
+    </div>
+
+    <div class="section-header">
+      <div class="section-title">🔥 Top Matches Today</div>
+      <button class="btn btn-ghost" onclick="showPage('matches')">View All →</button>
+    </div>
+    <div id="top-matches-list" class="jobs-grid">
+      <div class="loading"><div class="spinner"></div></div>
+    </div>
+  </div>
+
+  <!-- ── Jobs Page ────────────────────────────────────────── -->
+  <div class="page" id="page-jobs">
+    <h1 class="page-title">All Jobs</h1>
+    <p class="page-subtitle">All jobs discovered across all sources</p>
+
+    <div class="filters">
+      <select class="filter-select" id="filter-status" onchange="loadJobs()">
+        <option value="">All Statuses</option>
+        <option value="DISCOVERED">Discovered</option>
+        <option value="MATCHED">Matched</option>
+        <option value="REJECTED">Rejected</option>
+        <option value="READY">Ready</option>
+        <option value="APPLIED">Applied</option>
+        <option value="INTERVIEW">Interview</option>
+        <option value="SKIPPED">Skipped</option>
+      </select>
+      <select class="filter-select" id="filter-remote" onchange="loadJobs()">
+        <option value="">All Locations</option>
+        <option value="true">Remote Only</option>
+      </select>
+      <select class="filter-select" id="filter-score" onchange="loadJobs()">
+        <option value="0">Any Score</option>
+        <option value="70">70%+ Match</option>
+        <option value="80">80%+ Match</option>
+        <option value="90">90%+ Match</option>
+      </select>
+      <input class="filter-input" type="text" id="search-input" placeholder="Search company or title..." oninput="debounceSearch()" style="min-width:220px;" />
+    </div>
+
+    <div id="jobs-list" class="jobs-grid">
+      <div class="loading"><div class="spinner"></div> Loading jobs...</div>
+    </div>
+  </div>
+
+  <!-- ── Matches Page ─────────────────────────────────────── -->
+  <div class="page" id="page-matches">
+    <h1 class="page-title">Strong Matches</h1>
+    <p class="page-subtitle">Jobs with 70%+ match score — ready for application</p>
+    <div id="matches-list" class="jobs-grid">
+      <div class="loading"><div class="spinner"></div></div>
+    </div>
+  </div>
+
+  <!-- ── Applications Page ────────────────────────────────── -->
+  <div class="page" id="page-applications">
+    <h1 class="page-title">Applications</h1>
+    <p class="page-subtitle">Generated application packages ready to submit</p>
+    <div id="applications-list" class="jobs-grid">
+      <div class="loading"><div class="spinner"></div></div>
+    </div>
+  </div>
+
+  <!-- ── Logs Page ────────────────────────────────────────── -->
+  <div class="page" id="page-logs">
+    <h1 class="page-title">Pipeline Logs</h1>
+    <p class="page-subtitle">Recent pipeline activity and events</p>
+    <div id="logs-content">
+      <div class="loading"><div class="spinner"></div></div>
+    </div>
+  </div>
+
+</main>
+</div>
+
+<!-- ── Job Detail Modal ──────────────────────────────────── -->
+<div class="modal-overlay" id="job-modal" onclick="closeModal(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <div id="modal-company" style="font-size:0.8rem;color:var(--text-muted);margin-bottom:4px;"></div>
+        <div id="modal-title" style="font-size:1.2rem;font-weight:800;"></div>
+        <div id="modal-meta" style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;"></div>
+      </div>
+      <button class="modal-close" onclick="document.getElementById('job-modal').classList.remove('open')">✕</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<!-- ── Toast Container ───────────────────────────────────── -->
+<div class="toast-container" id="toast-container"></div>
+
+<script>
+// ── State ────────────────────────────────────────────────────
+let currentPage = 'dashboard';
+let searchTimeout = null;
+let currentJobId = null;
+
+// ── Navigation ───────────────────────────────────────────────
+function showPage(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById(`page-${page}`).classList.add('active');
+  document.getElementById(`nav-${page}`)?.classList.add('active');
+  currentPage = page;
+  
+  const titles = {
+    dashboard: 'Dashboard Overview',
+    jobs: 'All Jobs',
+    matches: 'Strong Matches (70%+)',
+    applications: 'Application Packages',
+    logs: 'Pipeline Logs'
+  };
+  document.getElementById('page-title').textContent = titles[page] || '';
+  
+  loadCurrentPage();
+}
+
+function loadCurrentPage() {
+  switch(currentPage) {
+    case 'dashboard': loadDashboard(); break;
+    case 'jobs': loadJobs(); break;
+    case 'matches': loadMatches(); break;
+    case 'applications': loadApplications(); break;
+    case 'logs': loadLogs(); break;
+  }
+  document.getElementById('last-updated').textContent = `Updated ${new Date().toLocaleTimeString()}`;
+}
+
+// ── API Helpers ──────────────────────────────────────────────
+async function api(url) {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
+}
+
+async function apiPatch(url, body) {
+  const res = await fetch(url, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
+}
+
+// ── Dashboard ─────────────────────────────────────────────────
+async function loadDashboard() {
+  try {
+    const data = await api('/api/stats');
+    const j = data.jobs || {};
+    const a = data.applications || {};
+    const ai = data.ai_usage || {};
+    
+    const statsGrid = document.getElementById('stats-grid');
+    statsGrid.innerHTML = `
+      <div class="stat-card" style="--accent-bar: linear-gradient(90deg, #00d4ff, #7c3aed)">
+        <div class="stat-label">Total Jobs Found</div>
+        <div class="stat-value">${j.total_jobs || 0}</div>
+        <div class="stat-sub">+${j.discovered_today || 0} today</div>
+      </div>
+      <div class="stat-card" style="--accent-bar: linear-gradient(90deg, #10b981, #059669)">
+        <div class="stat-label">70%+ Matches</div>
+        <div class="stat-value" style="color:#34d399">${j.matched_70_plus || 0}</div>
+        <div class="stat-sub">${j.matched_80_plus || 0} at 80%+</div>
+      </div>
+      <div class="stat-card" style="--accent-bar: linear-gradient(90deg, #f59e0b, #d97706)">
+        <div class="stat-label">Apps Ready</div>
+        <div class="stat-value" style="color:#fbbf24">${a.ready || 0}</div>
+        <div class="stat-sub">${a.applied || 0} submitted</div>
+      </div>
+      <div class="stat-card" style="--accent-bar: linear-gradient(90deg, #7c3aed, #6d28d9)">
+        <div class="stat-label">Interviews</div>
+        <div class="stat-value" style="color:#a78bfa">${a.interviews || 0}</div>
+        <div class="stat-sub">${a.rejected || 0} rejected</div>
+      </div>
+      <div class="stat-card" style="--accent-bar: linear-gradient(90deg, #06b6d4, #0891b2)">
+        <div class="stat-label">Remote Jobs</div>
+        <div class="stat-value">${j.remote_jobs || 0}</div>
+        <div class="stat-sub">avg ${j.avg_score || 0}% score</div>
+      </div>
+      <div class="stat-card" style="--accent-bar: linear-gradient(90deg, #ef4444, #dc2626)">
+        <div class="stat-label">AI Quota Today</div>
+        <div class="stat-value" style="font-size:1.4rem">${ai.requests_made || 0}/${ai.requests_limit || 50}</div>
+        <div class="stat-sub">requests used</div>
+      </div>
+    `;
+    
+    // Load top matches
+    const jobsData = await api('/api/jobs?min_score=70&limit=5&order=match_score');
+    renderJobsList('top-matches-list', jobsData.jobs || [], true);
+  } catch(e) {
+    document.getElementById('stats-grid').innerHTML = `<div style="color:var(--red);padding:20px">Error loading stats: ${e.message}</div>`;
+  }
+}
+
+// ── Jobs List ────────────────────────────────────────────────
+async function loadJobs() {
+  const status = document.getElementById('filter-status')?.value || '';
+  const remote = document.getElementById('filter-remote')?.value || '';
+  const minScore = document.getElementById('filter-score')?.value || '0';
+  
+  const params = new URLSearchParams({ limit: 50, min_score: minScore });
+  if (status) params.set('status', status);
+  if (remote) params.set('remote', remote);
+  
+  try {
+    document.getElementById('jobs-list').innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+    const data = await api(`/api/jobs?${params}`);
+    renderJobsList('jobs-list', data.jobs || []);
+  } catch(e) {
+    document.getElementById('jobs-list').innerHTML = `<div style="color:var(--red);padding:20px">Error: ${e.message}</div>`;
+  }
+}
+
+async function loadMatches() {
+  try {
+    document.getElementById('matches-list').innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+    const data = await api('/api/jobs?min_score=70&limit=50');
+    renderJobsList('matches-list', data.jobs || []);
+  } catch(e) {
+    document.getElementById('matches-list').innerHTML = `<div style="color:var(--red)">Error: ${e.message}</div>`;
+  }
+}
+
+async function loadApplications() {
+  try {
+    document.getElementById('applications-list').innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+    const apps = await api('/api/applications');
+    if (!apps.length) {
+      document.getElementById('applications-list').innerHTML = `
+        <div class="empty-state">
+          <div class="empty-state-icon">📝</div>
+          <h3>No applications generated yet</h3>
+          <p>Run the AI analysis + application generator in n8n to populate this.</p>
+        </div>`;
+      return;
+    }
+    renderApplicationsList('applications-list', apps);
+  } catch(e) {
+    document.getElementById('applications-list').innerHTML = `<div style="color:var(--red)">Error: ${e.message}</div>`;
+  }
+}
+
+async function loadLogs() {
+  try {
+    document.getElementById('logs-content').innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+    const logs = await api('/api/logs');
+    if (!logs.length) {
+      document.getElementById('logs-content').innerHTML = `<div class="empty-state"><div class="empty-state-icon">📋</div><h3>No logs yet</h3><p>Run a pipeline workflow to see logs.</p></div>`;
+      return;
+    }
+    const tableRows = logs.map(l => `
+      <tr>
+        <td>${new Date(l.timestamp).toLocaleString()}</td>
+        <td>${l.source || '-'}</td>
+        <td>${l.operation}</td>
+        <td class="log-${l.status === 'SUCCESS' ? 'success' : l.status === 'FAILURE' ? 'failure' : 'info'}">${l.status}</td>
+        <td style="font-family:inherit;max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${l.message || ''}</td>
+      </tr>
+    `).join('');
+    
+    document.getElementById('logs-content').innerHTML = `
+      <div style="overflow-x:auto">
+        <table class="log-table">
+          <thead><tr><th>Time</th><th>Source</th><th>Operation</th><th>Status</th><th>Message</th></tr></thead>
+          <tbody>${tableRows}</tbody>
+        </table>
+      </div>`;
+  } catch(e) {
+    document.getElementById('logs-content').innerHTML = `<div style="color:var(--red)">Error: ${e.message}</div>`;
+  }
+}
+
+// ── Render Helpers ────────────────────────────────────────────
+function scoreClass(score) {
+  if (score >= 80) return 'score-excellent';
+  if (score >= 65) return 'score-good';
+  return 'score-low';
+}
+
+function tagClass(score) {
+  if (score >= 80) return 'tag-score-high';
+  if (score >= 65) return 'tag-score-mid';
+  return 'tag-score-low';
+}
+
+function renderJobsList(containerId, jobs, compact = false) {
+  const container = document.getElementById(containerId);
+  if (!jobs.length) {
+    container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">🔍</div><h3>No jobs found</h3><p>Run the discovery workflow in n8n or adjust your filters.</p></div>`;
+    return;
+  }
+  
+  container.innerHTML = jobs.map(job => {
+    const score = Math.round(job.match_score || 0);
+    const tech = Math.round(job.technical_score || 0);
+    const exp = Math.round(job.experience_score || 0);
+    const strengths = Array.isArray(job.strengths) ? job.strengths.slice(0,2).join(', ') : '';
+    
+    return `<div class="job-card" onclick="openJobModal('${job.id}')">
+      <div class="job-card-header">
+        <div>
+          <div class="job-company">${job.company}</div>
+          <div class="job-title">${job.title}</div>
+        </div>
+        ${score > 0 ? `<div class="score-badge ${scoreClass(score)}">
+          ${score}
+          <div class="score-label">match</div>
+        </div>` : ''}
+      </div>
+      
+      <div class="job-meta">
+        ${job.remote ? '<span class="tag tag-remote">🌍 Remote</span>' : (job.location ? `<span class="tag tag-type">📍 ${job.location}</span>` : '')}
+        <span class="tag tag-source">${job.source}</span>
+        ${job.employment_type ? `<span class="tag tag-type">${job.employment_type}</span>` : ''}
+        ${job.application_id ? '<span class="tag" style="background:rgba(16,185,129,0.15);color:#34d399;border-color:rgba(16,185,129,0.25)">📝 App Ready</span>' : ''}
+        ${job.status === 'APPLIED' ? '<span class="tag" style="background:rgba(0,212,255,0.15);color:var(--accent)">✅ Applied</span>' : ''}
+        ${job.status === 'INTERVIEW' ? '<span class="tag" style="background:rgba(245,158,11,0.15);color:#fbbf24">🎤 Interview</span>' : ''}
+      </div>
+      
+      ${!compact && score > 0 ? `<div class="score-bars" style="margin-top:10px">
+        ${renderScoreBar('Technical', tech)}
+        ${renderScoreBar('Experience', exp)}
+      </div>` : ''}
+      
+      ${strengths ? `<div style="margin-top:8px;font-size:0.78rem;color:var(--text-muted)">✅ ${strengths}</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+function renderScoreBar(label, value) {
+  return `<div class="score-bar-row">
+    <div class="score-bar-label">${label}</div>
+    <div class="score-bar-track"><div class="score-bar-fill" style="width:${value}%"></div></div>
+    <div class="score-bar-value">${value}%</div>
+  </div>`;
+}
+
+function renderApplicationsList(containerId, apps) {
+  const container = document.getElementById(containerId);
+  container.innerHTML = apps.map(app => `
+    <div class="job-card" onclick="openJobModal('${app.job_id}')">
+      <div class="job-card-header">
+        <div>
+          <div class="job-company">${app.company}</div>
+          <div class="job-title">${app.title}</div>
+        </div>
+        <div class="score-badge ${scoreClass(Math.round(app.match_score || 0))}">
+          ${Math.round(app.match_score || 0)}
+          <div class="score-label">match</div>
+        </div>
+      </div>
+      <div class="job-meta">
+        ${app.remote ? '<span class="tag tag-remote">🌍 Remote</span>' : (app.location ? `<span class="tag tag-type">📍 ${app.location}</span>` : '')}
+        <span class="tag" style="background:rgba(${app.status==='APPLIED'?'0,212,255':'16,185,129'},0.15);color:${app.status==='APPLIED'?'var(--accent)':'#34d399'}">${app.status}</span>
+      </div>
+      ${app.cover_note ? `<div style="margin-top:10px;font-size:0.82rem;color:var(--text-dim);line-height:1.6;border-left:2px solid var(--accent2);padding-left:10px;font-style:italic">${app.cover_note.substring(0,200)}${app.cover_note.length>200?'...':''}</div>` : ''}
+    </div>
+  `).join('');
+}
+
+// ── Job Modal ─────────────────────────────────────────────────
+async function openJobModal(jobId) {
+  currentJobId = jobId;
+  const modal = document.getElementById('job-modal');
+  modal.classList.add('open');
+  document.getElementById('modal-body').innerHTML = '<div class="loading"><div class="spinner"></div> Loading...</div>';
+  
+  try {
+    const job = await api(`/api/jobs/${jobId}`);
+    
+    document.getElementById('modal-company').textContent = job.company;
+    document.getElementById('modal-title').textContent = job.title;
+    document.getElementById('modal-meta').innerHTML = `
+      ${job.remote ? '<span class="tag tag-remote">🌍 Remote</span>' : (job.location ? `<span class="tag tag-type">📍 ${job.location}</span>` : '')}
+      ${job.salary ? `<span class="tag tag-type">💰 ${job.salary}</span>` : ''}
+      <span class="tag ${tagClass(Math.round(job.match_score||0))}">${Math.round(job.match_score||0)}% Match</span>
+    `;
+    
+    const strengths = Array.isArray(job.strengths) ? job.strengths : [];
+    const missing = Array.isArray(job.missing_skills) ? job.missing_skills : [];
+    const bullets = Array.isArray(job.custom_bullets) ? job.custom_bullets : [];
+    const skills = Array.isArray(job.skills_ordering) ? job.skills_ordering : 
+                   (Array.isArray(job.skills) ? job.skills : []);
+    
+    document.getElementById('modal-body').innerHTML = `
+      <!-- Score Breakdown -->
+      <div class="content-section">
+        <div class="content-label">📊 Score Breakdown</div>
+        ${renderScoreBar('Overall', Math.round(job.match_score||0))}
+        ${renderScoreBar('Technical', Math.round(job.technical_score||0))}
+        ${renderScoreBar('Experience', Math.round(job.experience_score||0))}
+        ${renderScoreBar('Seniority', Math.round(job.seniority_score||0))}
+        ${renderScoreBar('Location', Math.round(job.location_score||0))}
+        ${renderScoreBar('Visa', Math.round(job.visa_score||0))}
+      </div>
+      
+      <!-- Strengths & Gaps -->
+      ${strengths.length ? `<div class="content-section">
+        <div class="content-label">✅ Strengths</div>
+        <ul class="bullet-list">${strengths.map(s=>`<li>${s}</li>`).join('')}</ul>
+      </div>` : ''}
+      
+      ${missing.length ? `<div class="content-section">
+        <div class="content-label">⚠️ Missing / Gaps</div>
+        <ul class="bullet-list">${missing.map(m=>`<li style="color:#f87171">${m}</li>`).join('')}</ul>
+      </div>` : ''}
+      
+      <!-- AI Reasoning -->
+      ${job.ai_reasoning ? `<div class="content-section">
+        <div class="content-label">🤖 AI Reasoning</div>
+        <div class="content-text">${job.ai_reasoning}</div>
+      </div>` : ''}
+      
+      <!-- Custom Summary -->
+      ${job.custom_summary ? `<div class="content-section">
+        <div class="content-label">📄 Customized Professional Summary</div>
+        <div class="content-text">${job.custom_summary}</div>
+      </div>` : ''}
+      
+      <!-- Custom Bullets -->
+      ${bullets.length ? `<div class="content-section">
+        <div class="content-label">📌 Recommended CV Bullets</div>
+        <ul class="bullet-list">${bullets.map(b=>`<li>${b}</li>`).join('')}</ul>
+      </div>` : ''}
+      
+      <!-- Cover Note -->
+      ${job.cover_note ? `<div class="content-section">
+        <div class="content-label">✉️ Cover Note</div>
+        <div class="content-text" style="font-style:italic;border-left:2px solid var(--accent2);padding-left:12px">${job.cover_note}</div>
+      </div>` : ''}
+      
+      <!-- Skills -->
+      ${skills.length ? `<div class="content-section">
+        <div class="content-label">🔧 Skills for This Role</div>
+        <div class="chips">${skills.map(s=>`<span class="chip">${s}</span>`).join('')}</div>
+      </div>` : ''}
+      
+      <!-- Actions -->
+      <div class="btn-group">
+        <a href="${job.url}" target="_blank" class="btn btn-primary">🔗 View Job Listing</a>
+        <button class="btn btn-success" onclick="updateStatus('${job.id}', 'APPLIED')">✅ Mark Applied</button>
+        <button class="btn btn-ghost" onclick="updateStatus('${job.id}', 'REVIEWED')">👁 Mark Reviewed</button>
+        <button class="btn btn-ghost" onclick="updateStatus('${job.id}', 'INTERVIEW')">🎤 Got Interview</button>
+        <button class="btn btn-danger" onclick="updateStatus('${job.id}', 'SKIPPED')">⏭ Skip</button>
+      </div>
+    `;
+  } catch(e) {
+    document.getElementById('modal-body').innerHTML = `<div style="color:var(--red)">Error: ${e.message}</div>`;
+  }
+}
+
+function closeModal(e) {
+  if (e.target === document.getElementById('job-modal')) {
+    document.getElementById('job-modal').classList.remove('open');
+  }
+}
+
+// ── Status Updates ────────────────────────────────────────────
+async function updateStatus(jobId, status) {
+  try {
+    await apiPatch(`/api/jobs/${jobId}/status`, { status });
+    toast(`Status updated to ${status}`, 'success');
+    document.getElementById('job-modal').classList.remove('open');
+    loadCurrentPage();
+  } catch(e) {
+    toast(`Error: ${e.message}`, 'error');
+  }
+}
+
+// ── Search ────────────────────────────────────────────────────
+function debounceSearch() {
+  clearTimeout(searchTimeout);
+  searchTimeout = setTimeout(loadJobs, 400);
+}
+
+// ── Toast ─────────────────────────────────────────────────────
+function toast(message, type = 'info') {
+  const container = document.getElementById('toast-container');
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.textContent = message;
+  container.appendChild(el);
+  setTimeout(() => { el.style.opacity = '0'; el.style.transform = 'translateX(20px)'; el.style.transition = 'all 0.3s'; setTimeout(() => el.remove(), 300); }, 3000);
+}
+
+// ── Init ──────────────────────────────────────────────────────
+loadDashboard();
+
+// Auto-refresh every 60 seconds
+setInterval(() => { if (currentPage === 'dashboard') loadDashboard(); }, 60000);
+</script>
+</body>
+</html>

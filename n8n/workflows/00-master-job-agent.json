@@ -1,0 +1,162 @@
+{
+  "name": "00 - Master Job Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 24,
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "id": "cron-master",
+      "name": "Daily Trigger (8AM)",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// ── AI Usage Guard ──────────────────────────────────\n// Check if we've exceeded daily AI request limit\nconst maxRequests = parseInt(process.env.MAX_AI_REQUESTS_PER_DAY || '50');\nconst today = new Date().toISOString().split('T')[0];\n\nreturn [{\n  json: {\n    run_id: require('crypto').randomUUID(),\n    started_at: new Date().toISOString(),\n    max_ai_requests: maxRequests,\n    today: today,\n    min_score: parseInt(process.env.MIN_MATCH_SCORE || '70'),\n    preferred_score: parseInt(process.env.PREFERRED_MATCH_SCORE || '80'),\n    mock_mode: process.env.ENABLE_MOCK_MODE === 'true'\n  }\n}];"
+      },
+      "id": "init-run",
+      "name": "Initialize Run",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO pipeline_logs (run_id, source, operation, status, message)\nVALUES ('{{ $json.run_id }}'::uuid, 'master', 'PIPELINE_STARTED', 'INFO', 'Daily job pipeline started')\nRETURNING id;"
+      },
+      "id": "log-start",
+      "name": "Log Pipeline Start",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [680, 300],
+      "credentials": {
+        "postgres": {
+          "name": "PostgreSQL Job Hunter"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "workflowId": "={{ $workflow.id }}",
+        "options": {}
+      },
+      "id": "trigger-discovery",
+      "name": "01 - Fetch Jobs",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [900, 180],
+      "notes": "Triggers job discovery workflow for all enabled sources"
+    },
+    {
+      "parameters": {
+        "workflowId": "={{ $workflow.id }}",
+        "options": {}
+      },
+      "id": "trigger-analysis",
+      "name": "04 - AI Analysis",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [900, 420],
+      "notes": "Analyze unprocessed jobs with AI"
+    },
+    {
+      "parameters": {
+        "workflowId": "={{ $workflow.id }}",
+        "options": {}
+      },
+      "id": "trigger-applications",
+      "name": "05 - Generate Applications",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [1120, 300]
+    },
+    {
+      "parameters": {
+        "workflowId": "={{ $workflow.id }}",
+        "options": {}
+      },
+      "id": "trigger-notifications",
+      "name": "06 - Telegram Notifications",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [1340, 300]
+    },
+    {
+      "parameters": {
+        "workflowId": "={{ $workflow.id }}",
+        "options": {}
+      },
+      "id": "trigger-summary",
+      "name": "07 - Daily Summary",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [1560, 300]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE pipeline_logs SET message = 'Pipeline completed successfully', status = 'SUCCESS'\nWHERE run_id = '{{ $('Initialize Run').item.json.run_id }}'::uuid AND operation = 'PIPELINE_STARTED';"
+      },
+      "id": "log-complete",
+      "name": "Log Pipeline Complete",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [1780, 300],
+      "credentials": {
+        "postgres": {
+          "name": "PostgreSQL Job Hunter"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Daily Trigger (8AM)": {
+      "main": [[{"node": "Initialize Run", "type": "main", "index": 0}]]
+    },
+    "Initialize Run": {
+      "main": [[{"node": "Log Pipeline Start", "type": "main", "index": 0}]]
+    },
+    "Log Pipeline Start": {
+      "main": [
+        [{"node": "01 - Fetch Jobs", "type": "main", "index": 0}],
+        [{"node": "04 - AI Analysis", "type": "main", "index": 0}]
+      ]
+    },
+    "01 - Fetch Jobs": {
+      "main": [[{"node": "04 - AI Analysis", "type": "main", "index": 0}]]
+    },
+    "04 - AI Analysis": {
+      "main": [[{"node": "05 - Generate Applications", "type": "main", "index": 0}]]
+    },
+    "05 - Generate Applications": {
+      "main": [[{"node": "06 - Telegram Notifications", "type": "main", "index": 0}]]
+    },
+    "06 - Telegram Notifications": {
+      "main": [[{"node": "07 - Daily Summary", "type": "main", "index": 0}]]
+    },
+    "07 - Daily Summary": {
+      "main": [[{"node": "Log Pipeline Complete", "type": "main", "index": 0}]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": ""
+  },
+  "staticData": null,
+  "tags": ["job-hunter", "master"],
+  "meta": {
+    "description": "Master orchestrator workflow - runs daily at 8AM"
+  }
+}

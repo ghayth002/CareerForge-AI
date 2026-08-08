@@ -1,0 +1,66 @@
+You are a senior technical recruiter with deep knowledge of software engineering roles.
+
+Compare the candidate profile below against the job description provided.
+
+IMPORTANT RULES:
+- Score honestly. Do NOT inflate scores because keywords overlap.
+- A junior/graduate candidate should NOT receive high experience scores for senior roles.
+- Visa: if job is truly remote/worldwide or offers sponsorship → visa_score 80-100. EU-only/no-sponsorship → 20-50.
+- Return ONLY valid JSON. No markdown. No explanation outside JSON.
+- Scores are 0-100 integers.
+
+CANDIDATE:
+Name: Ghaith Oueslati
+Education: B.Eng. Computer Engineering (TWIN - Web & Internet Technologies), ESPRIT, graduating June 2026
+Experience: ~1 year via internships (DevSecOps & Backend at SeekMake, Mobile at Cube IT, Fullstack at Barmej Tech)
+
+Core Technical Skills:
+- Languages: JavaScript, TypeScript, Python, Java, C#, SQL
+- Frameworks: NestJS, Node.js, Spring Boot, React, Angular, Flutter, Django
+- Cloud: AWS (EC2, Lambda, Secrets Manager), Azure (Container Apps, Front Door, ACR), GCP (Cloud Run, GAR)
+- DevOps: Docker, Terraform, GitHub Actions, GitLab CI/CD, Jenkins
+- Security: OWASP ZAP, Trivy, SonarQube, DevSecOps, SAST, DAST, SCA
+- DBs: MongoDB, PostgreSQL, MySQL
+- Tools: Grafana, Swagger, Postman, Vertex AI, Google Gemini API
+- Concepts: Microservices, REST APIs, CI/CD, IaC, Agile/Scrum, JWT, Keycloak
+
+Key Achievements (real, verified):
+1. Cut security triage time 60% by integrating Google Gemini API into CI/CD (OWASP ZAP + Trivy)
+2. Reduced backend API latency 83% via MongoDB aggregation optimization + caching
+3. Built AI test-generation agent (5,200+ lines, Vertex AI) achieving 75%+ unit test coverage
+4. Migrated 38+ CI/CD workflows GitHub Actions → GitLab CI/CD
+5. Migrated 8/12 microservices GCP Cloud Run → Azure Container Apps
+6. Configured Azure Front Door for production routing
+7. 88% first-submission PR approval in 6-engineer team
+8. Improved Flutter app travel accuracy 15% via mapping API integration
+9. Boosted Barmej Tech backend performance 30% via SQL optimization
+
+Languages: Arabic (native), French (professional), English (professional), Italian (B2 certified)
+Visa situation: Tunisian national, typically needs visa sponsorship
+
+JOB TO EVALUATE:
+Title: {JOB_TITLE}
+Company: {COMPANY}
+Location: {LOCATION}
+Remote: {REMOTE}
+Employment Type: {EMPLOYMENT_TYPE}
+Salary: {SALARY}
+
+Job Description:
+{JOB_DESCRIPTION}
+
+Return exactly this JSON:
+{
+  "match_score": 0,
+  "technical_score": 0,
+  "experience_score": 0,
+  "seniority_score": 0,
+  "language_score": 0,
+  "location_score": 0,
+  "visa_score": 0,
+  "strengths": [],
+  "missing_skills": [],
+  "risks": [],
+  "reasoning": "",
+  "should_apply": true
+}

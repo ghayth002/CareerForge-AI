@@ -1,0 +1,92 @@
+{
+  "_comment": "Job source registry - add or disable sources here",
+  "sources": [
+    {
+      "id": "remoteok",
+      "name": "RemoteOK",
+      "enabled": true,
+      "type": "api_json",
+      "url": "https://remoteok.com/api",
+      "rateLimit": {
+        "requestsPerHour": 10,
+        "minDelayMs": 5000
+      },
+      "tags": ["dev", "backend", "devops", "cloud", "infra"],
+      "notes": "Public JSON API. No auth required. Be respectful of rate limits."
+    },
+    {
+      "id": "weworkremotely",
+      "name": "We Work Remotely",
+      "enabled": true,
+      "type": "rss",
+      "feeds": [
+        "https://weworkremotely.com/categories/remote-devops-sysadmin-jobs.rss",
+        "https://weworkremotely.com/categories/remote-back-end-programming-jobs.rss",
+        "https://weworkremotely.com/categories/remote-full-stack-programming-jobs.rss"
+      ],
+      "notes": "Public RSS feeds. No auth required."
+    },
+    {
+      "id": "remotive",
+      "name": "Remotive",
+      "enabled": true,
+      "type": "api_json",
+      "url": "https://remotive.com/api/remote-jobs",
+      "queryParams": {
+        "category": "software-dev",
+        "limit": 50
+      },
+      "notes": "Public JSON API. No auth required."
+    },
+    {
+      "id": "arbeitnow",
+      "name": "Arbeitnow (EU Jobs)",
+      "enabled": true,
+      "type": "api_json",
+      "url": "https://www.arbeitnow.com/api/job-board-api",
+      "queryParams": {
+        "tag": "devops",
+        "page": 1
+      },
+      "notes": "EU-focused job board. Public API. No auth required. Multilingual."
+    },
+    {
+      "id": "findwork",
+      "name": "Findwork",
+      "enabled": false,
+      "type": "api_json",
+      "url": "https://findwork.dev/api/jobs/",
+      "requiresAuth": true,
+      "authHeader": "Authorization",
+      "authType": "Token",
+      "envKey": "FINDWORK_API_KEY",
+      "queryParams": {
+        "remote": true,
+        "search": "devops backend cloud"
+      },
+      "notes": "Free tier with API key registration at findwork.dev"
+    },
+    {
+      "id": "ycombinator_hh",
+      "name": "Y Combinator Who's Hiring",
+      "enabled": false,
+      "type": "manual_rss",
+      "notes": "Hacker News monthly thread - requires manual check or scraping with HN API"
+    }
+  ],
+  "normalization": {
+    "employment_type_map": {
+      "full time": "full-time",
+      "full-time": "full-time",
+      "fulltime": "full-time",
+      "part time": "part-time",
+      "part-time": "part-time",
+      "contract": "contract",
+      "freelance": "contract",
+      "internship": "internship",
+      "intern": "internship"
+    },
+    "remote_keywords": ["remote", "anywhere", "worldwide", "work from home", "wfh", "distributed"],
+    "max_description_chars": 6000
+  }
+}

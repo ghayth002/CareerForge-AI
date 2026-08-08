@@ -1,0 +1,196 @@
+{
+  "name": "04 - Job AI Analysis",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "manual-trigger",
+      "name": "Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT id, source, company, title, location, remote, employment_type,\n       url, description, salary, posted_at, skills\nFROM jobs\nWHERE ai_analyzed = false\n  AND filter_passed = true\n  AND status != 'REJECTED'\nORDER BY discovered_at DESC\nLIMIT 20;"
+      },
+      "id": "fetch-unanalyzed",
+      "name": "Fetch Unanalyzed Jobs",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [460, 300],
+      "credentials": {
+        "postgres": {
+          "name": "PostgreSQL Job Hunter"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT requests_made, requests_limit FROM ai_usage WHERE date = CURRENT_DATE;"
+      },
+      "id": "check-ai-quota",
+      "name": "Check AI Quota",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [460, 480],
+      "credentials": {
+        "postgres": {
+          "name": "PostgreSQL Job Hunter"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Gate: check if we have AI quota remaining\nconst quotaResult = $('Check AI Quota').first().json;\nconst used = parseInt(quotaResult.requests_made || 0);\nconst limit = parseInt(quotaResult.requests_limit || 50);\n\nif (used >= limit) {\n  console.log(`AI quota exhausted: ${used}/${limit} requests used today`);\n  return [];\n}\n\nconst remaining = limit - used;\nconst jobs = $('Fetch Unanalyzed Jobs').all();\nconst toProcess = jobs.slice(0, remaining);\nconsole.log(`Processing ${toProcess.length} jobs (${remaining} quota remaining)`);\nreturn toProcess;"
+      },
+      "id": "quota-gate",
+      "name": "Quota Gate",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [680, 380]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Build AI analysis prompt for this job\nconst job = $json;\n\nconst candidateProfile = `\nCANDIDATE PROFILE:\nName: Ghaith Oueslati\nEducation: B.Eng. Computer Engineering (TWIN - Web & Internet Technologies), ESPRIT, graduating 2026\nExperience: ~1 year via internships in DevSecOps, Backend, Cloud, Mobile\n\nTechnical Skills:\n- Languages: JavaScript, TypeScript, Python, Java, C#, C++, PL/SQL, SQL\n- Frameworks: React, Angular, Node.js, NestJS, Spring Boot, .NET, Flutter, Django, Laravel, Symfony\n- Databases: MySQL, MongoDB, PostgreSQL\n- DevOps & Cloud: Docker, Terraform, GitHub Actions, GitLab CI/CD\n  AWS (EC2, Lambda, Secrets Manager), Azure (Container Apps, Front Door, ACR), GCP (Cloud Run, GAR)\n- Security: OWASP ZAP, Trivy, SonarQube, DevSecOps, SAST, DAST, SCA\n- Tools: Jenkins, Git, Swagger, Postman, Grafana, Vertex AI, Google Gemini API\n- Concepts: REST APIs, Microservices, CI/CD, IaC, JWT, Keycloak, Agile/Scrum\n\nKey Achievements:\n- Cut security triage time 60% by integrating Gemini API into CI/CD (OWASP ZAP + Trivy)\n- Reduced backend API latency 83% via MongoDB optimization + caching\n- Built AI test-generation agent (5,200+ lines, Vertex AI, 75%+ test coverage)\n- Migrated 38+ CI/CD workflows GitHub Actions → GitLab CI/CD\n- Migrated 8/12 microservices GCP Cloud Run → Azure Container Apps\n- 88% first-submission PR approval rate in 6-engineer team\n\nSpoken Languages: Arabic (native), French (professional), English (professional), Italian (B2)\nVisa: Tunisian national, needs sponsorship for most countries\n`;\n\nconst descriptionTruncated = (job.description || '').substring(0, 5000);\n\nconst prompt = `You are a senior technical recruiter. Analyze the fit between this candidate and job.\n\n${candidateProfile}\n\nJOB:\nTitle: ${job.title}\nCompany: ${job.company}\nLocation: ${job.location || 'Not specified'}\nRemote: ${job.remote ? 'Yes' : 'No'}\nType: ${job.employment_type || 'Not specified'}\nSalary: ${job.salary || 'Not specified'}\nDescription:\n${descriptionTruncated}\n\nINSTRUCTIONS:\n- Score honestly. Do NOT inflate scores because keywords overlap.\n- Consider that the candidate is a recent graduate (~1 year experience via internships).\n- If the job requires 3+ years of experience, reduce experience_score significantly.\n- Visa: if the job explicitly offers sponsorship or is truly remote/worldwide, visa_score = 90-100. If it requires EU/US citizenship without sponsorship, visa_score = 20-40.\n- Return ONLY valid JSON, no markdown, no explanation.\n\nReturn exactly this JSON structure:\n{\n  \"match_score\": 0,\n  \"technical_score\": 0,\n  \"experience_score\": 0,\n  \"seniority_score\": 0,\n  \"language_score\": 0,\n  \"location_score\": 0,\n  \"visa_score\": 0,\n  \"strengths\": [],\n  \"missing_skills\": [],\n  \"risks\": [],\n  \"reasoning\": \"\",\n  \"should_apply\": true\n}`;\n\nreturn [{ json: { ...job, ai_prompt: prompt } }];"
+      },
+      "id": "build-prompt",
+      "name": "Build AI Prompt",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [900, 380]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.OPENROUTER_BASE_URL }}/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "HTTP-Referer",
+              "value": "https://github.com/ghayth002/ai-job-hunter"
+            },
+            {
+              "name": "X-Title",
+              "value": "AI Job Hunter"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "model",
+              "value": "={{ $env.OPENROUTER_MODEL || 'openrouter/free' }}"
+            },
+            {
+              "name": "messages",
+              "value": "=[{\"role\": \"user\", \"content\": \"{{ $json.ai_prompt.replace(/\"/g, '\\\\\"').replace(/\\n/g, '\\\\n') }}\"}]"
+            },
+            {
+              "name": "temperature",
+              "value": "=0.1"
+            },
+            {
+              "name": "max_tokens",
+              "value": "=800"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "id": "call-openrouter",
+      "name": "Call OpenRouter AI",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1120, 380],
+      "credentials": {
+        "httpHeaderAuth": {
+          "name": "OpenRouter API"
+        }
+      },
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse AI response and handle errors gracefully\nconst apiResponse = $json;\nconst jobData = $('Build AI Prompt').item.json;\n\nlet analysis = null;\nlet parseError = null;\n\ntry {\n  if (apiResponse.error) {\n    throw new Error(`OpenRouter API error: ${JSON.stringify(apiResponse.error)}`);\n  }\n  \n  const content = apiResponse.choices?.[0]?.message?.content || '';\n  \n  // Extract JSON from response (handle markdown code blocks and safety headers)\n  let jsonStr = content;\n  const codeBlockMatch = content.match(/```(?:json)?([\\s\\S]*?)```/);\n  if (codeBlockMatch) jsonStr = codeBlockMatch[1];\n  const startIdx = jsonStr.indexOf('{');\n  const lastIdx = jsonStr.lastIndexOf('}');\n  if (startIdx !== -1 && lastIdx !== -1 && lastIdx > startIdx) {\n    jsonStr = jsonStr.substring(startIdx, lastIdx + 1);\n  }\n  \n  analysis = JSON.parse(jsonStr);\n  \n  // Validate required fields\n  const required = ['match_score', 'technical_score', 'experience_score'];\n  for (const field of required) {\n    if (analysis[field] === undefined) {\n      analysis[field] = 0;\n    }\n    // Clamp scores to 0-100\n    analysis[field] = Math.min(100, Math.max(0, Number(analysis[field]) || 0));\n  }\n  \n} catch (e) {\n  parseError = e.message;\n  console.error(`Failed to parse AI response for job ${jobData.id}: ${e.message}`);\n  \n  // Default fallback analysis\n  analysis = {\n    match_score: 0,\n    technical_score: 0,\n    experience_score: 0,\n    seniority_score: 0,\n    language_score: 0,\n    location_score: 0,\n    visa_score: 0,\n    strengths: [],\n    missing_skills: [],\n    risks: ['AI analysis failed - manual review required'],\n    reasoning: `Parse error: ${parseError}`,\n    should_apply: false\n  };\n}\n\nreturn [{\n  json: {\n    job_id: jobData.id,\n    company: jobData.company,\n    title: jobData.title,\n    url: jobData.url,\n    location: jobData.location,\n    remote: jobData.remote,\n    ...analysis,\n    parse_error: parseError,\n    tokens_used: apiResponse.usage?.total_tokens || 0\n  }\n}];"
+      },
+      "id": "parse-ai-response",
+      "name": "Parse AI Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1340, 380]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE jobs SET\n  match_score       = {{ $json.match_score }},\n  technical_score   = {{ $json.technical_score }},\n  experience_score  = {{ $json.experience_score }},\n  seniority_score   = {{ $json.seniority_score || 0 }},\n  language_score    = {{ $json.language_score || 0 }},\n  location_score    = {{ $json.location_score || 0 }},\n  visa_score        = {{ $json.visa_score || 0 }},\n  strengths         = '{{ JSON.stringify($json.strengths || []) }}'::jsonb,\n  missing_skills    = '{{ JSON.stringify($json.missing_skills || []) }}'::jsonb,\n  risks             = '{{ JSON.stringify($json.risks || []) }}'::jsonb,\n  ai_reasoning      = '{{ ($json.reasoning || '').replace(/'/g, \"''\") }}',\n  ai_analyzed       = true,\n  ai_analyzed_at    = NOW(),\n  status            = CASE\n    WHEN {{ $json.match_score }} >= {{ $env.MIN_MATCH_SCORE || 70 }} THEN 'MATCHED'\n    WHEN {{ $json.match_score }} < 40 THEN 'REJECTED'\n    ELSE 'ANALYZED'\n  END,\n  updated_at        = NOW()\nWHERE id = '{{ $json.job_id }}'::uuid\nRETURNING id, company, title, match_score, status;"
+      },
+      "id": "save-analysis",
+      "name": "Save AI Analysis",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [1560, 380],
+      "credentials": {
+        "postgres": {
+          "name": "PostgreSQL Job Hunter"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO ai_usage (date, requests_made, requests_limit)\nVALUES (CURRENT_DATE, 1, {{ $env.MAX_AI_REQUESTS_PER_DAY || 50 }})\nON CONFLICT (date) DO UPDATE\nSET requests_made = ai_usage.requests_made + 1,\n    last_updated = NOW();"
+      },
+      "id": "increment-quota",
+      "name": "Increment AI Quota",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [1780, 380],
+      "credentials": {
+        "postgres": {
+          "name": "PostgreSQL Job Hunter"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Trigger": {
+      "main": [
+        [{"node": "Fetch Unanalyzed Jobs", "type": "main", "index": 0}],
+        [{"node": "Check AI Quota", "type": "main", "index": 0}]
+      ]
+    },
+    "Fetch Unanalyzed Jobs": {
+      "main": [[{"node": "Quota Gate", "type": "main", "index": 0}]]
+    },
+    "Check AI Quota": {
+      "main": [[{"node": "Quota Gate", "type": "main", "index": 0}]]
+    },
+    "Quota Gate": {
+      "main": [[{"node": "Build AI Prompt", "type": "main", "index": 0}]]
+    },
+    "Build AI Prompt": {
+      "main": [[{"node": "Call OpenRouter AI", "type": "main", "index": 0}]]
+    },
+    "Call OpenRouter AI": {
+      "main": [[{"node": "Parse AI Response", "type": "main", "index": 0}]]
+    },
+    "Parse AI Response": {
+      "main": [[{"node": "Save AI Analysis", "type": "main", "index": 0}]]
+    },
+    "Save AI Analysis": {
+      "main": [[{"node": "Increment AI Quota", "type": "main", "index": 0}]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": ["job-hunter", "ai-analysis"]
+}

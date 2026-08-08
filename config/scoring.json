@@ -1,0 +1,50 @@
+{
+  "_comment": "Scoring weight configuration. Weights must sum to 100.",
+  "weights": {
+    "technical": {
+      "value": 35,
+      "description": "Technical skills overlap: languages, frameworks, tools, cloud services"
+    },
+    "experience": {
+      "value": 25,
+      "description": "Relevant experience: years, past roles, project metrics and achievements"
+    },
+    "seniority": {
+      "value": 15,
+      "description": "Seniority level match: junior/mid/senior alignment"
+    },
+    "cloud": {
+      "value": 10,
+      "description": "Cloud and DevOps tooling compatibility: AWS/Azure/GCP, Docker, CI/CD"
+    },
+    "language": {
+      "value": 5,
+      "description": "Spoken language requirements vs candidate languages"
+    },
+    "location": {
+      "value": 5,
+      "description": "Location/remote preference alignment"
+    },
+    "visa": {
+      "value": 5,
+      "description": "Work authorization and visa sponsorship eligibility"
+    }
+  },
+  "thresholds": {
+    "auto_reject_below": 40,
+    "notify_at": 70,
+    "preferred_at": 80,
+    "excellent_at": 90
+  },
+  "seniority_mapping": {
+    "intern": 0,
+    "junior": 25,
+    "entry": 25,
+    "mid": 50,
+    "intermediate": 50,
+    "senior": 75,
+    "lead": 90,
+    "principal": 95,
+    "staff": 95
+  }
+}
