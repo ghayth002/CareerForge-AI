@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: careerforge-ai-api
+    env: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_VERSION
+        value: 20.11.0
+      - key: DASHBOARD_PASSCODE
+        value: Ghaith_Master_Key_2026!
+      - key: OPENROUTER_API_KEY
+        sync: false
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false

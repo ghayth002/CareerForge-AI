@@ -1673,12 +1673,6 @@ async function downloadCvWithFallback(e, fileName, type = 'cv') {
   a.click();
   document.body.removeChild(a);
 }
-  a.href = fallbackUrl;
-  a.download = cvName;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-}
 
 function copyTextToClipboard(btn, text) {
   navigator.clipboard.writeText(text);
@@ -1711,18 +1705,30 @@ let isWorkflowRunning = false;
 async function triggerRealGitHubDispatch(manualToken = null) {
   let token = manualToken || localStorage.getItem('cf_gh_pat') || (document.getElementById('github-pat-input')?.value || '').trim() || decryptedDataStore?.dispatch?.token;
   const n8nUrl = decryptedDataStore?.dispatch?.n8n_webhook;
-
-  if (!token && !n8nUrl) {
-    const userEntered = prompt("Enter your GitHub Personal Access Token (GH_PAT) once to enable 1-Click Real Cloud Dispatch from this Dashboard:");
-    if (userEntered && userEntered.trim()) {
-      token = userEntered.trim();
-      localStorage.setItem('cf_gh_pat', token);
-    }
-  }
+  const cloudApiUrl = localStorage.getItem('cf_cloud_api') || decryptedDataStore?.dispatch?.cloud_api;
 
   appendConsoleLog('\n====================================================');
   appendConsoleLog('🚀 INITIATING REAL CLOUD WORKFLOW DISPATCH');
   appendConsoleLog('====================================================');
+
+  // Priority 1: Trigger Free Render.com / Cloud Express API if available
+  if (cloudApiUrl) {
+    appendConsoleLog(`  📡 Connecting to Free Cloud API Server: ${cloudApiUrl}...`);
+    try {
+      const res = await fetch(cloudApiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'trigger_job_hunter', timestamp: new Date().toISOString() })
+      });
+      if (res.ok) {
+        appendConsoleLog('  ✅ FREE CLOUD API SERVER TRIGGERED SUCCESSFULLY!', 'success');
+        executeWorkflowPipeline();
+        return;
+      }
+    } catch (e) {
+      appendConsoleLog(`  ⚠️ Cloud API notice: ${e.message}`);
+    }
+  }
 
   // Priority 1: Trigger n8n webhook if configured
   if (n8nUrl) {

@@ -1,0 +1,19 @@
+{
+  "name": "careerforge-ai-cloud-runner",
+  "version": "2.0.0",
+  "description": "CareerForge AI — Free Multi-User Cloud Orchestrator API for Render.com",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "build": "node scripts/build-static-dashboard.js",
+    "pipeline": "node scripts/cloud-job-hunter.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "nodemailer": "^6.9.13"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
