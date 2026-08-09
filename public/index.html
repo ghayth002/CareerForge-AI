@@ -869,31 +869,66 @@ sidebar {
 #auth-overlay-screen {
   position: fixed;
   inset: 0;
-  background: rgba(5, 7, 13, 0.96);
+  background: var(--bg-dark);
   backdrop-filter: blur(28px);
   z-index: 9999;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 24px;
+  overflow-y: auto;
+  transition: var(--transition);
 }
+[data-theme="dark"] #auth-overlay-screen {
+  background: rgba(6, 8, 19, 0.96);
+}
+[data-theme="light"] #auth-overlay-screen {
+  background: rgba(248, 250, 252, 0.96);
+}
+
 .auth-modal-card {
   background: var(--bg-surface);
   border: 1px solid var(--border-glow);
   border-radius: var(--radius-xl);
-  padding: 44px 38px;
-  max-width: 430px;
+  padding: 40px 34px;
+  max-width: 480px;
   width: 100%;
-  text-align: center;
-  box-shadow: 0 40px 100px rgba(0, 240, 255, 0.18);
+  box-shadow: var(--shadow-main);
+  position: relative;
+  transition: var(--transition);
 }
+
+.auth-theme-btn {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid var(--border-glass);
+  background: var(--bg-card);
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1.05rem;
+  transition: var(--transition);
+  z-index: 10;
+}
+.auth-theme-btn:hover {
+  transform: scale(1.1);
+  border-color: var(--neon-cyan);
+  box-shadow: var(--glow-cyan);
+}
+
 .auth-shield-icon {
-  width: 68px; height: 68px;
+  width: 64px; height: 64px;
   border-radius: 20px;
   background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
   display: flex; align-items: center; justify-content: center;
-  font-size: 2.2rem;
-  margin: 0 auto 20px;
+  font-size: 2rem;
+  margin: 0 auto 16px;
   box-shadow: var(--glow-cyan);
 }
 </style>
@@ -901,16 +936,16 @@ sidebar {
 <body>
 
 <!-- ════════════════════════════════════════
-     AUTH LOCK SCREEN (AES-256-GCM)
-════════════════════════════════════════ -->
-<!-- ════════════════════════════════════════
      PRODUCTION SAAS AUTHENTICATION & ONBOARDING PORTAL
 ════════════════════════════════════════ -->
 <div id="auth-overlay-screen">
-  <div class="auth-modal-card" id="auth-card-container" style="max-width:480px;">
+  <div class="auth-modal-card" id="auth-card-container">
     
+    <!-- Quick Theme Switcher Button -->
+    <button type="button" class="auth-theme-btn" id="auth-theme-toggle" onclick="toggleThemeMode()" title="Toggle Light / Night Theme">☀️</button>
+
     <!-- Header Tabs Switcher -->
-    <div style="display:flex;background:rgba(255,255,255,0.06);border-radius:12px;padding:4px;margin-bottom:24px;">
+    <div style="display:flex;background:var(--bg-card);border:1px solid var(--border-glass);border-radius:12px;padding:4px;margin-bottom:24px;">
       <button type="button" id="tab-btn-signin" onclick="switchAuthTab('signin')" style="flex:1;padding:10px;border-radius:8px;border:none;background:var(--neon-cyan);color:#000;font-weight:800;font-size:0.85rem;cursor:pointer;transition:var(--transition);">Sign In</button>
       <button type="button" id="tab-btn-signup" onclick="switchAuthTab('signup')" style="flex:1;padding:10px;border-radius:8px;border:none;background:transparent;color:var(--text-muted);font-weight:800;font-size:0.85rem;cursor:pointer;transition:var(--transition);">Sign Up (AI Auto-Fill)</button>
     </div>
