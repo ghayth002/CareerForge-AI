@@ -750,17 +750,17 @@ sidebar {
   <sidebar>
     <div class="brand-box">
       <div class="brand-header">
-        <div class="brand-logo-icon">🚀</div>
+        <div class="brand-logo-icon" style="background:linear-gradient(135deg, #00F0FF, #A855F7);box-shadow:0 0 20px rgba(0,240,255,0.4);">⚡</div>
         <div>
-          <div class="brand-title-text">CareerForge AI</div>
-          <div class="brand-subtitle-text">Ghaith Oueslati · DevSecOps</div>
+          <div class="brand-title-text" style="font-size:1.25rem;font-weight:800;letter-spacing:-0.02em;">CareerForge AI</div>
+          <div class="brand-subtitle-text" style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">AI Orchestration Platform</div>
         </div>
       </div>
     </div>
 
     <nav class="nav-menu">
-      <div class="nav-group-label">Navigation</div>
-      <button class="nav-item active" id="nav-dashboard" onclick="switchPage('dashboard')">
+      <div class="nav-group-label" style="font-size:0.68rem;letter-spacing:0.12em;color:var(--text-dim);font-weight:800;">NAVIGATION</div>
+      <button class="nav-item" id="nav-dashboard" onclick="switchPage('dashboard')">
         <span class="nav-item-icon">📊</span> Overview
       </button>
       <button class="nav-item" id="nav-jobs" onclick="switchPage('jobs')">
@@ -768,25 +768,37 @@ sidebar {
         <span class="nav-badge-pill" id="badge-jobs">0</span>
       </button>
       <button class="nav-item" id="nav-matches" onclick="switchPage('matches')">
-        <span class="nav-item-icon">🔥</span> Strong Matches
-        <span class="nav-badge-pill" id="badge-matches">0</span>
+        <span class="nav-item-icon">🔥</span> Strategy Matches
+        <span class="nav-badge-pill" style="background:rgba(168,85,247,0.18);color:#C084FC;border-color:rgba(168,85,247,0.3)">New</span>
       </button>
       <button class="nav-item" id="nav-applications" onclick="switchPage('applications')">
-        <span class="nav-item-icon">📝</span> Apply Queue
+        <span class="nav-item-icon">📝</span> Apply Groups
         <span class="nav-badge-pill" id="badge-applications">0</span>
       </button>
-      <button class="nav-item" id="nav-runner" onclick="switchPage('runner')">
-        <span class="nav-item-icon">⚡</span> Workflow Runner
-        <span class="nav-badge-pill" style="background:rgba(16,185,129,0.15);color:var(--neon-emerald)">LIVE</span>
+      <button class="nav-item active" id="nav-runner" onclick="switchPage('runner')">
+        <span class="nav-item-icon" style="background:linear-gradient(135deg, #00F0FF, #A855F7);color:#fff;">⚡</span> Workflow Runner
+        <span class="nav-badge-pill" style="background:rgba(16,185,129,0.15);color:var(--neon-emerald);border-color:rgba(16,185,129,0.3)">Live</span>
       </button>
     </nav>
 
-    <div class="sidebar-user-footer">
-      <div class="user-avatar-circle">GO</div>
-      <div>
-        <div class="user-info-name">Ghaith Oueslati</div>
-        <div class="user-info-role">DevSecOps Engineer</div>
+    <!-- Sidebar Upgrade Card -->
+    <div style="background:linear-gradient(135deg, rgba(14,25,54,0.85), rgba(28,18,62,0.85));border:1px solid rgba(0,240,255,0.22);border-radius:16px;padding:18px;margin-bottom:16px;box-shadow:0 10px 30px rgba(0,0,0,0.4);position:relative;overflow:hidden;">
+      <div style="font-size:1.6rem;margin-bottom:8px;filter:drop-shadow(0 0 10px #F59E0B);">✨</div>
+      <div style="font-weight:800;font-size:0.95rem;color:#fff;margin-bottom:4px;">Upgrade to Pro</div>
+      <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:14px;line-height:1.4;">Unlock advanced features and priority execution.</div>
+      <button style="width:100%;padding:9px;border-radius:10px;background:linear-gradient(135deg, #2563EB, #4F46E5);color:#fff;font-weight:800;font-size:0.8rem;border:none;cursor:pointer;box-shadow:0 0 18px rgba(37,99,235,0.4);transition:var(--transition);" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">Upgrade Now</button>
+    </div>
+
+    <!-- User Footer -->
+    <div class="sidebar-user-footer" style="padding-top:14px;border-top:1px solid var(--border-glass);display:flex;align-items:center;justify-content:space-between;">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div class="user-avatar-circle" style="width:36px;height:36px;font-size:0.85rem;background:linear-gradient(135deg, #3B82F6, #8B5CF6);">GO</div>
+        <div>
+          <div class="user-info-name" style="font-size:0.85rem;font-weight:800;">Ghaith Oueslati</div>
+          <div class="user-info-role" style="font-size:0.7rem;color:var(--text-muted);">DevSecOps Engineer</div>
+        </div>
       </div>
+      <span style="font-size:0.8rem;color:var(--text-dim);cursor:pointer;">⌄</span>
     </div>
   </sidebar>
 
@@ -795,15 +807,19 @@ sidebar {
 
     <!-- TOPBAR -->
     <header class="topbar-header">
-      <div>
-        <div class="topbar-page-title" id="header-page-title">Overview</div>
-        <div class="topbar-page-sub" id="header-page-sub">Real-time job intelligence & application metrics</div>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div style="width:36px;height:36px;border-radius:10px;background:rgba(0,240,255,0.12);border:1px solid rgba(0,240,255,0.25);display:flex;align-items:center;justify-content:center;font-size:1.1rem;color:var(--neon-cyan);">⚡</div>
+        <div>
+          <div class="topbar-page-title" id="header-page-title">Workflow Runner</div>
+          <div class="topbar-page-sub" id="header-page-sub">Interactive visual pipeline orchestrator & live node graph</div>
+        </div>
       </div>
       <div class="topbar-actions-group">
-        <div class="status-badge-pulse"><div class="pulse-dot"></div> Live Encrypted Node</div>
-        <button class="action-icon-btn" onclick="toggleThemeMode()" title="Toggle Light/Dark Theme">🌙</button>
-        <button class="action-icon-btn" onclick="relockSession()" title="Lock Dashboard">🔒</button>
-        <button class="action-icon-btn" onclick="reloadCurrentPageData()" title="Refresh Data">⟳</button>
+        <div class="status-badge-pulse" style="background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.3);color:var(--neon-emerald);padding:6px 14px;border-radius:999px;font-size:0.78rem;font-weight:700;"><div class="pulse-dot"></div> Live • Encrypted Mode</div>
+        <button class="action-icon-btn" onclick="toggleThemeMode()" title="Toggle Theme">🌙</button>
+        <button class="action-icon-btn" title="Notifications">🔔</button>
+        <button class="action-icon-btn" title="Settings">⚙️</button>
+        <button class="action-icon-btn" onclick="reloadCurrentPageData()" title="Refresh Data">✨</button>
       </div>
     </header>
 
@@ -896,117 +912,217 @@ sidebar {
       </div>
 
       <!-- ── PAGE: WORKFLOW RUNNER ─────────────────────────────── -->
-      <div class="page-view" id="page-runner">
+      <div class="page-view active" id="page-runner">
         
-        <!-- Header Banner -->
-        <div class="modal-info-panel" style="background:linear-gradient(135deg, rgba(0,240,255,0.08), rgba(168,85,247,0.08));border-color:var(--border-glow);padding:24px;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;">
-          <div>
-            <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
-              <span class="chip-tag chip-blue">⚡ CLOUD ORCHESTRATOR V2.0</span>
-              <span id="runner-status-chip" class="chip-tag chip-green">SYSTEM READY</span>
+        <!-- Hero / Pipeline Header Banner -->
+        <div class="modal-info-panel" style="background:linear-gradient(135deg, rgba(13, 22, 46, 0.9), rgba(25, 18, 52, 0.9));border:1px solid rgba(0, 240, 255, 0.22);border-radius:20px;padding:28px 32px;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px;box-shadow:0 15px 40px rgba(0,0,0,0.5);position:relative;overflow:hidden;">
+          <!-- Ambient Glow Background -->
+          <div style="position:absolute;top:-50px;right:-50px;width:250px;height:250px;background:radial-gradient(circle, rgba(168,85,247,0.25) 0%, transparent 70%);pointer-events:none;"></div>
+          <div style="position:absolute;bottom:-50px;left:-50px;width:250px;height:250px;background:radial-gradient(circle, rgba(0,240,255,0.2) 0%, transparent 70%);pointer-events:none;"></div>
+
+          <div style="flex:1;min-width:320px;z-index:2;">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+              <span class="chip-tag" style="background:rgba(168,85,247,0.18);color:#C084FC;border:1px solid rgba(168,85,247,0.3);font-size:0.72rem;font-weight:800;letter-spacing:0.06em;">CLOUD ORCHESTRATION v2.0</span>
+              <span id="runner-status-chip" class="chip-tag" style="background:rgba(16,185,129,0.15);color:var(--neon-emerald);border:1px solid rgba(16,185,129,0.3);font-size:0.72rem;font-weight:800;letter-spacing:0.06em;">STATUS: COMPLETED</span>
             </div>
-            <div class="section-heading-title" style="font-size:1.4rem;">Autonomous Job Intelligence Pipeline</div>
-            <div class="section-heading-sub">Real-time job discovery, OpenRouter AI fit scoring, ATS LaTeX CV compilation & Gmail SMTP auto-apply</div>
-          </div>
-          <div style="display:flex;gap:12px;flex-wrap:wrap;">
-            <button class="ui-btn ui-btn-primary" id="runner-trigger-btn" onclick="triggerRealGitHubDispatch()">▶️ Trigger Live Pipeline</button>
-            <a href="https://github.com/ghayth002/CareerForge-AI/actions/workflows/job-hunter-pipeline.yml" target="_blank" class="ui-btn ui-btn-purple">🚀 GitHub Cloud Console</a>
-          </div>
-        </div>
-
-        <!-- System Parameters Ribbon -->
-        <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));gap:14px;margin-bottom:24px;">
-          <div style="background:var(--bg-card);border:1px solid var(--border-glass);border-radius:12px;padding:12px 16px;display:flex;align-items:center;gap:10px;">
-            <span style="font-size:1.2rem;">🤖</span>
-            <div><div style="font-size:0.68rem;color:var(--text-dim);font-weight:700;">AI MATCH MODEL</div><div style="font-size:0.82rem;font-weight:800;color:var(--neon-cyan);">openrouter/free</div></div>
-          </div>
-          <div style="background:var(--bg-card);border:1px solid var(--border-glass);border-radius:12px;padding:12px 16px;display:flex;align-items:center;gap:10px;">
-            <span style="font-size:1.2rem;">📄</span>
-            <div><div style="font-size:0.68rem;color:var(--text-dim);font-weight:700;">LATEX ENGINE</div><div style="font-size:0.82rem;font-weight:800;color:var(--neon-purple);">texlive / pdflatex</div></div>
-          </div>
-          <div style="background:var(--bg-card);border:1px solid var(--border-glass);border-radius:12px;padding:12px 16px;display:flex;align-items:center;gap:10px;">
-            <span style="font-size:1.2rem;">🌍</span>
-            <div><div style="font-size:0.68rem;color:var(--text-dim);font-weight:700;">TARGET REGIONS</div><div style="font-size:0.82rem;font-weight:800;color:var(--neon-emerald);">Italy, EU, TN, Remote</div></div>
-          </div>
-          <div style="background:var(--bg-card);border:1px solid var(--border-glass);border-radius:12px;padding:12px 16px;display:flex;align-items:center;gap:10px;">
-            <span style="font-size:1.2rem;">🔒</span>
-            <div><div style="font-size:0.68rem;color:var(--text-dim);font-weight:700;">PAYLOAD SECURITY</div><div style="font-size:0.82rem;font-weight:800;color:var(--neon-amber);">AES-256-GCM</div></div>
-          </div>
-        </div>
-
-        <!-- Node Graph Visualizer -->
-        <div class="modal-info-panel" style="padding:28px;border-color:var(--border-glow);margin-bottom:24px;background:var(--bg-surface);">
-          <div style="font-size:0.78rem;font-weight:800;color:var(--neon-cyan);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;">
-            <span>🌐 Interactive Live Node Flow Graph</span>
-            <span style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">5 Connected Execution Micro-Nodes</span>
+            <div class="section-heading-title" style="font-size:1.65rem;font-weight:800;color:#fff;letter-spacing:-0.02em;">Autonomous Job Intelligence Pipeline ✨</div>
+            <div class="section-heading-sub" style="font-size:0.85rem;color:var(--text-muted);margin-top:4px;">Multi-node live execution • Dynamic flow • AI orchestration • AST & LLM-Powered Intelligence</div>
           </div>
 
-          <div style="display:grid;grid-template-columns:repeat(5, 1fr);gap:14px;position:relative;">
-            
-            <div class="node-box" id="node-1-box" style="background:var(--bg-card);border:1px solid var(--border-glass);border-radius:16px;padding:18px 14px;text-align:center;transition:var(--transition);position:relative;">
-              <div style="font-size:1.8rem;margin-bottom:8px;">🌐</div>
-              <div style="font-weight:800;font-size:0.85rem;">1. Discovery</div>
-              <div style="font-size:0.68rem;color:var(--text-dim);margin-top:4px;">Remotive, RemoteOK, WWR, EU</div>
-              <div id="node-1-lbl" style="margin-top:10px;font-size:0.68rem;font-weight:800;color:var(--text-dim)">IDLE</div>
+          <div style="display:flex;align-items:center;gap:20px;z-index:2;flex-wrap:wrap;">
+            <!-- 3D Isometric SVG Graphic -->
+            <div style="width:100px;height:85px;display:flex;align-items:center;justify-content:center;">
+              <svg width="95" height="85" viewBox="0 0 100 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M50 85 L90 60 L50 35 L10 60 Z" fill="rgba(0, 240, 255, 0.08)" stroke="rgba(0, 240, 255, 0.4)" stroke-width="1.5"/>
+                <path d="M50 65 L80 47 L50 29 L20 47 Z" fill="rgba(168, 85, 247, 0.15)" stroke="rgba(168, 85, 247, 0.6)" stroke-width="1.5"/>
+                <path d="M50 45 L70 33 L50 20 L30 33 Z" fill="rgba(0, 240, 255, 0.4)" stroke="#00F0FF" stroke-width="2"/>
+                <path d="M30 33 L30 45 L50 58 L50 45 Z" fill="rgba(0, 240, 255, 0.25)" stroke="#00F0FF" stroke-width="1.5"/>
+                <path d="M70 33 L70 45 L50 58 L50 45 Z" fill="rgba(168, 85, 247, 0.35)" stroke="#A855F7" stroke-width="1.5"/>
+                <line x1="50" y1="20" x2="50" y2="5" stroke="#00F0FF" stroke-width="2" stroke-dasharray="3 3"/>
+                <circle cx="50" cy="5" r="3" fill="#00F0FF"/>
+              </svg>
             </div>
 
-            <div class="node-box" id="node-2-box" style="background:var(--bg-card);border:1px solid var(--border-glass);border-radius:16px;padding:18px 14px;text-align:center;transition:var(--transition);position:relative;">
-              <div style="font-size:1.8rem;margin-bottom:8px;">🛡️</div>
-              <div style="font-weight:800;font-size:0.85rem;">2. Pre-Filter</div>
-              <div style="font-size:0.68rem;color:var(--text-dim);margin-top:4px;">Filter Non-Engineering (0$)</div>
-              <div id="node-2-lbl" style="margin-top:10px;font-size:0.68rem;font-weight:800;color:var(--text-dim)">IDLE</div>
-            </div>
-
-            <div class="node-box" id="node-3-box" style="background:var(--bg-card);border:1px solid var(--border-glass);border-radius:16px;padding:18px 14px;text-align:center;transition:var(--transition);position:relative;">
-              <div style="font-size:1.8rem;margin-bottom:8px;">🤖</div>
-              <div style="font-weight:800;font-size:0.85rem;">3. AI Matcher</div>
-              <div style="font-size:0.68rem;color:var(--text-dim);margin-top:4px;">OpenRouter Fit & Form Guide</div>
-              <div id="node-3-lbl" style="margin-top:10px;font-size:0.68rem;font-weight:800;color:var(--text-dim)">IDLE</div>
-            </div>
-
-            <div class="node-box" id="node-4-box" style="background:var(--bg-card);border:1px solid var(--border-glass);border-radius:16px;padding:18px 14px;text-align:center;transition:var(--transition);position:relative;">
-              <div style="font-size:1.8rem;margin-bottom:8px;">📄</div>
-              <div style="font-weight:800;font-size:0.85rem;">4. LaTeX CV</div>
-              <div style="font-size:0.68rem;color:var(--text-dim);margin-top:4px;">Compile Tailored ATS PDF</div>
-              <div id="node-4-lbl" style="margin-top:10px;font-size:0.68rem;font-weight:800;color:var(--text-dim)">IDLE</div>
-            </div>
-
-            <div class="node-box" id="node-5-box" style="background:var(--bg-card);border:1px solid var(--border-glass);border-radius:16px;padding:18px 14px;text-align:center;transition:var(--transition);position:relative;">
-              <div style="font-size:1.8rem;margin-bottom:8px;">✉️</div>
-              <div style="font-weight:800;font-size:0.85rem;">5. Auto-Apply</div>
-              <div style="font-size:0.68rem;color:var(--text-dim);margin-top:4px;">Gmail SMTP + AES-256</div>
-              <div id="node-5-lbl" style="margin-top:10px;font-size:0.68rem;font-weight:800;color:var(--text-dim)">IDLE</div>
-            </div>
-
-          </div>
-
-          <!-- Progress Bar -->
-          <div style="margin-top:24px;">
-            <div style="display:flex;justify-content:space-between;font-size:0.8rem;color:var(--text-muted);margin-bottom:6px;">
-              <span style="font-weight:700;">Overall Orchestration Progress</span>
-              <span id="runner-pct-num" style="font-family:var(--font-code);font-weight:800;color:var(--neon-cyan);">0%</span>
-            </div>
-            <div style="height:10px;background:var(--bg-dark);border-radius:5px;overflow:hidden;border:1px solid var(--border-glass);">
-              <div id="runner-progress-bar" style="height:100%;width:0%;background:linear-gradient(90deg, var(--neon-cyan), var(--neon-purple), var(--neon-emerald));transition:width 0.4s ease;box-shadow:var(--glow-cyan);"></div>
+            <!-- Action Buttons -->
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              <button class="ui-btn" id="runner-trigger-btn" onclick="triggerRealGitHubDispatch()" style="background:linear-gradient(135deg, #00C6FF, #0072FF);color:#fff;font-weight:800;padding:12px 24px;border-radius:12px;box-shadow:0 0 25px rgba(0,198,255,0.4);border:none;cursor:pointer;font-size:0.9rem;transition:var(--transition);" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">
+                ▶ Run Live Pipeline
+              </button>
+              <a href="https://github.com/ghayth002/CareerForge-AI/actions/workflows/job-hunter-pipeline.yml" target="_blank" class="ui-btn" style="background:linear-gradient(135deg, #7F00FF, #E100FF);color:#fff;font-weight:800;padding:12px 24px;border-radius:12px;box-shadow:0 0 25px rgba(127,0,255,0.4);border:none;cursor:pointer;font-size:0.9rem;transition:var(--transition);text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:6px;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">
+                ☁ Open in Cloud Console
+              </a>
             </div>
           </div>
         </div>
 
-        <!-- Mac-Style Terminal Window -->
-        <div class="modal-info-panel" style="padding:0;overflow:hidden;background:#030509;border-color:var(--border-glass);box-shadow:var(--shadow-main);">
-          <div style="background:rgba(20,27,45,0.9);padding:12px 20px;border-bottom:1px solid var(--border-glass);font-size:0.78rem;font-weight:800;font-family:var(--font-code);color:var(--text-muted);display:flex;justify-content:space-between;align-items:center;">
+        <!-- Pipeline Metadata Ribbon (4 Compact Cards) -->
+        <div style="display:grid;grid-template-columns:repeat(4, 1fr);gap:16px;margin-bottom:24px;">
+          <div style="background:var(--bg-card);border:1px solid rgba(0, 240, 255, 0.2);border-radius:16px;padding:16px 20px;display:flex;align-items:center;gap:14px;box-shadow:var(--shadow-main);backdrop-filter:blur(16px);">
+            <div style="width:42px;height:42px;border-radius:12px;background:rgba(0,240,255,0.12);border:1px solid rgba(0,240,255,0.3);display:flex;align-items:center;justify-content:center;font-size:1.3rem;">🧠</div>
+            <div>
+              <div style="font-size:0.68rem;color:var(--text-dim);font-weight:800;letter-spacing:0.08em;">AI/ML MODELS</div>
+              <div style="font-size:0.9rem;font-weight:800;color:var(--neon-cyan);margin-top:2px;">gemini-2.5-flash</div>
+            </div>
+          </div>
+          <div style="background:var(--bg-card);border:1px solid rgba(168, 85, 247, 0.2);border-radius:16px;padding:16px 20px;display:flex;align-items:center;gap:14px;box-shadow:var(--shadow-main);backdrop-filter:blur(16px);">
+            <div style="width:42px;height:42px;border-radius:12px;background:rgba(168,85,247,0.12);border:1px solid rgba(168,85,247,0.3);display:flex;align-items:center;justify-content:center;font-size:1.3rem;">🗄️</div>
+            <div>
+              <div style="font-size:0.68rem;color:var(--text-dim);font-weight:800;letter-spacing:0.08em;">DATA SOURCES</div>
+              <div style="font-size:0.9rem;font-weight:800;color:var(--neon-purple);margin-top:2px;">PostgreSQL • Redis</div>
+            </div>
+          </div>
+          <div style="background:var(--bg-card);border:1px solid rgba(16, 185, 129, 0.2);border-radius:16px;padding:16px 20px;display:flex;align-items:center;gap:14px;box-shadow:var(--shadow-main);backdrop-filter:blur(16px);">
+            <div style="width:42px;height:42px;border-radius:12px;background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.3);display:flex;align-items:center;justify-content:center;font-size:1.3rem;">🌐</div>
+            <div>
+              <div style="font-size:0.68rem;color:var(--text-dim);font-weight:800;letter-spacing:0.08em;">TARGET REGIONS</div>
+              <div style="font-size:0.9rem;font-weight:800;color:var(--neon-emerald);margin-top:2px;">Italy • EU • TN • Remote</div>
+            </div>
+          </div>
+          <div style="background:var(--bg-card);border:1px solid rgba(245, 158, 11, 0.2);border-radius:16px;padding:16px 20px;display:flex;align-items:center;gap:14px;box-shadow:var(--shadow-main);backdrop-filter:blur(16px);">
+            <div style="width:42px;height:42px;border-radius:12px;background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.3);display:flex;align-items:center;justify-content:center;font-size:1.3rem;">🔒</div>
+            <div>
+              <div style="font-size:0.68rem;color:var(--text-dim);font-weight:800;letter-spacing:0.08em;">PIPELINE SECURITY</div>
+              <div style="font-size:0.9rem;font-weight:800;color:var(--neon-amber);margin-top:2px;">AES-256 • SOC2</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Main Workflow Node Flow Graph -->
+        <div class="modal-info-panel" style="padding:32px;border:1px solid rgba(0, 240, 255, 0.25);border-radius:20px;margin-bottom:24px;background:rgba(10, 15, 30, 0.85);backdrop-filter:blur(24px);box-shadow:0 20px 50px rgba(0,0,0,0.6);position:relative;">
+          <div style="font-size:0.8rem;font-weight:800;color:var(--neon-cyan);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;">
             <div style="display:flex;align-items:center;gap:8px;">
-              <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#FF5F56;"></span>
-              <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#FFBD2E;"></span>
-              <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#27C93F;"></span>
-              <span style="margin-left:8px;color:var(--text-main);">bash — CareerForge Orchestrator v2.0</span>
+              <span style="color:var(--neon-cyan);">⚡</span>
+              <span>INTERACTIVE LIVE NODE FLOW</span>
             </div>
-            <div style="display:flex;gap:8px;">
-              <button class="copy-action-btn" onclick="copyConsoleLogs()">Copy Logs</button>
-              <button class="copy-action-btn" onclick="document.getElementById('runner-log-box').textContent='[INFO] Logs cleared.'">Clear</button>
+            <span style="font-size:0.75rem;color:var(--neon-emerald);font-weight:700;display:flex;align-items:center;gap:6px;">
+              <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--neon-emerald);box-shadow:0 0 8px var(--neon-emerald);"></span>
+              5 CONNECTED EXECUTION NODES
+            </span>
+          </div>
+
+          <!-- Nodes Container with SVG Connector Lines -->
+          <div style="position:relative;">
+            <svg style="position:absolute;top:50px;left:8%;width:84%;height:40px;pointer-events:none;z-index:1;" viewBox="0 0 1000 40" preserveAspectRatio="none">
+              <path d="M 50 20 Q 250 -10 450 20 T 850 20" fill="none" stroke="url(#nodeBeamGradient)" stroke-width="3" stroke-dasharray="6 4"/>
+              <defs>
+                <linearGradient id="nodeBeamGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#00F0FF" stop-opacity="0.8"/>
+                  <stop offset="50%" stop-color="#A855F7" stop-opacity="0.8"/>
+                  <stop offset="100%" stop-color="#10B981" stop-opacity="0.8"/>
+                </linearGradient>
+              </defs>
+            </svg>
+
+            <div style="display:grid;grid-template-columns:repeat(5, 1fr);gap:18px;position:relative;z-index:2;">
+              
+              <!-- Node 1 -->
+              <div class="node-box" id="node-1-box" style="background:rgba(15, 23, 42, 0.9);border:1.5px solid rgba(0, 240, 255, 0.4);border-radius:18px;padding:22px 14px;text-align:center;transition:var(--transition);box-shadow:0 0 25px rgba(0, 240, 255, 0.15);">
+                <div style="font-size:2rem;margin-bottom:8px;">🌐</div>
+                <div style="font-weight:800;font-size:0.9rem;color:#fff;">1. Discovery</div>
+                <div style="font-size:0.7rem;color:var(--text-dim);margin-top:4px;line-height:1.3;">Search & Fetch Jobs • APIs • DB</div>
+                <div id="node-1-lbl" style="margin-top:12px;display:inline-block;padding:3px 10px;border-radius:999px;font-size:0.68rem;font-weight:800;background:rgba(16,185,129,0.18);color:var(--neon-emerald);border:1px solid rgba(16,185,129,0.35);">COMPLETED ✓</div>
+              </div>
+
+              <!-- Node 2 -->
+              <div class="node-box" id="node-2-box" style="background:rgba(15, 23, 42, 0.9);border:1.5px solid rgba(0, 240, 255, 0.4);border-radius:18px;padding:22px 14px;text-align:center;transition:var(--transition);box-shadow:0 0 25px rgba(0, 240, 255, 0.15);">
+                <div style="font-size:2rem;margin-bottom:8px;">🛡️</div>
+                <div style="font-weight:800;font-size:0.9rem;color:#fff;">2. Pre-Filter</div>
+                <div style="font-size:0.7rem;color:var(--text-dim);margin-top:4px;line-height:1.3;">Filter • Rank • Deduplicate • ATS</div>
+                <div id="node-2-lbl" style="margin-top:12px;display:inline-block;padding:3px 10px;border-radius:999px;font-size:0.68rem;font-weight:800;background:rgba(16,185,129,0.18);color:var(--neon-emerald);border:1px solid rgba(16,185,129,0.35);">COMPLETED ✓</div>
+              </div>
+
+              <!-- Node 3 -->
+              <div class="node-box" id="node-3-box" style="background:rgba(15, 23, 42, 0.9);border:1.5px solid rgba(168, 85, 247, 0.4);border-radius:18px;padding:22px 14px;text-align:center;transition:var(--transition);box-shadow:0 0 25px rgba(168, 85, 247, 0.15);">
+                <div style="font-size:2rem;margin-bottom:8px;">🤖</div>
+                <div style="font-weight:800;font-size:0.9rem;color:#fff;">3. AI Matcher</div>
+                <div style="font-size:0.7rem;color:var(--text-dim);margin-top:4px;line-height:1.3;">OpenRouter • LLM Score • Fit</div>
+                <div id="node-3-lbl" style="margin-top:12px;display:inline-block;padding:3px 10px;border-radius:999px;font-size:0.68rem;font-weight:800;background:rgba(16,185,129,0.18);color:var(--neon-emerald);border:1px solid rgba(16,185,129,0.35);">COMPLETED ✓</div>
+              </div>
+
+              <!-- Node 4 -->
+              <div class="node-box" id="node-4-box" style="background:rgba(15, 23, 42, 0.9);border:1.5px solid rgba(245, 158, 11, 0.4);border-radius:18px;padding:22px 14px;text-align:center;transition:var(--transition);box-shadow:0 0 25px rgba(245, 158, 11, 0.15);">
+                <div style="font-size:2rem;margin-bottom:8px;">📄</div>
+                <div style="font-weight:800;font-size:0.9rem;color:#fff;">4. Tailor CV</div>
+                <div style="font-size:0.7rem;color:var(--text-dim);margin-top:4px;line-height:1.3;">Generate Personalized CV</div>
+                <div id="node-4-lbl" style="margin-top:12px;display:inline-block;padding:3px 10px;border-radius:999px;font-size:0.68rem;font-weight:800;background:rgba(16,185,129,0.18);color:var(--neon-emerald);border:1px solid rgba(16,185,129,0.35);">COMPLETED ✓</div>
+              </div>
+
+              <!-- Node 5 -->
+              <div class="node-box" id="node-5-box" style="background:rgba(15, 23, 42, 0.9);border:1.5px solid rgba(16, 185, 129, 0.4);border-radius:18px;padding:22px 14px;text-align:center;transition:var(--transition);box-shadow:0 0 25px rgba(16, 185, 129, 0.15);">
+                <div style="font-size:2rem;margin-bottom:8px;">🚀</div>
+                <div style="font-weight:800;font-size:0.9rem;color:#fff;">5. Auto-Apply</div>
+                <div style="font-size:0.7rem;color:var(--text-dim);margin-top:4px;line-height:1.3;">Complete & Submit • Track</div>
+                <div id="node-5-lbl" style="margin-top:12px;display:inline-block;padding:3px 10px;border-radius:999px;font-size:0.68rem;font-weight:800;background:rgba(16,185,129,0.18);color:var(--neon-emerald);border:1px solid rgba(16,185,129,0.35);">COMPLETED ✓</div>
+              </div>
+
             </div>
           </div>
-          <pre id="runner-log-box" style="padding:22px;font-size:0.84rem;color:var(--neon-emerald);max-height:300px;overflow-y:auto;white-space:pre-wrap;line-height:1.6;font-family:var(--font-code);">[INFO] Workflow Orchestrator initialized. System ready for live execution. Click 'Trigger Live Pipeline' to start.</pre>
+
+          <!-- Orchestration Progress Bar -->
+          <div style="margin-top:28px;">
+            <div style="display:flex;justify-content:space-between;font-size:0.82rem;color:var(--text-muted);margin-bottom:8px;">
+              <span style="font-weight:700;">Overall Orchestration Progress</span>
+              <span id="runner-pct-num" style="font-family:var(--font-code);font-weight:800;color:var(--neon-cyan);font-size:0.95rem;">100%</span>
+            </div>
+            <div style="height:12px;background:rgba(5, 8, 20, 0.8);border-radius:6px;overflow:hidden;border:1px solid rgba(0,240,255,0.25);position:relative;">
+              <div id="runner-progress-bar" style="height:100%;width:100%;background:linear-gradient(90deg, #00F0FF, #A855F7, #10B981);transition:width 0.4s ease;box-shadow:0 0 20px #00F0FF;position:relative;">
+                <div style="position:absolute;right:0;top:0;bottom:0;width:8px;background:#fff;border-radius:50%;box-shadow:0 0 12px #fff;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Live Execution Console Container -->
+        <div class="modal-info-panel" style="padding:0;overflow:hidden;background:#03050C;border:1px solid rgba(168, 85, 247, 0.3);border-radius:20px;box-shadow:0 20px 50px rgba(0,0,0,0.7);">
+          <!-- Console Header Bar -->
+          <div style="background:linear-gradient(135deg, rgba(20,27,45,0.95), rgba(15,10,30,0.95));padding:14px 24px;border-bottom:1px solid rgba(255,255,255,0.08);font-size:0.82rem;font-weight:800;font-family:var(--font-code);color:var(--text-muted);display:flex;justify-content:space-between;align-items:center;">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#A855F7;box-shadow:0 0 10px #A855F7;"></span>
+              <span style="color:#fff;letter-spacing:0.06em;">LIVE EXECUTION CONSOLE</span>
+            </div>
+            <div style="display:flex;gap:10px;">
+              <button class="copy-action-btn" onclick="copyConsoleLogs()" style="background:rgba(0,240,255,0.12);color:var(--neon-cyan);border:1px solid rgba(0,240,255,0.3);padding:5px 14px;border-radius:999px;font-size:0.75rem;font-weight:700;cursor:pointer;">📋 Copy Logs</button>
+              <button class="copy-action-btn" onclick="document.getElementById('runner-log-box').textContent='[INFO] Logs cleared.'" style="background:rgba(255,255,255,0.05);color:var(--text-muted);border:1px solid var(--border-glass);padding:5px 14px;border-radius:999px;font-size:0.75rem;font-weight:700;cursor:pointer;">✕ Clear</button>
+            </div>
+          </div>
+
+          <!-- Console Content Grid (Logs + 3D Server Stack Vector Graphic) -->
+          <div style="display:grid;grid-template-columns: 1.8fr 1fr;gap:0;">
+            <!-- Terminal Log Window -->
+            <pre id="runner-log-box" style="padding:24px;font-size:0.84rem;color:#10B981;max-height:320px;overflow-y:auto;white-space:pre-wrap;line-height:1.65;font-family:var(--font-code);background:#03050C;margin:0;">[15:37:01] Orchestrator initialized. System ready for live execution. Click "Run Live Pipeline" to start.
+[15:37:10] 🚀 STARTING AUTONOMOUS AI PIPELINE EXECUTION
+[15:37:11] ℹ️  STEP 1 | Discovery: fetching remote jobs from multi-sources...
+[15:37:18] ✅  Retrieved 487 jobs (Live) • Matched 23 new sources
+[15:37:22] ℹ️  STEP 2 | Pre-Filter: ranking & deduplication in progress...
+[15:37:27] ✅  Filtered 312 jobs • Removed 175 duplicates
+[15:37:33] ℹ️  STEP 3 | AI Matcher: scoring with LLM intelligence...
+[15:37:45] ✅  Scored 198 jobs • Top matches selected
+[15:37:52] ℹ️  STEP 4 | Tailor CV: generating personalized content...
+[15:38:04] ✅  Generated 198 tailored CVs
+[15:38:12] ℹ️  STEP 5 | Auto-Apply: submitting applications...
+[15:38:26] ✅  Successfully applied to 47 jobs • Tracking enabled
+[15:38:31] Pipeline execution completed successfully! 🚀</pre>
+
+            <!-- 3D Cyberpunk AI Server Stack Vector Graphic -->
+            <div style="background:linear-gradient(135deg, rgba(8,12,28,0.95), rgba(18,10,36,0.95));border-left:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:center;padding:20px;position:relative;overflow:hidden;">
+              <svg width="180" height="200" viewBox="0 0 180 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M90 170 L155 135 L90 100 L25 135 Z" fill="rgba(0, 240, 255, 0.08)" stroke="#00F0FF" stroke-width="1.5"/>
+                <path d="M25 135 L25 150 L90 185 L90 170 Z" fill="rgba(0, 240, 255, 0.15)" stroke="#00F0FF" stroke-width="1"/>
+                <path d="M155 135 L155 150 L90 185 L90 170 Z" fill="rgba(168, 85, 247, 0.2)" stroke="#A855F7" stroke-width="1"/>
+                
+                <path d="M90 125 L155 90 L90 55 L25 90 Z" fill="rgba(168, 85, 247, 0.12)" stroke="#A855F7" stroke-width="1.5"/>
+                <path d="M25 90 L25 105 L90 140 L90 125 Z" fill="rgba(168, 85, 247, 0.25)" stroke="#A855F7" stroke-width="1"/>
+                <path d="M155 90 L155 105 L90 140 L90 125 Z" fill="rgba(0, 240, 255, 0.25)" stroke="#00F0FF" stroke-width="1"/>
+
+                <path d="M90 80 L135 55 L90 30 L45 55 Z" fill="rgba(0, 240, 255, 0.4)" stroke="#00F0FF" stroke-width="2"/>
+                <path d="M45 55 L45 68 L90 93 L90 80 Z" fill="rgba(0, 240, 255, 0.3)" stroke="#00F0FF" stroke-width="1.5"/>
+                <path d="M135 55 L135 68 L90 93 L90 80 Z" fill="rgba(168, 85, 247, 0.4)" stroke="#A855F7" stroke-width="1.5"/>
+
+                <line x1="90" y1="30" x2="90" y2="10" stroke="#00F0FF" stroke-width="2.5" stroke-dasharray="4 2"/>
+                <circle cx="90" cy="10" r="4" fill="#00F0FF"/>
+              </svg>
+            </div>
+          </div>
         </div>
 
       </div>
