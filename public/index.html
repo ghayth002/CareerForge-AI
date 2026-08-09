@@ -1588,7 +1588,7 @@ function openJobModal(jobId) {
       <div class="modal-info-label" style="color:var(--neon-emerald);">📄 Tailored ATS-Optimized LaTeX CV Matched For This Job</div>
       <div style="font-size:0.85rem;color:var(--text-main);margin-bottom:6px;">File: <code>${cvName}</code></div>
       <div style="font-size:0.82rem;color:var(--text-muted);margin-bottom:12px;">Custom Summary & Skills ordering compiled specifically to maximize ATS score for <b>${job.company} — ${job.title}</b>.</div>
-      <a href="./cvs/${cvName}" download="${cvName}" target="_blank" class="ui-btn ui-btn-primary" style="font-size:0.78rem;padding:6px 14px;display:inline-flex;">📥 Download Tailored CV PDF</a>
+      <a href="./cvs/${cvName}" download="${cvName}" target="_blank" class="ui-btn ui-btn-primary" style="font-size:0.78rem;padding:6px 14px;display:inline-flex;" onclick="downloadCvWithFallback(event, '${cvName}')">📥 Download Tailored CV PDF</a>
     </div>
 
     <div class="modal-info-panel">
@@ -1634,6 +1634,32 @@ function openJobModal(jobId) {
 
 function closeJobModal() {
   document.getElementById('job-modal-dialog').classList.remove('open');
+}
+
+async function downloadCvWithFallback(e, cvName) {
+  e.preventDefault();
+  const primaryUrl = `./cvs/${cvName}`;
+  const fallbackUrl = `./cvs/Ghaith_Oueslati_CV.pdf`;
+  
+  try {
+    const res = await fetch(primaryUrl, { method: 'HEAD' });
+    if (res.ok) {
+      const a = document.createElement('a');
+      a.href = primaryUrl;
+      a.download = cvName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      return;
+    }
+  } catch(ex) {}
+  
+  const a = document.createElement('a');
+  a.href = fallbackUrl;
+  a.download = cvName;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
 }
 
 function copyTextToClipboard(btn, text) {

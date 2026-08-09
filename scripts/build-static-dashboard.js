@@ -214,6 +214,11 @@ if (fs.existsSync(imagesSrcDir)) {
 const cvsPublicDir = path.join(publicDir, 'cvs');
 if (!fs.existsSync(cvsPublicDir)) fs.mkdirSync(cvsPublicDir, { recursive: true });
 
+const baseCvPath = path.join(__dirname, '../data/cv/base/Ghaith_Oueslati_CV.pdf');
+if (fs.existsSync(baseCvPath)) {
+  fs.copyFileSync(baseCvPath, path.join(cvsPublicDir, 'Ghaith_Oueslati_CV.pdf'));
+}
+
 const customCvDir = path.join(__dirname, '../data/cv/customized');
 if (fs.existsSync(customCvDir)) {
   const files = fs.readdirSync(customCvDir);
@@ -224,9 +229,19 @@ if (fs.existsSync(customCvDir)) {
   }
 }
 
-const baseCvPath = path.join(__dirname, '../data/cv/base/Ghaith_Oueslati_CV.pdf');
+// Ensure every single job in the dataset has a corresponding PDF in public/cvs/
 if (fs.existsSync(baseCvPath)) {
-  fs.copyFileSync(baseCvPath, path.join(cvsPublicDir, 'Ghaith_Oueslati_CV.pdf'));
+  for (const job of jobs) {
+    const safeCo = (job.company || 'Company').replace(/[^\w]/g, '_').substring(0, 30);
+    const safeTi = (job.title || 'Role').replace(/[^\w]/g, '_').substring(0, 30);
+    const filename = job.cv_filename || `Ghaith_Oueslati_CV_${safeCo}_${safeTi}.pdf`;
+    job.cv_filename = filename;
+    
+    const targetPath = path.join(cvsPublicDir, filename);
+    if (!fs.existsSync(targetPath)) {
+      fs.copyFileSync(baseCvPath, targetPath);
+    }
+  }
 }
 
 console.log('🔒 Zero-Knowledge AES-256-GCM encrypted payload built successfully!');
