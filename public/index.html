@@ -993,7 +993,7 @@ sidebar {
     <div class="content-viewport">
 
       <!-- ── PAGE: DASHBOARD ──────────────────────────────────── -->
-      <div class="page-view active" id="page-dashboard">
+      <div class="page-view" id="page-dashboard">
         
         <!-- 3D Stat Cards Grid -->
         <div class="stats-cards-grid">
@@ -1427,16 +1427,36 @@ function switchPage(pageKey) {
 
 function reloadCurrentPageData() {
   if (!decryptedDataStore) return;
-  const jobs = allJobsList;
+  
+  let jobs = [];
+  if (Array.isArray(decryptedDataStore)) {
+    jobs = decryptedDataStore;
+  } else if (decryptedDataStore.jobs && Array.isArray(decryptedDataStore.jobs)) {
+    jobs = decryptedDataStore.jobs;
+  } else if (allJobsList && Array.isArray(allJobsList)) {
+    jobs = allJobsList;
+  }
+  
+  allJobsList = jobs;
   const matches = jobs.filter(j => (j.match_score || 0) >= 70);
 
-  document.getElementById('badge-jobs').textContent = jobs.length;
-  document.getElementById('badge-matches').textContent = matches.length;
-  document.getElementById('badge-applications').textContent = matches.length;
+  const bJobs = document.getElementById('badge-jobs');
+  if (bJobs) bJobs.textContent = jobs.length;
+  
+  const bMatches = document.getElementById('badge-matches');
+  if (bMatches) bMatches.textContent = matches.length;
+  
+  const bApps = document.getElementById('badge-applications');
+  if (bApps) bApps.textContent = matches.length;
 
-  document.getElementById('stat-total-jobs').textContent = jobs.length;
-  document.getElementById('stat-strong-matches').textContent = matches.length;
-  document.getElementById('stat-cvs-generated').textContent = matches.length;
+  const sJobs = document.getElementById('stat-total-jobs');
+  if (sJobs) sJobs.textContent = jobs.length;
+  
+  const sMatches = document.getElementById('stat-strong-matches');
+  if (sMatches) sMatches.textContent = matches.length;
+  
+  const sCvs = document.getElementById('stat-cvs-generated');
+  if (sCvs) sCvs.textContent = matches.length;
 
   renderCharts(jobs);
   renderJobsCardsStack('top-matches-stack', matches.slice(0, 6));
