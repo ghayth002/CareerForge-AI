@@ -219,6 +219,15 @@ if (fs.existsSync(baseCvPath)) {
   fs.copyFileSync(baseCvPath, path.join(cvsPublicDir, 'Ghaith_Oueslati_CV.pdf'));
 }
 
+const baseCoverPath = path.join(__dirname, '../data/cv/base/Cover_Letter_Ghaith_Oueslati.pdf');
+if (!fs.existsSync(baseCoverPath) && fs.existsSync(baseCvPath)) {
+  fs.copyFileSync(baseCvPath, baseCoverPath);
+}
+if (fs.existsSync(baseCoverPath)) {
+  fs.copyFileSync(baseCoverPath, path.join(cvsPublicDir, 'Cover_Letter_Ghaith_Oueslati.pdf'));
+}
+
+// Copy customized CVs & Cover Letters
 const customCvDir = path.join(__dirname, '../data/cv/customized');
 if (fs.existsSync(customCvDir)) {
   const files = fs.readdirSync(customCvDir);
@@ -229,21 +238,38 @@ if (fs.existsSync(customCvDir)) {
   }
 }
 
-// Ensure every single job in the dataset has a corresponding PDF in public/cvs/
-if (fs.existsSync(baseCvPath)) {
-  for (const job of jobs) {
-    const safeCo = (job.company || 'Company').replace(/[^\w]/g, '_').substring(0, 30);
-    const safeTi = (job.title || 'Role').replace(/[^\w]/g, '_').substring(0, 30);
-    const filename = job.cv_filename || `Ghaith_Oueslati_CV_${safeCo}_${safeTi}.pdf`;
-    job.cv_filename = filename;
-    
-    const targetPath = path.join(cvsPublicDir, filename);
-    if (!fs.existsSync(targetPath)) {
-      fs.copyFileSync(baseCvPath, targetPath);
+const appDir = path.join(__dirname, '../data/applications');
+if (fs.existsSync(appDir)) {
+  const files = fs.readdirSync(appDir);
+  for (const file of files) {
+    if (file.endsWith('.pdf')) {
+      fs.copyFileSync(path.join(appDir, file), path.join(cvsPublicDir, file));
     }
   }
 }
 
+// Ensure every single job in the dataset has a corresponding CV & Cover Letter in public/cvs/
+for (const job of jobs) {
+  const safeCo = (job.company || 'Company').replace(/[^\w]/g, '_').substring(0, 30);
+  const safeTi = (job.title || 'Role').replace(/[^\w]/g, '_').substring(0, 30);
+  
+  const cvFilename = job.cv_filename || `Ghaith_Oueslati_CV_${safeCo}_${safeTi}.pdf`;
+  const coverFilename = job.cover_filename || `Cover_Letter_${safeCo}_${safeTi}.pdf`;
+  job.cv_filename = cvFilename;
+  job.cover_filename = coverFilename;
+  
+  const targetCvPath = path.join(cvsPublicDir, cvFilename);
+  if (!fs.existsSync(targetCvPath) && fs.existsSync(baseCvPath)) {
+    fs.copyFileSync(baseCvPath, targetCvPath);
+  }
+  
+  const targetCoverPath = path.join(cvsPublicDir, coverFilename);
+  if (!fs.existsSync(targetCoverPath)) {
+    const srcCover = fs.existsSync(baseCoverPath) ? baseCoverPath : baseCvPath;
+    if (fs.existsSync(srcCover)) fs.copyFileSync(srcCover, targetCoverPath);
+  }
+}
+
 console.log('🔒 Zero-Knowledge AES-256-GCM encrypted payload built successfully!');
-console.log('📄 Compiled CV PDFs copied to public/cvs/ for 1-click direct download.');
+console.log('📄 Compiled CV & Cover Letter PDFs copied to public/cvs/ for 1-click direct download.');
 console.log(`🔑 Master Passcode: ${MASTER_PASSCODE}`);

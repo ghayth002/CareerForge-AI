@@ -1582,6 +1582,7 @@ function openJobModal(jobId) {
   const safeCo = (job.company || '').replace(/[^\w]/g, '_').substring(0, 30);
   const safeTi = (job.title || '').replace(/[^\w]/g, '_').substring(0, 30);
   const cvName = job.cv_filename || `Ghaith_Oueslati_CV_${safeCo}_${safeTi}.pdf`;
+  const coverName = job.cover_filename || `Cover_Letter_${safeCo}_${safeTi}.pdf`;
 
   document.getElementById('modal-company-name').textContent = job.company;
   document.getElementById('modal-job-title').textContent = job.title;
@@ -1593,10 +1594,13 @@ function openJobModal(jobId) {
 
   document.getElementById('modal-dialog-body').innerHTML = `
     <div class="modal-info-panel" style="border-color:var(--neon-emerald);">
-      <div class="modal-info-label" style="color:var(--neon-emerald);">📄 Tailored ATS-Optimized LaTeX CV Matched For This Job</div>
-      <div style="font-size:0.85rem;color:var(--text-main);margin-bottom:6px;">File: <code>${cvName}</code></div>
-      <div style="font-size:0.82rem;color:var(--text-muted);margin-bottom:12px;">Custom Summary & Skills ordering compiled specifically to maximize ATS score for <b>${job.company} — ${job.title}</b>.</div>
-      <a href="./cvs/${cvName}" download="${cvName}" target="_blank" class="ui-btn ui-btn-primary" style="font-size:0.78rem;padding:6px 14px;display:inline-flex;" onclick="downloadCvWithFallback(event, '${cvName}')">📥 Download Tailored CV PDF</a>
+      <div class="modal-info-label" style="color:var(--neon-emerald);">📄 Tailored ATS-Optimized Application Package</div>
+      <div style="font-size:0.85rem;color:var(--text-main);margin-bottom:6px;">Files: <code>${cvName}</code> | <code>${coverName}</code></div>
+      <div style="font-size:0.82rem;color:var(--text-muted);margin-bottom:14px;">Custom Summary, ATS-ordered Skills & personalized Letter of Motivation compiled specifically for <b>${job.company} — ${job.title}</b>.</div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;">
+        <a href="./cvs/${cvName}" download="${cvName}" target="_blank" class="ui-btn ui-btn-primary" style="font-size:0.78rem;padding:8px 16px;display:inline-flex;" onclick="downloadCvWithFallback(event, '${cvName}', 'cv')">📥 Download Tailored CV PDF</a>
+        <a href="./cvs/${coverName}" download="${coverName}" target="_blank" class="ui-btn ui-btn-purple" style="font-size:0.78rem;padding:8px 16px;display:inline-flex;" onclick="downloadCvWithFallback(event, '${coverName}', 'cover')">✉️ Download Letter of Motivation PDF</a>
+      </div>
     </div>
 
     <div class="modal-info-panel">
@@ -1606,8 +1610,8 @@ function openJobModal(jobId) {
 
     ${job.cover_note ? `
     <div class="modal-info-panel">
-      <div class="modal-info-label">✉️ Humanized Cover Note</div>
-      <div style="font-size:0.88rem;font-style:italic;color:var(--text-main);">"${job.cover_note}"</div>
+      <div class="modal-info-label">✉️ Letter of Motivation Preview</div>
+      <div style="font-size:0.88rem;font-style:italic;color:var(--text-main);line-height:1.6;">"${job.cover_note}"</div>
     </div>` : ''}
 
     <div class="modal-info-panel" style="border-color:var(--border-glow);">
@@ -1644,17 +1648,17 @@ function closeJobModal() {
   document.getElementById('job-modal-dialog').classList.remove('open');
 }
 
-async function downloadCvWithFallback(e, cvName) {
+async function downloadCvWithFallback(e, fileName, type = 'cv') {
   e.preventDefault();
-  const primaryUrl = `./cvs/${cvName}`;
-  const fallbackUrl = `./cvs/Ghaith_Oueslati_CV.pdf`;
+  const primaryUrl = `./cvs/${fileName}`;
+  const fallbackUrl = type === 'cover' ? `./cvs/Cover_Letter_Ghaith_Oueslati.pdf` : `./cvs/Ghaith_Oueslati_CV.pdf`;
   
   try {
     const res = await fetch(primaryUrl, { method: 'HEAD' });
     if (res.ok) {
       const a = document.createElement('a');
       a.href = primaryUrl;
-      a.download = cvName;
+      a.download = fileName;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -1663,6 +1667,12 @@ async function downloadCvWithFallback(e, cvName) {
   } catch(ex) {}
   
   const a = document.createElement('a');
+  a.href = fallbackUrl;
+  a.download = fileName;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
   a.href = fallbackUrl;
   a.download = cvName;
   document.body.appendChild(a);
