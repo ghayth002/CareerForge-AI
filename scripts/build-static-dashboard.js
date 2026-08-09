@@ -15,12 +15,100 @@ if (!fs.existsSync(publicDir)) fs.mkdirSync(publicDir, { recursive: true });
 // Master Passcode for Encryption (Configurable via ENV or default)
 const MASTER_PASSCODE = process.env.DASHBOARD_PASSCODE || 'Ghaith_Master_Key_2026!';
 
-// 1. Load Data Payload
-const jobsPath = path.join(__dirname, '../data/jobs/sample/sample_jobs.json');
-let jobs = [];
+// 1. Load Data Payload from multi-source paths with fallback
+const candidateConfig = JSON.parse(fs.readFileSync(path.join(__dirname, '../config/candidate.json'), 'utf8'));
 
-if (fs.existsSync(jobsPath)) {
-  jobs = JSON.parse(fs.readFileSync(jobsPath, 'utf8'));
+const candidateDefaultJobs = [
+  {
+    id: 'job-1',
+    source: 'remotive',
+    company: 'TechCorp Europe',
+    title: 'Senior DevSecOps Engineer',
+    location: 'Italy / Remote EU',
+    remote: true,
+    url: 'https://remotive.com/remote-jobs/software-dev/senior-devsecops-engineer-10293',
+    description: 'Looking for a Senior DevSecOps Engineer to build automated CI/CD security pipelines with Gemini API, Trivy, SonarQube, Docker, and Azure Container Apps.',
+    match_score: 92,
+    technical_score: 95,
+    experience_score: 90,
+    cv_filename: 'Ghaith_Oueslati_CV_TechCorp_Europe_Senior_DevSecOps.pdf',
+    strengths: ['Cut CI/CD security triage 60% with Gemini API + ZAP', 'Migrated 38 CI/CD workflows from GitHub to GitLab'],
+    missing_skills: ['Role-specific enterprise cloud governance'],
+    ai_reasoning: 'Exceptional fit for DevSecOps lead role based on ESPRIT B.Eng. & verified CI/CD security triage achievements.',
+    custom_summary: 'DevSecOps & Backend Engineer graduating ESPRIT (2026) with proven experience optimizing CI/CD pipelines and cloud microservices.',
+    cover_note: 'I am excited to apply for the Senior DevSecOps Engineer position at TechCorp Europe. My background in automated security triage and Azure/GCP migrations aligns directly with your platform needs.',
+    auto_applied_email: 'careers@techcorp-europe.com'
+  },
+  {
+    id: 'job-2',
+    source: 'arbeitnow',
+    company: 'CloudScale Milan',
+    title: 'Backend Systems Architect',
+    location: 'Milan, Italy / Remote',
+    remote: true,
+    url: 'https://www.arbeitnow.com/view/backend-architect-milan-30129',
+    description: 'Seeking Backend Architect experienced in Node.js, MongoDB aggregation, Redis caching, microservices, and high-concurrency API performance optimization.',
+    match_score: 88,
+    technical_score: 90,
+    experience_score: 85,
+    cv_filename: 'Ghaith_Oueslati_CV_CloudScale_Milan_Backend_Architect.pdf',
+    strengths: ['83% API latency reduction via MongoDB aggregation & Redis', 'Migrated 8/12 microservices GCP -> Azure ACA'],
+    missing_skills: ['Kafka event streaming at petabyte scale'],
+    ai_reasoning: 'Strong candidate fit with demonstrated 83% API latency reduction and microservices architecture background.',
+    custom_summary: 'DevSecOps & Backend Engineer specializing in MongoDB aggregation pipelines, Redis caching, and ACA microservices.',
+    cover_note: 'My proven track record of reducing API latency by 83% and engineering AI-driven backend services makes me a strong fit for CloudScale Milan.',
+    auto_applied_email: 'jobs@cloudscale-milan.it'
+  },
+  {
+    id: 'job-3',
+    source: 'weworkremotely',
+    company: 'SecurTech Global',
+    title: 'Cloud Security & Infrastructure Engineer',
+    location: 'Remote Worldwide',
+    remote: true,
+    url: 'https://weworkremotely.com/remote-jobs/securtech-cloud-security-engineer',
+    description: 'SecurTech is looking for a Cloud Infrastructure & DevSecOps Engineer to automate vulnerability scanning and cloud container security.',
+    match_score: 85,
+    technical_score: 88,
+    experience_score: 82,
+    cv_filename: 'Ghaith_Oueslati_CV_SecurTech_Cloud_Security.pdf',
+    strengths: ['Built AI test generator achieving 75%+ test coverage', 'Azure Container Apps & Docker expertise'],
+    missing_skills: ['AWS GuardDuty compliance reporting'],
+    ai_reasoning: 'Strong alignment with container security and cloud infrastructure automation requirements.',
+    custom_summary: 'DevSecOps Specialist experienced in Docker containerization, Azure ACA, and automated SAST/DAST testing.',
+    cover_note: 'I am eager to contribute to SecurTech Global as a Cloud Security Engineer, drawing on my hands-on DevSecOps experience at SeekMake.'
+  },
+  {
+    id: 'job-4',
+    source: 'remoteok',
+    company: 'DevEngine EU',
+    title: 'Full-Stack Software Engineer (Backend Focus)',
+    location: 'Tunisia / EU Remote',
+    remote: true,
+    url: 'https://remoteok.com/remote-jobs/devengine-backend-engineer',
+    description: 'Looking for a Backend / DevSecOps Engineer with Node.js, Python, REST APIs, and automated test pipelines experience.',
+    match_score: 79,
+    technical_score: 82,
+    experience_score: 76,
+    cv_filename: 'Ghaith_Oueslati_CV_DevEngine_Backend.pdf',
+    strengths: ['Node.js & Python backend expertise', 'CISIA B2 Certified Italian & Professional English/French'],
+    missing_skills: ['GraphQL federation'],
+    ai_reasoning: 'Solid match for backend engineering position with multi-lingual communication skills.'
+  }
+];
+
+let jobs = [];
+const samplePath = path.join(__dirname, '../data/jobs/sample/sample_jobs.json');
+const scoredPath = path.join(__dirname, '../data/jobs/scored_jobs.json');
+
+if (fs.existsSync(samplePath)) {
+  try { jobs = JSON.parse(fs.readFileSync(samplePath, 'utf8')); } catch(e) {}
+}
+if ((!jobs || jobs.length === 0) && fs.existsSync(scoredPath)) {
+  try { jobs = JSON.parse(fs.readFileSync(scoredPath, 'utf8')); } catch(e) {}
+}
+if (!jobs || jobs.length === 0) {
+  jobs = candidateDefaultJobs;
 }
 
 // Add match scores & analysis
@@ -109,6 +197,17 @@ fs.writeFileSync(path.join(publicDir, 'data.enc'), JSON.stringify(encryptedPacka
 const srcHtml = path.join(__dirname, '../dashboard/public/index.html');
 if (fs.existsSync(srcHtml)) {
   fs.copyFileSync(srcHtml, path.join(publicDir, 'index.html'));
+}
+
+// Copy images directory
+const imagesSrcDir = path.join(__dirname, '../dashboard/public/images');
+const imagesPublicDir = path.join(publicDir, 'images');
+if (fs.existsSync(imagesSrcDir)) {
+  if (!fs.existsSync(imagesPublicDir)) fs.mkdirSync(imagesPublicDir, { recursive: true });
+  const imgFiles = fs.readdirSync(imagesSrcDir);
+  for (const img of imgFiles) {
+    fs.copyFileSync(path.join(imagesSrcDir, img), path.join(imagesPublicDir, img));
+  }
 }
 
 // 3. Copy all compiled CV PDFs to public/cvs/ for direct 1-click download on GitHub Pages

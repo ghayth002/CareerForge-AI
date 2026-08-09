@@ -1264,7 +1264,7 @@ async function handleAuthLogin(e) {
   btn.textContent = '⌛ Decrypting...';
 
   try {
-    const res = await fetch('./data.enc');
+    const res = await fetch('./data.enc?v=' + Date.now(), { cache: 'no-store' });
     if (!res.ok) throw new Error('data.enc package missing');
     const pkg = await res.json();
     decryptedDataStore = await decryptAESPayload(pass, pkg);
