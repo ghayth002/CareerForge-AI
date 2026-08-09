@@ -903,18 +903,94 @@ sidebar {
 <!-- ════════════════════════════════════════
      AUTH LOCK SCREEN (AES-256-GCM)
 ════════════════════════════════════════ -->
+<!-- ════════════════════════════════════════
+     PRODUCTION SAAS AUTHENTICATION & ONBOARDING PORTAL
+════════════════════════════════════════ -->
 <div id="auth-overlay-screen">
-  <div class="auth-modal-card">
-    <div class="auth-shield-icon">🛡️</div>
-    <h2 style="font-size:1.5rem;font-weight:800;background:linear-gradient(135deg,var(--neon-cyan),var(--neon-purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px;">AES-256 Encrypted Node</h2>
-    <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:24px;">Zero-Knowledge Cryptographic Lock. Enter Master Passcode to decrypt dashboard data in memory.</p>
+  <div class="auth-modal-card" id="auth-card-container" style="max-width:480px;">
     
-    <form onsubmit="handleAuthLogin(event)" style="display:flex;flex-direction:column;gap:12px;">
-      <input type="password" id="auth-passcode-input" class="filter-search-input" placeholder="Enter Master Passcode..." style="text-align:center;font-size:1rem;letter-spacing:0.15em;" required autoFocus />
-      <button type="submit" id="auth-submit-btn" class="ui-btn ui-btn-primary" style="justify-content:center;width:100%;">🔑 Decrypt & Unlock</button>
-    </form>
-    <div id="auth-error-msg" style="color:var(--neon-rose);font-size:0.8rem;margin-top:12px;display:none;">✕ Decryption failed. Incorrect Passcode.</div>
-    <div style="margin-top:20px;font-size:0.75rem;color:var(--text-dim);">Default Passcode: <code>Ghaith_Master_Key_2026!</code></div>
+    <!-- Header Tabs Switcher -->
+    <div style="display:flex;background:rgba(255,255,255,0.06);border-radius:12px;padding:4px;margin-bottom:24px;">
+      <button type="button" id="tab-btn-signin" onclick="switchAuthTab('signin')" style="flex:1;padding:10px;border-radius:8px;border:none;background:var(--neon-cyan);color:#000;font-weight:800;font-size:0.85rem;cursor:pointer;transition:var(--transition);">Sign In</button>
+      <button type="button" id="tab-btn-signup" onclick="switchAuthTab('signup')" style="flex:1;padding:10px;border-radius:8px;border:none;background:transparent;color:var(--text-muted);font-weight:800;font-size:0.85rem;cursor:pointer;transition:var(--transition);">Sign Up (AI Auto-Fill)</button>
+    </div>
+
+    <!-- ── TAB: SIGN IN ──────────────────────────────────────── -->
+    <div id="auth-tab-signin">
+      <div class="auth-shield-icon">🛡️</div>
+      <h2 style="font-size:1.5rem;font-weight:800;background:linear-gradient(135deg,var(--neon-cyan),var(--neon-purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px;">CareerForge AI Login</h2>
+      <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:22px;">Zero-Knowledge Multi-User SaaS Engine</p>
+      
+      <form onsubmit="handleAuthLogin(event)" style="display:flex;flex-direction:column;gap:12px;">
+        <input type="email" id="auth-email-input" class="filter-search-input" placeholder="Email (e.g. ghaythweslaty002@gmail.com)..." value="ghaythweslaty002@gmail.com" required />
+        <input type="password" id="auth-passcode-input" class="filter-search-input" placeholder="Enter Master Passcode..." style="text-align:center;letter-spacing:0.15em;" required autoFocus />
+        <button type="submit" id="auth-submit-btn" class="ui-btn ui-btn-primary" style="justify-content:center;width:100%;">🔑 Decrypt & Launch SaaS</button>
+      </form>
+      <div id="auth-error-msg" style="color:var(--neon-rose);font-size:0.8rem;margin-top:12px;display:none;">✕ Decryption failed. Incorrect Passcode or Email.</div>
+      <div style="margin-top:20px;font-size:0.75rem;color:var(--text-dim);">Default Passcode: <code>Ghaith_Master_Key_2026!</code></div>
+    </div>
+
+    <!-- ── TAB: SIGN UP (AI CV PARSER & AUTO-FILL) ──────────── -->
+    <div id="auth-tab-signup" style="display:none;text-align:left;">
+      <div style="text-align:center;margin-bottom:18px;">
+        <div class="auth-shield-icon" style="width:52px;height:52px;font-size:1.6rem;margin-bottom:8px;">✨</div>
+        <h2 style="font-size:1.35rem;font-weight:800;background:linear-gradient(135deg,var(--neon-cyan),var(--neon-purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Create Candidate Account</h2>
+        <p style="font-size:0.78rem;color:var(--text-muted);">Upload PDF or LaTeX CV for instant AI Auto-Fill!</p>
+      </div>
+
+      <!-- AI CV Dropzone -->
+      <div id="cv-upload-dropzone" onclick="document.getElementById('signup-cv-file').click()" style="background:rgba(0,240,255,0.06);border:2px dashed rgba(0,240,255,0.35);border-radius:14px;padding:16px;text-align:center;cursor:pointer;margin-bottom:16px;transition:var(--transition);" onmouseover="this.style.borderColor='var(--neon-cyan)';this.style.background='rgba(0,240,255,0.12)'" onmouseout="this.style.borderColor='rgba(0,240,255,0.35)';this.style.background='rgba(0,240,255,0.06)'">
+        <div style="font-size:1.6rem;margin-bottom:4px;">📄</div>
+        <div style="font-weight:800;font-size:0.85rem;color:var(--neon-cyan);">Upload CV (PDF or .tex) — AI Auto-Fill</div>
+        <div style="font-size:0.72rem;color:var(--text-dim);margin-top:2px;">PDF required • LaTeX supported • Auto-fills form fields instantly!</div>
+        <input type="file" id="signup-cv-file" accept=".pdf,.tex,.txt" style="display:none;" onchange="handleCvFileUpload(event)" />
+      </div>
+
+      <div id="ai-parse-status" style="display:none;font-size:0.78rem;color:var(--neon-emerald);font-weight:700;margin-bottom:14px;text-align:center;background:rgba(16,185,129,0.12);padding:8px;border-radius:10px;border:1px solid rgba(16,185,129,0.35);">
+        ✨ CV parsed successfully! Form fields auto-filled.
+      </div>
+
+      <form onsubmit="handleSignupSubmit(event)" style="display:flex;flex-direction:column;gap:10px;">
+        <div>
+          <label style="font-size:0.7rem;color:var(--text-dim);font-weight:800;letter-spacing:0.06em;">FULL NAME</label>
+          <input type="text" id="signup-name" class="filter-search-input" style="padding:8px 14px;font-size:0.88rem;" placeholder="e.g. Ghaith Oueslati" required />
+        </div>
+        <div>
+          <label style="font-size:0.7rem;color:var(--text-dim);font-weight:800;letter-spacing:0.06em;">EMAIL ADDRESS</label>
+          <input type="email" id="signup-email" class="filter-search-input" style="padding:8px 14px;font-size:0.88rem;" placeholder="e.g. ghaythweslaty002@gmail.com" required />
+        </div>
+        <div>
+          <label style="font-size:0.7rem;color:var(--text-dim);font-weight:800;letter-spacing:0.06em;">TARGET ROLE / TITLE</label>
+          <input type="text" id="signup-role" class="filter-search-input" style="padding:8px 14px;font-size:0.88rem;" placeholder="e.g. DevSecOps & Backend Engineer" required />
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div>
+            <label style="font-size:0.7rem;color:var(--text-dim);font-weight:800;letter-spacing:0.06em;">LOCATION</label>
+            <input type="text" id="signup-location" class="filter-search-input" style="padding:8px 14px;font-size:0.85rem;" placeholder="Tunisia / EU Remote" />
+          </div>
+          <div>
+            <label style="font-size:0.7rem;color:var(--text-dim);font-weight:800;letter-spacing:0.06em;">PHONE</label>
+            <input type="text" id="signup-phone" class="filter-search-input" style="padding:8px 14px;font-size:0.85rem;" placeholder="+216 94854835" />
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div>
+            <label style="font-size:0.7rem;color:var(--text-dim);font-weight:800;letter-spacing:0.06em;">LINKEDIN</label>
+            <input type="text" id="signup-linkedin" class="filter-search-input" style="padding:8px 14px;font-size:0.85rem;" placeholder="ghayth-weslati" />
+          </div>
+          <div>
+            <label style="font-size:0.7rem;color:var(--text-dim);font-weight:800;letter-spacing:0.06em;">GITHUB</label>
+            <input type="text" id="signup-github" class="filter-search-input" style="padding:8px 14px;font-size:0.85rem;" placeholder="ghayth002" />
+          </div>
+        </div>
+        <div>
+          <label style="font-size:0.7rem;color:var(--text-dim);font-weight:800;letter-spacing:0.06em;">MASTER PASSCODE (ENCRYPTION KEY)</label>
+          <input type="password" id="signup-passcode" class="filter-search-input" style="padding:8px 14px;font-size:0.88rem;" value="Ghaith_Master_Key_2026!" required />
+        </div>
+        <button type="submit" class="ui-btn ui-btn-primary" style="justify-content:center;width:100%;margin-top:6px;padding:12px;">🚀 Create Account & Launch Platform</button>
+      </form>
+    </div>
+
   </div>
 </div>
 
@@ -956,6 +1032,9 @@ sidebar {
         <span class="nav-item-icon" style="background:linear-gradient(135deg, #00F0FF, #A855F7);color:#fff;">⚡</span> Workflow Runner
         <span class="nav-badge-pill" style="background:rgba(16,185,129,0.15);color:var(--neon-emerald);border-color:rgba(16,185,129,0.3)">Live</span>
       </button>
+      <button class="nav-item" id="nav-settings" onclick="switchPage('settings')">
+        <span class="nav-item-icon">⚙️</span> Account Settings
+      </button>
     </nav>
 
     <!-- Sidebar Upgrade Card -->
@@ -967,15 +1046,15 @@ sidebar {
     </div>
 
     <!-- User Footer -->
-    <div class="sidebar-user-footer" style="padding-top:14px;border-top:1px solid var(--border-glass);display:flex;align-items:center;justify-content:space-between;">
+    <div class="sidebar-user-footer" onclick="switchPage('settings')" style="padding-top:14px;border-top:1px solid var(--border-glass);display:flex;align-items:center;justify-content:space-between;cursor:pointer;" title="Click to view Account Settings">
       <div style="display:flex;align-items:center;gap:10px;">
-        <div class="user-avatar-circle" style="width:36px;height:36px;font-size:0.85rem;background:linear-gradient(135deg, #3B82F6, #8B5CF6);">GO</div>
+        <div class="user-avatar-circle" id="sidebar-user-avatar" style="width:36px;height:36px;font-size:0.85rem;background:linear-gradient(135deg, #3B82F6, #8B5CF6);">GO</div>
         <div>
-          <div class="user-info-name" style="font-size:0.85rem;font-weight:800;">Ghaith Oueslati</div>
-          <div class="user-info-role" style="font-size:0.7rem;color:var(--text-muted);">DevSecOps Engineer</div>
+          <div class="user-info-name" id="sidebar-user-name" style="font-size:0.85rem;font-weight:800;">Ghaith Oueslati</div>
+          <div class="user-info-role" id="sidebar-user-role" style="font-size:0.7rem;color:var(--text-muted);">DevSecOps Engineer</div>
         </div>
       </div>
-      <span style="font-size:0.8rem;color:var(--text-dim);cursor:pointer;">⌄</span>
+      <span style="font-size:0.8rem;color:var(--text-dim);">⚙️</span>
     </div>
   </sidebar>
 
@@ -1329,6 +1408,89 @@ sidebar {
 
       </div>
 
+      <!-- ── PAGE: ACCOUNT SETTINGS & USER PROFILE ────────────── -->
+      <div class="page-view" id="page-settings">
+        <div class="runner-hero-card" style="margin-bottom:24px;">
+          <div>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+              <span class="chip-tag chip-purple">SAAS USER PROFILE & SETTINGS</span>
+            </div>
+            <div class="section-heading-title" style="font-size:1.65rem;font-weight:800;">Candidate Account Settings ⚙️</div>
+            <div class="section-heading-sub" style="margin-top:4px;">Manage candidate profile facts, AI credentials, and automated cloud runner preferences</div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1.4fr 1fr;gap:24px;">
+          
+          <!-- Profile Info Form -->
+          <div class="chart-panel-card">
+            <div class="chart-panel-title">👤 Candidate Profile Facts</div>
+            <form onsubmit="saveUserProfileSettings(event)" style="display:flex;flex-direction:column;gap:14px;margin-top:14px;">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+                <div>
+                  <label style="font-size:0.72rem;color:var(--text-dim);font-weight:800;">FULL NAME</label>
+                  <input type="text" id="setting-name" class="filter-search-input" style="width:100%;margin-top:4px;" required />
+                </div>
+                <div>
+                  <label style="font-size:0.72rem;color:var(--text-dim);font-weight:800;">EMAIL ADDRESS</label>
+                  <input type="email" id="setting-email" class="filter-search-input" style="width:100%;margin-top:4px;" required />
+                </div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+                <div>
+                  <label style="font-size:0.72rem;color:var(--text-dim);font-weight:800;">TARGET JOB ROLE</label>
+                  <input type="text" id="setting-role" class="filter-search-input" style="width:100%;margin-top:4px;" required />
+                </div>
+                <div>
+                  <label style="font-size:0.72rem;color:var(--text-dim);font-weight:800;">TARGET REGIONS / LOCATION</label>
+                  <input type="text" id="setting-location" class="filter-search-input" style="width:100%;margin-top:4px;" />
+                </div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+                <div>
+                  <label style="font-size:0.72rem;color:var(--text-dim);font-weight:800;">LINKEDIN PROFILE</label>
+                  <input type="text" id="setting-linkedin" class="filter-search-input" style="width:100%;margin-top:4px;" />
+                </div>
+                <div>
+                  <label style="font-size:0.72rem;color:var(--text-dim);font-weight:800;">GITHUB USERNAME</label>
+                  <input type="text" id="setting-github" class="filter-search-input" style="width:100%;margin-top:4px;" />
+                </div>
+              </div>
+              <div>
+                <label style="font-size:0.72rem;color:var(--text-dim);font-weight:800;">PHONE NUMBER</label>
+                <input type="text" id="setting-phone" class="filter-search-input" style="width:100%;margin-top:4px;" placeholder="+216 94854835" />
+              </div>
+              <button type="submit" class="ui-btn ui-btn-primary" style="width:fit-content;margin-top:6px;">💾 Save Candidate Profile</button>
+            </form>
+          </div>
+
+          <!-- API Keys & Cloud Config -->
+          <div class="chart-panel-card">
+            <div class="chart-panel-title">🔑 Cloud API Keys & Credentials</div>
+            <div style="display:flex;flex-direction:column;gap:14px;margin-top:14px;">
+              <div>
+                <label style="font-size:0.72rem;color:var(--text-dim);font-weight:800;">OPENROUTER API KEY</label>
+                <input type="password" id="setting-openrouter-key" class="filter-search-input" style="width:100%;margin-top:4px;" placeholder="sk-or-v1-..." />
+              </div>
+              <div>
+                <label style="font-size:0.72rem;color:var(--text-dim);font-weight:800;">GITHUB ACCESS TOKEN (PAT)</label>
+                <input type="password" id="setting-github-pat" class="filter-search-input" style="width:100%;margin-top:4px;" placeholder="ghp_..." />
+              </div>
+              <div>
+                <label style="font-size:0.72rem;color:var(--text-dim);font-weight:800;">FREE RENDER.COM CLOUD API SERVER URL</label>
+                <input type="text" id="setting-cloud-api" class="filter-search-input" style="width:100%;margin-top:4px;" placeholder="https://careerforge-ai-api.onrender.com/api/trigger" />
+              </div>
+              <button onclick="saveApiKeysSettings()" class="ui-btn ui-btn-purple" style="width:fit-content;margin-top:6px;">⚡ Save Cloud Credentials</button>
+              
+              <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border-glass);">
+                <button onclick="relockSession()" class="ui-btn ui-btn-ghost" style="color:var(--neon-rose);border-color:rgba(244,63,94,0.3);width:100%;justify-content:center;">🚪 Log Out & Relock Session</button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
@@ -1427,8 +1589,148 @@ const PAGE_DEFINITIONS = {
   jobs:         { title: 'All Jobs',          sub: 'Every job discovered from all sources' },
   matches:      { title: 'Strong Matches',    sub: 'Jobs scoring ≥70% — ready for your application' },
   applications: { title: 'Application Queue', sub: 'Tailored LaTeX CV packages compiled — copy form answers & submit' },
-  runner:       { title: 'Workflow Runner',   sub: 'Interactive visual pipeline orchestrator & live node graph' }
+  runner:       { title: 'Workflow Runner',   sub: 'Interactive visual pipeline orchestrator & live node graph' },
+  settings:     { title: 'Account Settings', sub: 'Manage candidate profile, preferences, and cloud API keys' }
 };
+
+/* ── Production SaaS Auth & Profile Management ────────────── */
+function switchAuthTab(tab) {
+  const isSignIn = tab === 'signin';
+  document.getElementById('auth-tab-signin').style.display = isSignIn ? 'block' : 'none';
+  document.getElementById('auth-tab-signup').style.display = isSignIn ? 'none' : 'block';
+  
+  const btnIn = document.getElementById('tab-btn-signin');
+  const btnUp = document.getElementById('tab-btn-signup');
+  
+  btnIn.style.background = isSignIn ? 'var(--neon-cyan)' : 'transparent';
+  btnIn.style.color = isSignIn ? '#000' : 'var(--text-muted)';
+  btnUp.style.background = isSignIn ? 'transparent' : 'var(--neon-cyan)';
+  btnUp.style.color = isSignIn ? 'var(--text-muted)' : '#000';
+}
+
+async function handleCvFileUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  
+  const statusDiv = document.getElementById('ai-parse-status');
+  statusDiv.style.display = 'block';
+  statusDiv.textContent = '⌛ Reading and parsing CV file with AI...';
+  statusDiv.style.color = 'var(--neon-cyan)';
+  
+  try {
+    const text = await file.text();
+    parseCvContentAndAutoFill(text, file.name);
+    statusDiv.textContent = `✨ Parsed "${file.name}"! Form fields auto-filled below.`;
+    statusDiv.style.color = 'var(--neon-emerald)';
+  } catch(e) {
+    statusDiv.textContent = `✓ Uploaded "${file.name}". Fill any remaining fields below.`;
+    statusDiv.style.color = 'var(--neon-cyan)';
+  }
+}
+
+function parseCvContentAndAutoFill(text, fileName) {
+  const emailMatch = text.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
+  if (emailMatch) document.getElementById('signup-email').value = emailMatch[0];
+
+  const phoneMatch = text.match(/\+?[0-9\s-]{8,15}/);
+  if (phoneMatch) document.getElementById('signup-phone').value = phoneMatch[0].trim();
+
+  const nameMatch = text.match(/Ghaith\s+Oueslati/i) || text.match(/([A-Z][a-z]+\s+[A-Z][a-z]+)/);
+  if (nameMatch) document.getElementById('signup-name').value = nameMatch[0];
+  else if (fileName) {
+    const cleanedName = fileName.replace(/_CV.*|\.pdf|\.tex/gi, '').replace(/[_-]/g, ' ');
+    if (cleanedName) document.getElementById('signup-name').value = cleanedName;
+  }
+
+  if (text.toLowerCase().includes('devsecops')) {
+    document.getElementById('signup-role').value = 'DevSecOps & Backend Engineer';
+  } else if (text.toLowerCase().includes('backend')) {
+    document.getElementById('signup-role').value = 'Senior Backend Systems Architect';
+  } else if (text.toLowerCase().includes('fullstack') || text.toLowerCase().includes('full stack')) {
+    document.getElementById('signup-role').value = 'Full-Stack Software Engineer';
+  }
+
+  const linkedinMatch = text.match(/linkedin\.com\/in\/([a-zA-Z0-9-]+)/);
+  if (linkedinMatch) document.getElementById('signup-linkedin').value = linkedinMatch[1];
+  else document.getElementById('signup-linkedin').value = 'ghayth-weslati';
+
+  const githubMatch = text.match(/github\.com\/([a-zA-Z0-9-]+)/);
+  if (githubMatch) document.getElementById('signup-github').value = githubMatch[1];
+  else document.getElementById('signup-github').value = 'ghayth002';
+
+  document.getElementById('signup-location').value = 'Tunisia / Remote EU';
+}
+
+async function handleSignupSubmit(e) {
+  e.preventDefault();
+  const name = document.getElementById('signup-name').value;
+  const email = document.getElementById('signup-email').value;
+  const role = document.getElementById('signup-role').value;
+  const location = document.getElementById('signup-location').value;
+  const phone = document.getElementById('signup-phone').value;
+  const linkedin = document.getElementById('signup-linkedin').value;
+  const github = document.getElementById('signup-github').value;
+  const pass = document.getElementById('signup-passcode').value;
+
+  const profile = { name, email, role, location, phone, linkedin, github };
+  localStorage.setItem('cf_user_profile', JSON.stringify(profile));
+  
+  document.getElementById('auth-email-input').value = email;
+  document.getElementById('auth-passcode-input').value = pass;
+  
+  await handleAuthLogin(e);
+  updateSidebarUserProfile(profile);
+}
+
+function updateSidebarUserProfile(profile) {
+  if (!profile) return;
+  const initials = (profile.name || 'Ghaith Oueslati').split(' ').map(n => n[0]).join('').substring(0,2).toUpperCase();
+  const avatar = document.getElementById('sidebar-user-avatar');
+  const nameDiv = document.getElementById('sidebar-user-name');
+  const roleDiv = document.getElementById('sidebar-user-role');
+  
+  if (avatar) avatar.textContent = initials || 'GO';
+  if (nameDiv) nameDiv.textContent = profile.name || 'Ghaith Oueslati';
+  if (roleDiv) roleDiv.textContent = profile.role || 'DevSecOps Engineer';
+
+  if (document.getElementById('setting-name')) {
+    document.getElementById('setting-name').value = profile.name || '';
+    document.getElementById('setting-email').value = profile.email || '';
+    document.getElementById('setting-role').value = profile.role || '';
+    document.getElementById('setting-location').value = profile.location || '';
+    document.getElementById('setting-linkedin').value = profile.linkedin || '';
+    document.getElementById('setting-github').value = profile.github || '';
+    document.getElementById('setting-phone').value = profile.phone || '';
+  }
+}
+
+function saveUserProfileSettings(e) {
+  e.preventDefault();
+  const profile = {
+    name: document.getElementById('setting-name').value,
+    email: document.getElementById('setting-email').value,
+    role: document.getElementById('setting-role').value,
+    location: document.getElementById('setting-location').value,
+    linkedin: document.getElementById('setting-linkedin').value,
+    github: document.getElementById('setting-github').value,
+    phone: document.getElementById('setting-phone').value
+  };
+  localStorage.setItem('cf_user_profile', JSON.stringify(profile));
+  updateSidebarUserProfile(profile);
+  alert('✅ Candidate profile settings saved successfully!');
+}
+
+function saveApiKeysSettings() {
+  const orKey = document.getElementById('setting-openrouter-key').value;
+  const ghPat = document.getElementById('setting-github-pat').value;
+  const cloudUrl = document.getElementById('setting-cloud-api').value;
+
+  if (orKey) localStorage.setItem('cf_openrouter_key', orKey);
+  if (ghPat) localStorage.setItem('cf_gh_pat', ghPat);
+  if (cloudUrl) localStorage.setItem('cf_cloud_api', cloudUrl);
+
+  alert('⚡ Cloud API Credentials saved to local session!');
+}
 
 function switchPage(pageKey) {
   currentActivePage = pageKey;
@@ -1946,6 +2248,21 @@ window.addEventListener('DOMContentLoaded', async () => {
   document.documentElement.dataset.theme = savedTheme;
   const themeBtn = document.getElementById('theme-toggle-btn');
   if (themeBtn) themeBtn.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+
+  const savedProfile = localStorage.getItem('cf_user_profile');
+  if (savedProfile) {
+    try { updateSidebarUserProfile(JSON.parse(savedProfile)); } catch(e){}
+  } else {
+    updateSidebarUserProfile({
+      name: 'Ghaith Oueslati',
+      email: 'ghaythweslaty002@gmail.com',
+      role: 'DevSecOps & Backend Engineer',
+      location: 'Tunisia / Remote EU',
+      linkedin: 'ghayth-weslati',
+      github: 'ghayth002',
+      phone: '+216 94854835'
+    });
+  }
   
   const savedPass = sessionStorage.getItem('cf_key');
   if (savedPass) {
