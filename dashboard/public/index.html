@@ -897,93 +897,116 @@ sidebar {
 
       <!-- ── PAGE: WORKFLOW RUNNER ─────────────────────────────── -->
       <div class="page-view" id="page-runner">
-        <div class="section-heading-bar" style="margin-bottom:20px">
+        
+        <!-- Header Banner -->
+        <div class="modal-info-panel" style="background:linear-gradient(135deg, rgba(0,240,255,0.08), rgba(168,85,247,0.08));border-color:var(--border-glow);padding:24px;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;">
           <div>
-            <div class="section-heading-title">⚡ Visual Workflow Orchestrator</div>
-            <div class="section-heading-sub">Real-time cloud pipeline status, node graph visualizer, & direct GitHub Actions dispatch</div>
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
+              <span class="chip-tag chip-blue">⚡ CLOUD ORCHESTRATOR V2.0</span>
+              <span id="runner-status-chip" class="chip-tag chip-green">SYSTEM READY</span>
+            </div>
+            <div class="section-heading-title" style="font-size:1.4rem;">Autonomous Job Intelligence Pipeline</div>
+            <div class="section-heading-sub">Real-time job discovery, OpenRouter AI fit scoring, ATS LaTeX CV compilation & Gmail SMTP auto-apply</div>
           </div>
-          <div style="display:flex;gap:10px;">
-            <a href="https://github.com/ghayth002/CareerForge-AI/actions/workflows/job-hunter-pipeline.yml" target="_blank" class="ui-btn ui-btn-purple">🚀 Run Real Cloud Workflow on GitHub</a>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;">
             <button class="ui-btn ui-btn-primary" id="runner-trigger-btn" onclick="executeWorkflowPipeline()">▶️ Trigger Live Pipeline</button>
+            <a href="https://github.com/ghayth002/CareerForge-AI/actions/workflows/job-hunter-pipeline.yml" target="_blank" class="ui-btn ui-btn-purple">🚀 GitHub Cloud Console</a>
           </div>
         </div>
 
-        <!-- GitHub API Dispatch Box (Optional Real Trigger) -->
-        <div class="modal-info-panel" style="border-color:var(--border-glow);margin-bottom:20px;background:var(--bg-card);">
-          <div class="modal-info-label" style="color:var(--neon-cyan);">🔑 Optional: Trigger Real Cloud Pipeline via GitHub API</div>
-          <div style="font-size:0.82rem;color:var(--text-muted);margin-bottom:10px;">
-            Paste a GitHub Personal Access Token (PAT with <code>workflow</code> scope) below to trigger the <b>real GitHub Actions runner cloud build</b> directly from this dashboard:
+        <!-- System Parameters Ribbon -->
+        <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));gap:14px;margin-bottom:24px;">
+          <div style="background:var(--bg-card);border:1px solid var(--border-glass);border-radius:12px;padding:12px 16px;display:flex;align-items:center;gap:10px;">
+            <span style="font-size:1.2rem;">🤖</span>
+            <div><div style="font-size:0.68rem;color:var(--text-dim);font-weight:700;">AI MATCH MODEL</div><div style="font-size:0.82rem;font-weight:800;color:var(--neon-cyan);">openrouter/free</div></div>
           </div>
-          <div style="display:flex;gap:10px;">
-            <input type="password" id="github-pat-input" class="filter-search-input" placeholder="Paste GitHub PAT (ghp_...)" style="font-size:0.85rem;padding:8px 14px;" />
-            <button class="ui-btn ui-btn-primary" style="white-space:nowrap;font-size:0.8rem;" onclick="triggerRealGitHubDispatch()">⚡ Dispatch Real Cloud Run</button>
+          <div style="background:var(--bg-card);border:1px solid var(--border-glass);border-radius:12px;padding:12px 16px;display:flex;align-items:center;gap:10px;">
+            <span style="font-size:1.2rem;">📄</span>
+            <div><div style="font-size:0.68rem;color:var(--text-dim);font-weight:700;">LATEX ENGINE</div><div style="font-size:0.82rem;font-weight:800;color:var(--neon-purple);">texlive / pdflatex</div></div>
+          </div>
+          <div style="background:var(--bg-card);border:1px solid var(--border-glass);border-radius:12px;padding:12px 16px;display:flex;align-items:center;gap:10px;">
+            <span style="font-size:1.2rem;">🌍</span>
+            <div><div style="font-size:0.68rem;color:var(--text-dim);font-weight:700;">TARGET REGIONS</div><div style="font-size:0.82rem;font-weight:800;color:var(--neon-emerald);">Italy, EU, TN, Remote</div></div>
+          </div>
+          <div style="background:var(--bg-card);border:1px solid var(--border-glass);border-radius:12px;padding:12px 16px;display:flex;align-items:center;gap:10px;">
+            <span style="font-size:1.2rem;">🔒</span>
+            <div><div style="font-size:0.68rem;color:var(--text-dim);font-weight:700;">PAYLOAD SECURITY</div><div style="font-size:0.82rem;font-weight:800;color:var(--neon-amber);">AES-256-GCM</div></div>
           </div>
         </div>
 
         <!-- Node Graph Visualizer -->
-        <div class="modal-info-panel" style="padding:24px;border-color:var(--border-glow);margin-bottom:24px;">
-          <div style="font-size:0.75rem;font-weight:800;color:var(--neon-cyan);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;">
-            <span>🌐 Live Node Flow Graph</span>
-            <span id="runner-status-chip" class="chip-tag chip-blue">STATUS: IDLE</span>
+        <div class="modal-info-panel" style="padding:28px;border-color:var(--border-glow);margin-bottom:24px;background:var(--bg-surface);">
+          <div style="font-size:0.78rem;font-weight:800;color:var(--neon-cyan);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;">
+            <span>🌐 Interactive Live Node Flow Graph</span>
+            <span style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">5 Connected Execution Micro-Nodes</span>
           </div>
 
-          <div style="display:grid;grid-template-columns:repeat(5, 1fr);gap:12px;">
+          <div style="display:grid;grid-template-columns:repeat(5, 1fr);gap:14px;position:relative;">
             
-            <div class="node-box" id="node-1-box" style="background:var(--bg-dark);border:1px solid var(--border-glass);border-radius:12px;padding:16px;text-align:center;transition:var(--transition);">
-              <div style="font-size:1.6rem;margin-bottom:6px;">🌐</div>
-              <div style="font-weight:800;font-size:0.82rem;">1. Discovery</div>
-              <div style="font-size:0.68rem;color:var(--text-dim);margin-top:2px;">Remotive, RemoteOK, WWR</div>
-              <div id="node-1-lbl" style="margin-top:8px;font-size:0.65rem;font-weight:800;color:var(--text-dim)">IDLE</div>
+            <div class="node-box" id="node-1-box" style="background:var(--bg-card);border:1px solid var(--border-glass);border-radius:16px;padding:18px 14px;text-align:center;transition:var(--transition);position:relative;">
+              <div style="font-size:1.8rem;margin-bottom:8px;">🌐</div>
+              <div style="font-weight:800;font-size:0.85rem;">1. Discovery</div>
+              <div style="font-size:0.68rem;color:var(--text-dim);margin-top:4px;">Remotive, RemoteOK, WWR, EU</div>
+              <div id="node-1-lbl" style="margin-top:10px;font-size:0.68rem;font-weight:800;color:var(--text-dim)">IDLE</div>
             </div>
 
-            <div class="node-box" id="node-2-box" style="background:var(--bg-dark);border:1px solid var(--border-glass);border-radius:12px;padding:16px;text-align:center;transition:var(--transition);">
-              <div style="font-size:1.6rem;margin-bottom:6px;">🛡️</div>
-              <div style="font-weight:800;font-size:0.82rem;">2. Pre-Filter</div>
-              <div style="font-size:0.68rem;color:var(--text-dim);margin-top:2px;">Filter non-engineering</div>
-              <div id="node-2-lbl" style="margin-top:8px;font-size:0.65rem;font-weight:800;color:var(--text-dim)">IDLE</div>
+            <div class="node-box" id="node-2-box" style="background:var(--bg-card);border:1px solid var(--border-glass);border-radius:16px;padding:18px 14px;text-align:center;transition:var(--transition);position:relative;">
+              <div style="font-size:1.8rem;margin-bottom:8px;">🛡️</div>
+              <div style="font-weight:800;font-size:0.85rem;">2. Pre-Filter</div>
+              <div style="font-size:0.68rem;color:var(--text-dim);margin-top:4px;">Filter Non-Engineering (0$)</div>
+              <div id="node-2-lbl" style="margin-top:10px;font-size:0.68rem;font-weight:800;color:var(--text-dim)">IDLE</div>
             </div>
 
-            <div class="node-box" id="node-3-box" style="background:var(--bg-dark);border:1px solid var(--border-glass);border-radius:12px;padding:16px;text-align:center;transition:var(--transition);">
-              <div style="font-size:1.6rem;margin-bottom:6px;">🤖</div>
-              <div style="font-weight:800;font-size:0.82rem;">3. AI Matcher</div>
-              <div style="font-size:0.68rem;color:var(--text-dim);margin-top:2px;">OpenRouter AI Score</div>
-              <div id="node-3-lbl" style="margin-top:8px;font-size:0.65rem;font-weight:800;color:var(--text-dim)">IDLE</div>
+            <div class="node-box" id="node-3-box" style="background:var(--bg-card);border:1px solid var(--border-glass);border-radius:16px;padding:18px 14px;text-align:center;transition:var(--transition);position:relative;">
+              <div style="font-size:1.8rem;margin-bottom:8px;">🤖</div>
+              <div style="font-weight:800;font-size:0.85rem;">3. AI Matcher</div>
+              <div style="font-size:0.68rem;color:var(--text-dim);margin-top:4px;">OpenRouter Fit & Form Guide</div>
+              <div id="node-3-lbl" style="margin-top:10px;font-size:0.68rem;font-weight:800;color:var(--text-dim)">IDLE</div>
             </div>
 
-            <div class="node-box" id="node-4-box" style="background:var(--bg-dark);border:1px solid var(--border-glass);border-radius:12px;padding:16px;text-align:center;transition:var(--transition);">
-              <div style="font-size:1.6rem;margin-bottom:6px;">📄</div>
-              <div style="font-weight:800;font-size:0.82rem;">4. LaTeX CV</div>
-              <div style="font-size:0.68rem;color:var(--text-dim);margin-top:2px;">Compile Tailored ATS PDF</div>
-              <div id="node-4-lbl" style="margin-top:8px;font-size:0.65rem;font-weight:800;color:var(--text-dim)">IDLE</div>
+            <div class="node-box" id="node-4-box" style="background:var(--bg-card);border:1px solid var(--border-glass);border-radius:16px;padding:18px 14px;text-align:center;transition:var(--transition);position:relative;">
+              <div style="font-size:1.8rem;margin-bottom:8px;">📄</div>
+              <div style="font-weight:800;font-size:0.85rem;">4. LaTeX CV</div>
+              <div style="font-size:0.68rem;color:var(--text-dim);margin-top:4px;">Compile Tailored ATS PDF</div>
+              <div id="node-4-lbl" style="margin-top:10px;font-size:0.68rem;font-weight:800;color:var(--text-dim)">IDLE</div>
             </div>
 
-            <div class="node-box" id="node-5-box" style="background:var(--bg-dark);border:1px solid var(--border-glass);border-radius:12px;padding:16px;text-align:center;transition:var(--transition);">
-              <div style="font-size:1.6rem;margin-bottom:6px;">✉️</div>
-              <div style="font-weight:800;font-size:0.82rem;">5. Auto-Apply</div>
-              <div style="font-size:0.68rem;color:var(--text-dim);margin-top:2px;">Gmail SMTP + AES-256</div>
-              <div id="node-5-lbl" style="margin-top:8px;font-size:0.65rem;font-weight:800;color:var(--text-dim)">IDLE</div>
+            <div class="node-box" id="node-5-box" style="background:var(--bg-card);border:1px solid var(--border-glass);border-radius:16px;padding:18px 14px;text-align:center;transition:var(--transition);position:relative;">
+              <div style="font-size:1.8rem;margin-bottom:8px;">✉️</div>
+              <div style="font-weight:800;font-size:0.85rem;">5. Auto-Apply</div>
+              <div style="font-size:0.68rem;color:var(--text-dim);margin-top:4px;">Gmail SMTP + AES-256</div>
+              <div id="node-5-lbl" style="margin-top:10px;font-size:0.68rem;font-weight:800;color:var(--text-dim)">IDLE</div>
             </div>
 
           </div>
 
-          <div style="margin-top:22px;">
-            <div style="display:flex;justify-content:space-between;font-size:0.78rem;color:var(--text-muted);margin-bottom:4px;">
-              <span>Execution Progress</span>
+          <!-- Progress Bar -->
+          <div style="margin-top:24px;">
+            <div style="display:flex;justify-content:space-between;font-size:0.8rem;color:var(--text-muted);margin-bottom:6px;">
+              <span style="font-weight:700;">Overall Orchestration Progress</span>
               <span id="runner-pct-num" style="font-family:var(--font-code);font-weight:800;color:var(--neon-cyan);">0%</span>
             </div>
-            <div style="height:8px;background:var(--bg-dark);border-radius:4px;overflow:hidden;border:1px solid var(--border-glass);">
-              <div id="runner-progress-bar" style="height:100%;width:0%;background:linear-gradient(90deg, var(--neon-cyan), var(--neon-purple), var(--neon-emerald));transition:width 0.4s ease;"></div>
+            <div style="height:10px;background:var(--bg-dark);border-radius:5px;overflow:hidden;border:1px solid var(--border-glass);">
+              <div id="runner-progress-bar" style="height:100%;width:0%;background:linear-gradient(90deg, var(--neon-cyan), var(--neon-purple), var(--neon-emerald));transition:width 0.4s ease;box-shadow:var(--glow-cyan);"></div>
             </div>
           </div>
         </div>
 
-        <!-- Live Terminal Log -->
-        <div class="modal-info-panel" style="padding:0;overflow:hidden;background:#05070d;">
-          <div style="background:var(--bg-card);padding:12px 18px;border-bottom:1px solid var(--border-glass);font-size:0.78rem;font-weight:800;font-family:var(--font-code);color:var(--text-muted);display:flex;justify-content:space-between;align-items:center;">
-            <span>💻 Terminal Output Console</span>
-            <button class="copy-action-btn" onclick="document.getElementById('runner-log-box').textContent='[INFO] Logs cleared.'">Clear</button>
+        <!-- Mac-Style Terminal Window -->
+        <div class="modal-info-panel" style="padding:0;overflow:hidden;background:#030509;border-color:var(--border-glass);box-shadow:var(--shadow-main);">
+          <div style="background:rgba(20,27,45,0.9);padding:12px 20px;border-bottom:1px solid var(--border-glass);font-size:0.78rem;font-weight:800;font-family:var(--font-code);color:var(--text-muted);display:flex;justify-content:space-between;align-items:center;">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#FF5F56;"></span>
+              <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#FFBD2E;"></span>
+              <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#27C93F;"></span>
+              <span style="margin-left:8px;color:var(--text-main);">bash — CareerForge Orchestrator v2.0</span>
+            </div>
+            <div style="display:flex;gap:8px;">
+              <button class="copy-action-btn" onclick="copyConsoleLogs()">Copy Logs</button>
+              <button class="copy-action-btn" onclick="document.getElementById('runner-log-box').textContent='[INFO] Logs cleared.'">Clear</button>
+            </div>
           </div>
-          <pre id="runner-log-box" style="padding:18px;font-size:0.82rem;color:var(--neon-emerald);max-height:280px;overflow-y:auto;white-space:pre-wrap;line-height:1.5;">[INFO] Workflow Orchestrator initialized. Ready to execute pipeline. Click 'Run Live Pipeline' to start.</pre>
+          <pre id="runner-log-box" style="padding:22px;font-size:0.84rem;color:var(--neon-emerald);max-height:300px;overflow-y:auto;white-space:pre-wrap;line-height:1.6;font-family:var(--font-code);">[INFO] Workflow Orchestrator initialized. System ready for live execution. Click 'Trigger Live Pipeline' to start.</pre>
         </div>
 
       </div>
@@ -1292,6 +1315,14 @@ function copyTextToClipboard(btn, text) {
   navigator.clipboard.writeText(text);
   btn.textContent = '✓ Copied!';
   setTimeout(() => btn.textContent = 'Copy', 1800);
+}
+
+function copyConsoleLogs() {
+  const box = document.getElementById('runner-log-box');
+  if (box) {
+    navigator.clipboard.writeText(box.textContent);
+    alert('Terminal console logs copied to clipboard!');
+  }
 }
 
 function toggleThemeMode() {
