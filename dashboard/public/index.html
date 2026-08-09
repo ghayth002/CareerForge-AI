@@ -9,6 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <style>
 /* ═══════════════════════════════════════════════════════════════
    DESIGN SYSTEM TOKENS & CYBERPUNK PALETTE
@@ -1702,51 +1703,116 @@ async function handleCvFileUpload(event) {
   
   const statusDiv = document.getElementById('ai-parse-status');
   statusDiv.style.display = 'block';
-  statusDiv.textContent = '⌛ Reading and parsing CV file with AI...';
+  statusDiv.textContent = '⌛ Extracting CV text with AI PDF Engine...';
   statusDiv.style.color = 'var(--neon-cyan)';
   
   try {
-    const text = await file.text();
+    let text = '';
+    if (file.name.toLowerCase().endsWith('.pdf')) {
+      text = await extractTextFromPdf(file);
+    } else {
+      text = await file.text();
+    }
+    
     parseCvContentAndAutoFill(text, file.name);
-    statusDiv.textContent = `✨ Parsed "${file.name}"! Form fields auto-filled below.`;
+    statusDiv.textContent = `✨ Parsed "${file.name}"! Candidate profile auto-filled below.`;
     statusDiv.style.color = 'var(--neon-emerald)';
   } catch(e) {
-    statusDiv.textContent = `✓ Uploaded "${file.name}". Fill any remaining fields below.`;
+    console.error("PDF extraction notice:", e);
+    statusDiv.textContent = `✓ Loaded "${file.name}". Please complete any remaining fields.`;
     statusDiv.style.color = 'var(--neon-cyan)';
   }
 }
 
+async function extractTextFromPdf(file) {
+  try {
+    const arrayBuffer = await file.arrayBuffer();
+    if (window.pdfjsLib) {
+      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+      const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+      const pdf = await loadingTask.promise;
+      let fullText = '';
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i);
+        const textContent = await page.getTextContent();
+        const pageText = textContent.items.map(item => item.str).join(' ');
+        fullText += pageText + '\n';
+      }
+      return fullText;
+    }
+  } catch (err) {
+    console.warn("pdf.js fallback:", err);
+  }
+  const raw = await file.text();
+  // Clean binary stream tokens if pdf.js unavailable
+  return raw.replace(/[^\x20-\x7E\n\r\t]/g, ' ');
+}
+
 function parseCvContentAndAutoFill(text, fileName) {
+  // Extract Email
   const emailMatch = text.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
   if (emailMatch) document.getElementById('signup-email').value = emailMatch[0];
 
-  const phoneMatch = text.match(/\+?[0-9\s-]{8,15}/);
-  if (phoneMatch) document.getElementById('signup-phone').value = phoneMatch[0].trim();
-
-  const nameMatch = text.match(/Ghaith\s+Oueslati/i) || text.match(/([A-Z][a-z]+\s+[A-Z][a-z]+)/);
-  if (nameMatch) document.getElementById('signup-name').value = nameMatch[0];
-  else if (fileName) {
-    const cleanedName = fileName.replace(/_CV.*|\.pdf|\.tex/gi, '').replace(/[_-]/g, ' ');
-    if (cleanedName) document.getElementById('signup-name').value = cleanedName;
+  // Extract Phone
+  const phoneMatch = text.match(/\+?[0-9\s\-\(\)]{9,18}/);
+  if (phoneMatch) {
+    const cleanPhone = phoneMatch[0].trim();
+    if (cleanPhone.length >= 8 && !/^\d{1,4}$/.test(cleanPhone)) {
+      document.getElementById('signup-phone').value = cleanPhone;
+    }
   }
 
-  if (text.toLowerCase().includes('devsecops')) {
+  // Extract Name (prioritize clean filename or capitalized words)
+  let extractedName = '';
+  if (fileName) {
+    const cleanFn = fileName.replace(/_CV.*|CV_|\.pdf|\.tex/gi, '').replace(/[_-]/g, ' ').trim();
+    if (cleanFn && cleanFn.length > 2 && !/^\d+$/.test(cleanFn)) {
+      extractedName = cleanFn;
+    }
+  }
+  
+  if (!extractedName) {
+    const nameMatch = text.match(/([A-Z][a-z]{2,}\s+[A-Z][a-z]{2,})/);
+    if (nameMatch) extractedName = nameMatch[0];
+  }
+  if (extractedName) document.getElementById('signup-name').value = extractedName;
+
+  // Extract Role
+  const lower = text.toLowerCase();
+  if (lower.includes('devsecops')) {
     document.getElementById('signup-role').value = 'DevSecOps & Backend Engineer';
-  } else if (text.toLowerCase().includes('backend')) {
+  } else if (lower.includes('backend')) {
     document.getElementById('signup-role').value = 'Senior Backend Systems Architect';
-  } else if (text.toLowerCase().includes('fullstack') || text.toLowerCase().includes('full stack')) {
+  } else if (lower.includes('fullstack') || lower.includes('full stack')) {
     document.getElementById('signup-role').value = 'Full-Stack Software Engineer';
+  } else if (lower.includes('devops')) {
+    document.getElementById('signup-role').value = 'DevOps & Cloud Infrastructure Engineer';
+  } else if (lower.includes('mobile') || lower.includes('flutter')) {
+    document.getElementById('signup-role').value = 'Mobile Application Developer';
+  } else if (lower.includes('frontend') || lower.includes('react')) {
+    document.getElementById('signup-role').value = 'Frontend Software Engineer';
+  } else {
+    document.getElementById('signup-role').value = 'Software Engineer';
   }
 
-  const linkedinMatch = text.match(/linkedin\.com\/in\/([a-zA-Z0-9-]+)/);
+  // Extract LinkedIn
+  const linkedinMatch = text.match(/linkedin\.com\/in\/([a-zA-Z0-9-]+)/i);
   if (linkedinMatch) document.getElementById('signup-linkedin').value = linkedinMatch[1];
-  else document.getElementById('signup-linkedin').value = 'ghayth-weslati';
 
-  const githubMatch = text.match(/github\.com\/([a-zA-Z0-9-]+)/);
+  // Extract GitHub
+  const githubMatch = text.match(/github\.com\/([a-zA-Z0-9-]+)/i);
   if (githubMatch) document.getElementById('signup-github').value = githubMatch[1];
-  else document.getElementById('signup-github').value = 'ghayth002';
 
-  document.getElementById('signup-location').value = 'Tunisia / Remote EU';
+  // Location
+  if (lower.includes('tunisia') || lower.includes('tunis')) {
+    document.getElementById('signup-location').value = 'Tunisia / Remote';
+  } else if (lower.includes('france') || lower.includes('paris')) {
+    document.getElementById('signup-location').value = 'France / Remote EU';
+  } else if (lower.includes('germany') || lower.includes('berlin')) {
+    document.getElementById('signup-location').value = 'Germany / Remote EU';
+  } else {
+    document.getElementById('signup-location').value = 'Remote / Worldwide';
+  }
 }
 
 async function handleSignupSubmit(e) {
