@@ -50,6 +50,7 @@ jobs:
       - name: 📊 Build AES-256-GCM Encrypted Dashboard for GitHub Pages
         env:
           DASHBOARD_PASSCODE: ${{ secrets.DASHBOARD_PASSCODE || 'Ghaith_Master_Key_2026!' }}
+          GH_PAT: ${{ secrets.GH_PAT || secrets.MY_GITHUB_PAT || secrets.DISPATCH_TOKEN }}
         run: |
           node scripts/build-static-dashboard.js
 

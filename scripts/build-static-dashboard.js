@@ -61,7 +61,7 @@ const stats = {
   last_updated: new Date().toISOString()
 };
 
-const GITHUB_PAT = process.env.GITHUB_PAT || process.env.GH_PAT || process.env.GITHUB_TOKEN || '';
+const GITHUB_PAT = process.env.GH_PAT || process.env.MY_GITHUB_PAT || process.env.DISPATCH_TOKEN || '';
 const N8N_WEBHOOK_URL = process.env.N8N_WEBHOOK_URL || '';
 
 const payloadText = JSON.stringify({
