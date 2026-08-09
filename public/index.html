@@ -899,10 +899,25 @@ sidebar {
       <div class="page-view" id="page-runner">
         <div class="section-heading-bar" style="margin-bottom:20px">
           <div>
-            <div class="section-heading-title">⚡ Interactive Visual Workflow Runner</div>
-            <div class="section-heading-sub">Real-time pipeline orchestration, node graph execution, and live runner trigger</div>
+            <div class="section-heading-title">⚡ Visual Workflow Orchestrator</div>
+            <div class="section-heading-sub">Real-time cloud pipeline status, node graph visualizer, & direct GitHub Actions dispatch</div>
           </div>
-          <button class="ui-btn ui-btn-primary" id="runner-trigger-btn" onclick="executeWorkflowPipeline()">▶️ Run Live Pipeline</button>
+          <div style="display:flex;gap:10px;">
+            <a href="https://github.com/ghayth002/CareerForge-AI/actions/workflows/job-hunter-pipeline.yml" target="_blank" class="ui-btn ui-btn-purple">🚀 Run Real Cloud Workflow on GitHub</a>
+            <button class="ui-btn ui-btn-primary" id="runner-trigger-btn" onclick="executeWorkflowPipeline()">▶️ Run Live Simulation</button>
+          </div>
+        </div>
+
+        <!-- GitHub API Dispatch Box (Optional Real Trigger) -->
+        <div class="modal-info-panel" style="border-color:var(--border-glow);margin-bottom:20px;background:var(--bg-card);">
+          <div class="modal-info-label" style="color:var(--neon-cyan);">🔑 Optional: Trigger Real Cloud Pipeline via GitHub API</div>
+          <div style="font-size:0.82rem;color:var(--text-muted);margin-bottom:10px;">
+            Paste a GitHub Personal Access Token (PAT with <code>workflow</code> scope) below to trigger the <b>real GitHub Actions runner cloud build</b> directly from this dashboard:
+          </div>
+          <div style="display:flex;gap:10px;">
+            <input type="password" id="github-pat-input" class="filter-search-input" placeholder="Paste GitHub PAT (ghp_...)" style="font-size:0.85rem;padding:8px 14px;" />
+            <button class="ui-btn ui-btn-primary" style="white-space:nowrap;font-size:0.8rem;" onclick="triggerRealGitHubDispatch()">⚡ Dispatch Real Cloud Run</button>
+          </div>
         </div>
 
         <!-- Node Graph Visualizer -->
@@ -1290,6 +1305,42 @@ function toggleThemeMode() {
 
 /* ── Workflow Runner Execution ─────────────────────────────── */
 let isWorkflowRunning = false;
+
+async function triggerRealGitHubDispatch() {
+  const token = document.getElementById('github-pat-input').value.trim();
+  if (!token) {
+    alert('Please enter a GitHub Personal Access Token (PAT) with workflow permissions to trigger the real GitHub Actions cloud run.');
+    return;
+  }
+
+  appendConsoleLog('\n====================================================');
+  appendConsoleLog('🚀 SENDING REAL GITHUB API WORKFLOW DISPATCH REQUEST');
+  appendConsoleLog('====================================================');
+
+  try {
+    const res = await fetch('https://api.github.com/repos/ghayth002/CareerForge-AI/actions/workflows/job-hunter-pipeline.yml/dispatches', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Accept': 'application/vnd.github+json'
+      },
+      body: JSON.stringify({ ref: 'main' })
+    });
+
+    if (res.status === 204) {
+      appendConsoleLog('  ✅ REAL CLOUD DISPATCH SUCCESSFUL!', 'success');
+      appendConsoleLog('  🚀 Real GitHub Actions Cloud Runner activated on GitHub servers.', 'success');
+      appendConsoleLog('  ℹ️ Executing OpenRouter AI scoring, LaTeX CV compilation, & SMTP auto-apply in cloud.');
+      appendConsoleLog('  👉 Monitor live run: https://github.com/ghayth002/CareerForge-AI/actions');
+      executeWorkflowPipeline();
+    } else {
+      const err = await res.json().catch(() => ({}));
+      appendConsoleLog(`  ❌ GitHub API error ${res.status}: ${err.message || 'Unauthorized / Invalid PAT token'}`);
+    }
+  } catch (e) {
+    appendConsoleLog(`  ❌ Network error connecting to GitHub API: ${e.message}`);
+  }
+}
 
 function appendConsoleLog(msg, type = 'info') {
   const box = document.getElementById('runner-log-box');
