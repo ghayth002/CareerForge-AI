@@ -61,6 +61,9 @@ const stats = {
   last_updated: new Date().toISOString()
 };
 
+const GITHUB_PAT = process.env.GITHUB_PAT || process.env.GH_PAT || process.env.GITHUB_TOKEN || '';
+const N8N_WEBHOOK_URL = process.env.N8N_WEBHOOK_URL || '';
+
 const payloadText = JSON.stringify({
   stats,
   jobs,
@@ -69,6 +72,13 @@ const payloadText = JSON.stringify({
     email: 'ghaythweslaty002@gmail.com',
     linkedin: 'ghayth-weslati',
     github: 'ghayth002'
+  },
+  dispatch: {
+    repo: 'ghayth002/CareerForge-AI',
+    workflow: 'job-hunter-pipeline.yml',
+    ref: 'main',
+    token: GITHUB_PAT,
+    n8n_webhook: N8N_WEBHOOK_URL
   }
 });
 

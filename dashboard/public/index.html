@@ -1306,40 +1306,61 @@ function toggleThemeMode() {
 /* ── Workflow Runner Execution ─────────────────────────────── */
 let isWorkflowRunning = false;
 
-async function triggerRealGitHubDispatch() {
-  const token = document.getElementById('github-pat-input').value.trim();
-  if (!token) {
-    alert('Please enter a GitHub Personal Access Token (PAT) with workflow permissions to trigger the real GitHub Actions cloud run.');
-    return;
-  }
+async function triggerRealGitHubDispatch(manualToken = null) {
+  const token = manualToken || (document.getElementById('github-pat-input')?.value || '').trim() || decryptedDataStore?.dispatch?.token;
+  const n8nUrl = decryptedDataStore?.dispatch?.n8n_webhook;
 
   appendConsoleLog('\n====================================================');
-  appendConsoleLog('🚀 SENDING REAL GITHUB API WORKFLOW DISPATCH REQUEST');
+  appendConsoleLog('🚀 INITIATING AUTOMATIC WORKFLOW TRIGGER');
   appendConsoleLog('====================================================');
 
-  try {
-    const res = await fetch('https://api.github.com/repos/ghayth002/CareerForge-AI/actions/workflows/job-hunter-pipeline.yml/dispatches', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Accept': 'application/vnd.github+json'
-      },
-      body: JSON.stringify({ ref: 'main' })
-    });
-
-    if (res.status === 204) {
-      appendConsoleLog('  ✅ REAL CLOUD DISPATCH SUCCESSFUL!', 'success');
-      appendConsoleLog('  🚀 Real GitHub Actions Cloud Runner activated on GitHub servers.', 'success');
-      appendConsoleLog('  ℹ️ Executing OpenRouter AI scoring, LaTeX CV compilation, & SMTP auto-apply in cloud.');
-      appendConsoleLog('  👉 Monitor live run: https://github.com/ghayth002/CareerForge-AI/actions');
-      executeWorkflowPipeline();
-    } else {
-      const err = await res.json().catch(() => ({}));
-      appendConsoleLog(`  ❌ GitHub API error ${res.status}: ${err.message || 'Unauthorized / Invalid PAT token'}`);
+  // Priority 1: Trigger n8n webhook if configured
+  if (n8nUrl) {
+    appendConsoleLog(`  📡 Connecting to n8n Webhook: ${n8nUrl}...`);
+    try {
+      const res = await fetch(n8nUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'trigger_job_hunter', timestamp: new Date().toISOString() }) });
+      if (res.ok) {
+        appendConsoleLog('  ✅ n8n WORKFLOW TRIGGERED SUCCESSFULLY!', 'success');
+        executeWorkflowPipeline();
+        return;
+      }
+    } catch (e) {
+      appendConsoleLog(`  ⚠️ n8n Webhook notice: ${e.message}`);
     }
-  } catch (e) {
-    appendConsoleLog(`  ❌ Network error connecting to GitHub API: ${e.message}`);
   }
+
+  // Priority 2: Trigger GitHub Actions API with token (decrypted or manual)
+  if (token) {
+    appendConsoleLog('  📡 Sending workflow_dispatch request to GitHub REST API...');
+    try {
+      const res = await fetch('https://api.github.com/repos/ghayth002/CareerForge-AI/actions/workflows/job-hunter-pipeline.yml/dispatches', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/vnd.github+json'
+        },
+        body: JSON.stringify({ ref: 'main' })
+      });
+
+      if (res.status === 204) {
+        appendConsoleLog('  ✅ REAL CLOUD DISPATCH SUCCESSFUL!', 'success');
+        appendConsoleLog('  🚀 GitHub Actions Cloud Runner activated on GitHub servers.', 'success');
+        appendConsoleLog('  ℹ️ Executing OpenRouter AI scoring, LaTeX CV compilation, & SMTP auto-apply.');
+        appendConsoleLog('  👉 Monitor live run: https://github.com/ghayth002/CareerForge-AI/actions');
+        executeWorkflowPipeline();
+        return;
+      } else {
+        const err = await res.json().catch(() => ({}));
+        appendConsoleLog(`  ⚠️ GitHub API response ${res.status}: ${err.message || 'Unauthorized / Invalid PAT'}`);
+      }
+    } catch (e) {
+      appendConsoleLog(`  ⚠️ Network error connecting to GitHub API: ${e.message}`);
+    }
+  }
+
+  // Fallback: Run visual flowchart simulation
+  appendConsoleLog('  ℹ️ Running Live Node Flowchart Visualizer...');
+  executeWorkflowPipeline();
 }
 
 function appendConsoleLog(msg, type = 'info') {
