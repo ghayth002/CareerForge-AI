@@ -1337,7 +1337,7 @@ sidebar {
 <script>
 let decryptedDataStore = null;
 let chartScoreObj = null, chartSkillsObj = null;
-let currentActivePage = 'dashboard';
+let currentActivePage = 'runner';
 let allJobsList = [];
 
 function hexToBytesArray(hex) {
@@ -1438,16 +1438,11 @@ function reloadCurrentPageData() {
   document.getElementById('stat-strong-matches').textContent = matches.length;
   document.getElementById('stat-cvs-generated').textContent = matches.length;
 
-  if (currentActivePage === 'dashboard') {
-    renderCharts(jobs);
-    renderJobsCardsStack('top-matches-stack', matches.slice(0, 6));
-  } else if (currentActivePage === 'jobs') {
-    renderJobsCardsStack('all-jobs-stack', jobs);
-  } else if (currentActivePage === 'matches') {
-    renderJobsCardsStack('strong-matches-stack', matches);
-  } else if (currentActivePage === 'applications') {
-    renderJobsCardsStack('apply-queue-stack', matches);
-  }
+  renderCharts(jobs);
+  renderJobsCardsStack('top-matches-stack', matches.slice(0, 6));
+  renderJobsCardsStack('all-jobs-stack', jobs);
+  renderJobsCardsStack('strong-matches-stack', matches);
+  renderJobsCardsStack('apply-queue-stack', matches);
 }
 
 function renderCharts(jobs) {
