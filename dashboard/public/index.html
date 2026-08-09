@@ -1224,6 +1224,9 @@ function renderList(containerId, jobs) {
     const score = Math.round(j.match_score || 0);
     const scoreClass = score >= 80 ? 'score-high' : 'score-mid';
     const initials = (j.company || '?').substring(0, 2).toUpperCase();
+    const safeCo = (j.company||'').replace(/[^\w]/g, '_').substring(0, 30);
+    const safeTi = (j.title||'').replace(/[^\w]/g, '_').substring(0, 30);
+    const cvName = j.cv_filename || `Ghaith_Oueslati_CV_${safeCo}_${safeTi}.pdf`;
     return `
     <div class="job-card" onclick="openModal('${(j.id||'').replace(/'/g,"\\'")}')">
       <div class="job-company-logo">${initials}</div>
@@ -1233,6 +1236,7 @@ function renderList(containerId, jobs) {
         <div class="job-meta">
           ${j.remote ? '<span class="chip chip-green">🌍 Remote</span>' : ''}
           <span class="chip chip-blue">${(j.source||'api').replace('_',' ')}</span>
+          <span class="chip chip-purple">📄 Tailored ATS CV Matched</span>
           ${j.auto_applied_email ? '<span class="chip chip-green">✅ Auto-Applied</span>' : ''}
         </div>
       </div>
@@ -1262,6 +1266,10 @@ function openModal(jobId) {
   if (!job) return;
   const score = Math.round(job.match_score || 0);
   const guide = job.form_field_guide || {};
+  const safeCo = (job.company||'').replace(/[^\w]/g, '_').substring(0, 30);
+  const safeTi = (job.title||'').replace(/[^\w]/g, '_').substring(0, 30);
+  const cvName = job.cv_filename || `Ghaith_Oueslati_CV_${safeCo}_${safeTi}.pdf`;
+  const coverName = job.cover_filename || `Cover_Letter_${safeCo}_${safeTi}.pdf`;
 
   document.getElementById('m-company').textContent = job.company;
   document.getElementById('m-title').textContent = job.title;
@@ -1277,6 +1285,15 @@ function openModal(jobId) {
       <div class="score-bar-row"><span class="sbl">Overall</span><div class="sbt"><div class="sbf sbf-cyan" style="width:${score}%"></div></div><span class="sbv">${score}%</span></div>
       <div class="score-bar-row"><span class="sbl">Technical</span><div class="sbt"><div class="sbf sbf-green" style="width:${job.technical_score||score}%"></div></div><span class="sbv">${job.technical_score||score}%</span></div>
       <div class="score-bar-row"><span class="sbl">Experience</span><div class="sbt"><div class="sbf sbf-amber" style="width:${job.experience_score||score}%"></div></div><span class="sbv">${job.experience_score||score}%</span></div>
+    </div>
+
+    <!-- Tailored ATS CV Box -->
+    <div class="info-box" style="border-color:var(--accent3);">
+      <div class="info-box-label" style="color:var(--accent3);">📄 Tailored ATS-Optimized LaTeX CV Matched For This Job</div>
+      <div class="info-box-text">
+        <div style="font-weight:700;color:var(--text-1);margin-bottom:4px;">File: <code>${cvName}</code></div>
+        <div style="font-size:0.82rem;color:var(--text-2);">Custom Summary & Skills ordering compiled specifically to maximize ATS score for <b>${job.company} — ${job.title}</b>.</div>
+      </div>
     </div>
 
     <!-- AI Rationale -->

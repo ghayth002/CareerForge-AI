@@ -411,6 +411,11 @@ async function main() {
 
   for (const match of matched) {
     // 1. Generate ATS-Optimized LaTeX CV & Tailored Cover Letter
+    const safeCo = match.company.replace(/[^\w]/g, '_').substring(0, 30);
+    const safeTi = match.title.replace(/[^\w]/g, '_').substring(0, 30);
+    match.cv_filename = `Ghaith_Oueslati_CV_${safeCo}_${safeTi}.pdf`;
+    match.cover_filename = `Cover_Letter_${safeCo}_${safeTi}.pdf`;
+
     try {
       execSync(`python scripts/generate_latex_cv.py --company "${match.company.replace(/"/g, '')}" --title "${match.title.replace(/"/g, '')}" --description "${(match.description||'').substring(0, 1000).replace(/"/g, '')}"`, { stdio: 'inherit' });
       execSync(`python scripts/generate_pdf.py --company "${match.company.replace(/"/g, '')}" --title "${match.title.replace(/"/g, '')}" --summary "${(match.custom_summary||'').replace(/"/g, '')}" --cover_note "${(match.cover_note||'').replace(/"/g, '')}"`, { stdio: 'inherit' });
