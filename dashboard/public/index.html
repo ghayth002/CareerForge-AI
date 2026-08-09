@@ -557,18 +557,56 @@ sidebar {
 }
 .filter-search-input {
   background: var(--bg-card);
-  border: 1px solid var(--border-glass);
+  border: 1.5px solid var(--border-glass);
   border-radius: var(--radius-md);
   color: var(--text-main);
   padding: 12px 18px;
   font-size: 0.9rem;
   font-family: var(--font-main);
+  font-weight: 500;
   min-width: 280px;
   flex: 1;
   outline: none;
   transition: var(--transition);
+  letter-spacing: 0.01em;
 }
-.filter-search-input:focus { border-color: var(--neon-cyan); box-shadow: var(--glow-cyan); }
+.filter-search-input::placeholder {
+  color: var(--text-dim);
+  font-weight: 400;
+  opacity: 0.7;
+}
+.filter-search-input:focus {
+  border-color: var(--neon-cyan);
+  box-shadow: 0 0 0 3px rgba(0, 240, 255, 0.12), var(--glow-cyan);
+}
+[data-theme="light"] .filter-search-input {
+  background: #FFFFFF;
+  border-color: #E2E8F0;
+}
+[data-theme="light"] .filter-search-input:focus {
+  border-color: var(--neon-cyan);
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.1);
+}
+
+/* Form label styles */
+.form-label {
+  display: block;
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
 
 /* ═══════════════════════════════════════════════════════════════
    WORKFLOW RUNNER COMPONENT DESIGN (DARK & LIGHT MODES)
@@ -953,76 +991,91 @@ sidebar {
     <!-- ── TAB: SIGN IN ──────────────────────────────────────── -->
     <div id="auth-tab-signin">
       <div class="auth-shield-icon">🛡️</div>
-      <h2 style="font-size:1.5rem;font-weight:800;background:linear-gradient(135deg,var(--neon-cyan),var(--neon-purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px;">CareerForge AI Login</h2>
-      <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:22px;">Zero-Knowledge Multi-User SaaS Engine</p>
+      <h2 style="font-size:1.55rem;font-weight:800;background:linear-gradient(135deg,var(--neon-cyan),var(--neon-purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px;text-align:center;">CareerForge AI Portal</h2>
+      <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:24px;text-align:center;">Zero-Knowledge Cryptographic Multi-User SaaS Engine</p>
       
-      <form onsubmit="handleAuthLogin(event)" style="display:flex;flex-direction:column;gap:12px;">
-        <input type="email" id="auth-email-input" class="filter-search-input" placeholder="Email (e.g. ghaythweslaty002@gmail.com)..." value="ghaythweslaty002@gmail.com" required />
-        <input type="password" id="auth-passcode-input" class="filter-search-input" placeholder="Enter Master Passcode..." style="text-align:center;letter-spacing:0.15em;" required autoFocus />
-        <button type="submit" id="auth-submit-btn" class="ui-btn ui-btn-primary" style="justify-content:center;width:100%;">🔑 Decrypt & Launch SaaS</button>
+      <form onsubmit="handleAuthLogin(event)" style="display:flex;flex-direction:column;gap:14px;">
+        <div class="form-group">
+          <label class="form-label" for="auth-email-input">Candidate Email</label>
+          <input type="email" id="auth-email-input" class="filter-search-input" placeholder="ghaythweslaty002@gmail.com" value="ghaythweslaty002@gmail.com" required />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="auth-passcode-input">Master Passcode (Encryption Key)</label>
+          <input type="password" id="auth-passcode-input" class="filter-search-input" placeholder="Enter Master Passcode..." style="text-align:center;letter-spacing:0.15em;" required autoFocus />
+        </div>
+
+        <button type="submit" id="auth-submit-btn" class="ui-btn ui-btn-primary" style="justify-content:center;width:100%;padding:12px;margin-top:4px;">🔑 Decrypt & Launch SaaS</button>
       </form>
-      <div id="auth-error-msg" style="color:var(--neon-rose);font-size:0.8rem;margin-top:12px;display:none;">✕ Decryption failed. Incorrect Passcode or Email.</div>
-      <div style="margin-top:20px;font-size:0.75rem;color:var(--text-dim);">Default Passcode: <code>Ghaith_Master_Key_2026!</code></div>
+      
+      <div id="auth-error-msg" style="color:var(--neon-rose);font-size:0.8rem;margin-top:14px;text-align:center;display:none;">✕ Decryption failed. Incorrect Passcode or Email.</div>
+      <div style="margin-top:22px;font-size:0.75rem;color:var(--text-dim);text-align:center;">Default Demo Passcode: <code>Ghaith_Master_Key_2026!</code></div>
     </div>
 
     <!-- ── TAB: SIGN UP (AI CV PARSER & AUTO-FILL) ──────────── -->
     <div id="auth-tab-signup" style="display:none;text-align:left;">
       <div style="text-align:center;margin-bottom:18px;">
         <div class="auth-shield-icon" style="width:52px;height:52px;font-size:1.6rem;margin-bottom:8px;">✨</div>
-        <h2 style="font-size:1.35rem;font-weight:800;background:linear-gradient(135deg,var(--neon-cyan),var(--neon-purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Create Candidate Account</h2>
-        <p style="font-size:0.78rem;color:var(--text-muted);">Upload PDF or LaTeX CV for instant AI Auto-Fill!</p>
+        <h2 style="font-size:1.4rem;font-weight:800;background:linear-gradient(135deg,var(--neon-cyan),var(--neon-purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Create Candidate Account</h2>
+        <p style="font-size:0.78rem;color:var(--text-muted);margin-top:2px;">Upload PDF or LaTeX CV for instant AI Auto-Fill!</p>
       </div>
 
       <!-- AI CV Dropzone -->
-      <div id="cv-upload-dropzone" onclick="document.getElementById('signup-cv-file').click()" style="background:rgba(0,240,255,0.06);border:2px dashed rgba(0,240,255,0.35);border-radius:14px;padding:16px;text-align:center;cursor:pointer;margin-bottom:16px;transition:var(--transition);" onmouseover="this.style.borderColor='var(--neon-cyan)';this.style.background='rgba(0,240,255,0.12)'" onmouseout="this.style.borderColor='rgba(0,240,255,0.35)';this.style.background='rgba(0,240,255,0.06)'">
-        <div style="font-size:1.6rem;margin-bottom:4px;">📄</div>
+      <div id="cv-upload-dropzone" onclick="document.getElementById('signup-cv-file').click()" style="background:rgba(0,240,255,0.05);border:2px dashed var(--border-glow);border-radius:16px;padding:16px;text-align:center;cursor:pointer;margin-bottom:18px;transition:var(--transition);" onmouseover="this.style.borderColor='var(--neon-cyan)';this.style.background='rgba(0,240,255,0.1)'" onmouseout="this.style.borderColor='var(--border-glow)';this.style.background='rgba(0,240,255,0.05)'">
+        <div style="font-size:1.75rem;margin-bottom:4px;">📄</div>
         <div style="font-weight:800;font-size:0.85rem;color:var(--neon-cyan);">Upload CV (PDF or .tex) — AI Auto-Fill</div>
-        <div style="font-size:0.72rem;color:var(--text-dim);margin-top:2px;">PDF required • LaTeX supported • Auto-fills form fields instantly!</div>
+        <div style="font-size:0.72rem;color:var(--text-dim);margin-top:2px;">PDF required • LaTeX supported • Fills form fields instantly!</div>
         <input type="file" id="signup-cv-file" accept=".pdf,.tex,.txt" style="display:none;" onchange="handleCvFileUpload(event)" />
       </div>
 
-      <div id="ai-parse-status" style="display:none;font-size:0.78rem;color:var(--neon-emerald);font-weight:700;margin-bottom:14px;text-align:center;background:rgba(16,185,129,0.12);padding:8px;border-radius:10px;border:1px solid rgba(16,185,129,0.35);">
-        ✨ CV parsed successfully! Form fields auto-filled.
+      <div id="ai-parse-status" style="display:none;font-size:0.78rem;color:var(--neon-emerald);font-weight:700;margin-bottom:16px;text-align:center;background:rgba(16,185,129,0.12);padding:10px;border-radius:10px;border:1px solid rgba(16,185,129,0.35);">
+        ✨ CV parsed successfully! Form fields auto-filled below.
       </div>
 
-      <form onsubmit="handleSignupSubmit(event)" style="display:flex;flex-direction:column;gap:10px;">
-        <div>
-          <label style="font-size:0.7rem;color:var(--text-dim);font-weight:800;letter-spacing:0.06em;">FULL NAME</label>
-          <input type="text" id="signup-name" class="filter-search-input" style="padding:8px 14px;font-size:0.88rem;" placeholder="e.g. Ghaith Oueslati" required />
+      <form onsubmit="handleSignupSubmit(event)" style="display:flex;flex-direction:column;gap:12px;">
+        <div class="form-group">
+          <label class="form-label">Full Name</label>
+          <input type="text" id="signup-name" class="filter-search-input" placeholder="e.g. Ghaith Oueslati" required />
         </div>
-        <div>
-          <label style="font-size:0.7rem;color:var(--text-dim);font-weight:800;letter-spacing:0.06em;">EMAIL ADDRESS</label>
-          <input type="email" id="signup-email" class="filter-search-input" style="padding:8px 14px;font-size:0.88rem;" placeholder="e.g. ghaythweslaty002@gmail.com" required />
+        
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <input type="email" id="signup-email" class="filter-search-input" placeholder="e.g. ghaythweslaty002@gmail.com" required />
         </div>
-        <div>
-          <label style="font-size:0.7rem;color:var(--text-dim);font-weight:800;letter-spacing:0.06em;">TARGET ROLE / TITLE</label>
-          <input type="text" id="signup-role" class="filter-search-input" style="padding:8px 14px;font-size:0.88rem;" placeholder="e.g. DevSecOps & Backend Engineer" required />
+
+        <div class="form-group">
+          <label class="form-label">Target Role / Title</label>
+          <input type="text" id="signup-role" class="filter-search-input" placeholder="e.g. DevSecOps & Backend Engineer" required />
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-          <div>
-            <label style="font-size:0.7rem;color:var(--text-dim);font-weight:800;letter-spacing:0.06em;">LOCATION</label>
-            <input type="text" id="signup-location" class="filter-search-input" style="padding:8px 14px;font-size:0.85rem;" placeholder="Tunisia / EU Remote" />
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Location</label>
+            <input type="text" id="signup-location" class="filter-search-input" placeholder="Tunisia / EU Remote" />
           </div>
-          <div>
-            <label style="font-size:0.7rem;color:var(--text-dim);font-weight:800;letter-spacing:0.06em;">PHONE</label>
-            <input type="text" id="signup-phone" class="filter-search-input" style="padding:8px 14px;font-size:0.85rem;" placeholder="+216 94854835" />
-          </div>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-          <div>
-            <label style="font-size:0.7rem;color:var(--text-dim);font-weight:800;letter-spacing:0.06em;">LINKEDIN</label>
-            <input type="text" id="signup-linkedin" class="filter-search-input" style="padding:8px 14px;font-size:0.85rem;" placeholder="ghayth-weslati" />
-          </div>
-          <div>
-            <label style="font-size:0.7rem;color:var(--text-dim);font-weight:800;letter-spacing:0.06em;">GITHUB</label>
-            <input type="text" id="signup-github" class="filter-search-input" style="padding:8px 14px;font-size:0.85rem;" placeholder="ghayth002" />
+          <div class="form-group">
+            <label class="form-label">Phone</label>
+            <input type="text" id="signup-phone" class="filter-search-input" placeholder="+216 94854835" />
           </div>
         </div>
-        <div>
-          <label style="font-size:0.7rem;color:var(--text-dim);font-weight:800;letter-spacing:0.06em;">MASTER PASSCODE (ENCRYPTION KEY)</label>
-          <input type="password" id="signup-passcode" class="filter-search-input" style="padding:8px 14px;font-size:0.88rem;" value="Ghaith_Master_Key_2026!" required />
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">LinkedIn</label>
+            <input type="text" id="signup-linkedin" class="filter-search-input" placeholder="ghayth-weslati" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">GitHub</label>
+            <input type="text" id="signup-github" class="filter-search-input" placeholder="ghayth002" />
+          </div>
         </div>
-        <button type="submit" class="ui-btn ui-btn-primary" style="justify-content:center;width:100%;margin-top:6px;padding:12px;">🚀 Create Account & Launch Platform</button>
+
+        <div class="form-group">
+          <label class="form-label">Master Passcode (Encryption Key)</label>
+          <input type="password" id="signup-passcode" class="filter-search-input" value="Ghaith_Master_Key_2026!" required />
+        </div>
+
+        <button type="submit" class="ui-btn ui-btn-primary" style="justify-content:center;width:100%;margin-top:6px;padding:12px;font-size:0.9rem;">🚀 Create Account & Launch Platform</button>
       </form>
     </div>
 
