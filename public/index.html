@@ -904,7 +904,7 @@ sidebar {
           </div>
           <div style="display:flex;gap:10px;">
             <a href="https://github.com/ghayth002/CareerForge-AI/actions/workflows/job-hunter-pipeline.yml" target="_blank" class="ui-btn ui-btn-purple">🚀 Run Real Cloud Workflow on GitHub</a>
-            <button class="ui-btn ui-btn-primary" id="runner-trigger-btn" onclick="executeWorkflowPipeline()">▶️ Run Live Simulation</button>
+            <button class="ui-btn ui-btn-primary" id="runner-trigger-btn" onclick="executeWorkflowPipeline()">▶️ Trigger Live Pipeline</button>
           </div>
         </div>
 
@@ -1374,6 +1374,11 @@ function setNodeBoxState(nodeIndex, state, color) {
 }
 
 async function executeWorkflowPipeline() {
+  const token = (document.getElementById('github-pat-input')?.value || '').trim();
+  if (token && !isWorkflowRunning) {
+    return triggerRealGitHubDispatch();
+  }
+
   if (isWorkflowRunning) return;
   isWorkflowRunning = true;
 
