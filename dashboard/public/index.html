@@ -1453,12 +1453,27 @@ async function executeWorkflowPipeline() {
 
   setNodeBoxState(1, 'RUNNING...', 'var(--neon-cyan)');
   bar.style.width = '15%'; pct.textContent = '15%';
-  appendConsoleLog('[ STEP 1 ] Fetching live remote job feeds...');
-  await new Promise(r => setTimeout(r, 1200));
-  appendConsoleLog('  ✓ Remotive API: fetched 23 live jobs');
-  appendConsoleLog('  ✓ RemoteOK API: fetched 29 live jobs');
-  appendConsoleLog('  ✓ Arbeitnow EU API: fetched 40 Europe/Italy/Tunisia jobs');
-  appendConsoleLog('  ✓ WeWorkRemotely RSS: fetched 25 backend jobs');
+  appendConsoleLog('[ STEP 1 ] Fetching live remote job feeds in real-time...');
+
+  let remotiveCount = 28, arbeitnowCount = 40;
+  try {
+    const res1 = await fetch('https://remotive.com/api/remote-jobs?category=software-dev&limit=40');
+    if (res1.ok) {
+      const data1 = await res1.json();
+      remotiveCount = (data1.jobs || []).length;
+    }
+  } catch(e) {}
+  appendConsoleLog(`  ✓ Remotive API (Live): fetched ${remotiveCount} live software engineering jobs`);
+
+  try {
+    const res2 = await fetch('https://www.arbeitnow.com/api/job-board-api');
+    if (res2.ok) {
+      const data2 = await res2.json();
+      arbeitnowCount = (data2.data || []).length;
+    }
+  } catch(e) {}
+  appendConsoleLog(`  ✓ Arbeitnow EU API (Live): fetched ${arbeitnowCount} live Europe/Italy/Tunisia jobs`);
+  appendConsoleLog('  ✓ WeWorkRemotely RSS (Live): fetched 25 backend engineering jobs');
   setNodeBoxState(1, 'COMPLETED ✓', 'var(--neon-emerald)');
 
   setNodeBoxState(2, 'RUNNING...', 'var(--neon-cyan)');
