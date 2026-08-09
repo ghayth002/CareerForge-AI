@@ -101,5 +101,25 @@ if (fs.existsSync(srcHtml)) {
   fs.copyFileSync(srcHtml, path.join(publicDir, 'index.html'));
 }
 
+// 3. Copy all compiled CV PDFs to public/cvs/ for direct 1-click download on GitHub Pages
+const cvsPublicDir = path.join(publicDir, 'cvs');
+if (!fs.existsSync(cvsPublicDir)) fs.mkdirSync(cvsPublicDir, { recursive: true });
+
+const customCvDir = path.join(__dirname, '../data/cv/customized');
+if (fs.existsSync(customCvDir)) {
+  const files = fs.readdirSync(customCvDir);
+  for (const file of files) {
+    if (file.endsWith('.pdf')) {
+      fs.copyFileSync(path.join(customCvDir, file), path.join(cvsPublicDir, file));
+    }
+  }
+}
+
+const baseCvPath = path.join(__dirname, '../data/cv/base/Ghaith_Oueslati_CV.pdf');
+if (fs.existsSync(baseCvPath)) {
+  fs.copyFileSync(baseCvPath, path.join(cvsPublicDir, 'Ghaith_Oueslati_CV.pdf'));
+}
+
 console.log('🔒 Zero-Knowledge AES-256-GCM encrypted payload built successfully!');
+console.log('📄 Compiled CV PDFs copied to public/cvs/ for 1-click direct download.');
 console.log(`🔑 Master Passcode: ${MASTER_PASSCODE}`);

@@ -1225,7 +1225,7 @@ function openJobModal(jobId) {
       <div class="modal-info-label" style="color:var(--neon-emerald);">📄 Tailored ATS-Optimized LaTeX CV Matched For This Job</div>
       <div style="font-size:0.85rem;color:var(--text-main);margin-bottom:6px;">File: <code>${cvName}</code></div>
       <div style="font-size:0.82rem;color:var(--text-muted);margin-bottom:12px;">Custom Summary & Skills ordering compiled specifically to maximize ATS score for <b>${job.company} — ${job.title}</b>.</div>
-      <a href="https://github.com/ghayth002/CareerForge-AI/actions" target="_blank" class="ui-btn ui-btn-primary" style="font-size:0.78rem;padding:6px 14px;display:inline-flex;">📥 Download CV PDF (GitHub Actions Artifacts)</a>
+      <a href="./cvs/${cvName}" download="${cvName}" target="_blank" class="ui-btn ui-btn-primary" style="font-size:0.78rem;padding:6px 14px;display:inline-flex;">📥 Download Tailored CV PDF</a>
     </div>
 
     <div class="modal-info-panel">
