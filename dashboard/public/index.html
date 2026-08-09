@@ -559,6 +559,104 @@ sidebar {
 }
 .filter-search-input:focus { border-color: var(--neon-cyan); box-shadow: var(--glow-cyan); }
 
+/* ═══════════════════════════════════════════════════════════════
+   WORKFLOW RUNNER COMPONENT DESIGN (DARK & LIGHT MODES)
+═══════════════════════════════════════════════════════════════ */
+.runner-hero-card {
+  border-radius: 20px;
+  padding: 28px 32px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 20px;
+  position: relative;
+  overflow: hidden;
+  transition: var(--transition);
+}
+[data-theme="dark"] .runner-hero-card {
+  background: linear-gradient(135deg, rgba(13, 22, 46, 0.95), rgba(25, 18, 52, 0.95));
+  border: 1px solid rgba(0, 240, 255, 0.22);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+}
+[data-theme="light"] .runner-hero-card {
+  background: linear-gradient(135deg, #FFFFFF, #F1F5F9);
+  border: 1px solid rgba(2, 132, 199, 0.25);
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+}
+
+.runner-meta-card {
+  border-radius: 16px;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  backdrop-filter: blur(16px);
+  transition: var(--transition);
+}
+[data-theme="dark"] .runner-meta-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-glass);
+  box-shadow: var(--shadow-main);
+}
+[data-theme="light"] .runner-meta-card {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.05);
+}
+
+.runner-graph-container {
+  padding: 32px;
+  border-radius: 20px;
+  margin-bottom: 24px;
+  position: relative;
+  transition: var(--transition);
+}
+[data-theme="dark"] .runner-graph-container {
+  background: rgba(10, 15, 30, 0.85);
+  border: 1px solid rgba(0, 240, 255, 0.25);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+}
+[data-theme="light"] .runner-graph-container {
+  background: #FFFFFF;
+  border: 1px solid rgba(2, 132, 199, 0.25);
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+}
+
+.runner-node-card {
+  border-radius: 18px;
+  padding: 22px 14px;
+  text-align: center;
+  transition: var(--transition);
+  position: relative;
+}
+[data-theme="dark"] .runner-node-card {
+  background: rgba(15, 23, 42, 0.9);
+  color: #FFFFFF;
+}
+[data-theme="light"] .runner-node-card {
+  background: #F8FAFC;
+  color: #0F172A;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05);
+}
+
+.runner-console-container {
+  border-radius: 20px;
+  overflow: hidden;
+  transition: var(--transition);
+}
+[data-theme="dark"] .runner-console-container {
+  background: #03050C;
+  border: 1px solid rgba(168, 85, 247, 0.3);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+}
+[data-theme="light"] .runner-console-container {
+  background: #0F172A;
+  border: 1px solid rgba(124, 58, 237, 0.3);
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12);
+}
+
 /* Empty state */
 .empty-data-state {
   text-align: center;
@@ -915,7 +1013,7 @@ sidebar {
       <div class="page-view active" id="page-runner">
         
         <!-- Hero / Pipeline Header Banner -->
-        <div class="modal-info-panel" style="background:linear-gradient(135deg, rgba(13, 22, 46, 0.9), rgba(25, 18, 52, 0.9));border:1px solid rgba(0, 240, 255, 0.22);border-radius:20px;padding:28px 32px;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px;box-shadow:0 15px 40px rgba(0,0,0,0.5);position:relative;overflow:hidden;">
+        <div class="runner-hero-card">
           <!-- Ambient Glow Background -->
           <div style="position:absolute;top:-50px;right:-50px;width:250px;height:250px;background:radial-gradient(circle, rgba(168,85,247,0.25) 0%, transparent 70%);pointer-events:none;"></div>
           <div style="position:absolute;bottom:-50px;left:-50px;width:250px;height:250px;background:radial-gradient(circle, rgba(0,240,255,0.2) 0%, transparent 70%);pointer-events:none;"></div>
@@ -925,22 +1023,14 @@ sidebar {
               <span class="chip-tag" style="background:rgba(168,85,247,0.18);color:#C084FC;border:1px solid rgba(168,85,247,0.3);font-size:0.72rem;font-weight:800;letter-spacing:0.06em;">CLOUD ORCHESTRATION v2.0</span>
               <span id="runner-status-chip" class="chip-tag" style="background:rgba(16,185,129,0.15);color:var(--neon-emerald);border:1px solid rgba(16,185,129,0.3);font-size:0.72rem;font-weight:800;letter-spacing:0.06em;">STATUS: COMPLETED</span>
             </div>
-            <div class="section-heading-title" style="font-size:1.65rem;font-weight:800;color:#fff;letter-spacing:-0.02em;">Autonomous Job Intelligence Pipeline ✨</div>
+            <div class="section-heading-title" style="font-size:1.65rem;font-weight:800;letter-spacing:-0.02em;">Autonomous Job Intelligence Pipeline ✨</div>
             <div class="section-heading-sub" style="font-size:0.85rem;color:var(--text-muted);margin-top:4px;">Multi-node live execution • Dynamic flow • AI orchestration • AST & LLM-Powered Intelligence</div>
           </div>
 
-          <div style="display:flex;align-items:center;gap:20px;z-index:2;flex-wrap:wrap;">
-            <!-- 3D Isometric SVG Graphic -->
-            <div style="width:100px;height:85px;display:flex;align-items:center;justify-content:center;">
-              <svg width="95" height="85" viewBox="0 0 100 90" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M50 85 L90 60 L50 35 L10 60 Z" fill="rgba(0, 240, 255, 0.08)" stroke="rgba(0, 240, 255, 0.4)" stroke-width="1.5"/>
-                <path d="M50 65 L80 47 L50 29 L20 47 Z" fill="rgba(168, 85, 247, 0.15)" stroke="rgba(168, 85, 247, 0.6)" stroke-width="1.5"/>
-                <path d="M50 45 L70 33 L50 20 L30 33 Z" fill="rgba(0, 240, 255, 0.4)" stroke="#00F0FF" stroke-width="2"/>
-                <path d="M30 33 L30 45 L50 58 L50 45 Z" fill="rgba(0, 240, 255, 0.25)" stroke="#00F0FF" stroke-width="1.5"/>
-                <path d="M70 33 L70 45 L50 58 L50 45 Z" fill="rgba(168, 85, 247, 0.35)" stroke="#A855F7" stroke-width="1.5"/>
-                <line x1="50" y1="20" x2="50" y2="5" stroke="#00F0FF" stroke-width="2" stroke-dasharray="3 3"/>
-                <circle cx="50" cy="5" r="3" fill="#00F0FF"/>
-              </svg>
+          <div style="display:flex;align-items:center;gap:24px;z-index:2;flex-wrap:wrap;">
+            <!-- 3D Isometric AI Orchestration Graphic -->
+            <div style="width:130px;height:100px;display:flex;align-items:center;justify-content:center;">
+              <img src="./images/hero_3d.png" alt="AI 3D Platform" style="max-width:100%;max-height:100%;object-fit:contain;filter:drop-shadow(0 0 15px rgba(0,240,255,0.4));" />
             </div>
 
             <!-- Action Buttons -->
@@ -956,29 +1046,29 @@ sidebar {
         </div>
 
         <!-- Pipeline Metadata Ribbon (4 Compact Cards) -->
-        <div style="display:grid;grid-template-columns:repeat(4, 1fr);gap:16px;margin-bottom:24px;">
-          <div style="background:var(--bg-card);border:1px solid rgba(0, 240, 255, 0.2);border-radius:16px;padding:16px 20px;display:flex;align-items:center;gap:14px;box-shadow:var(--shadow-main);backdrop-filter:blur(16px);">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(210px, 1fr));gap:16px;margin-bottom:24px;">
+          <div class="runner-meta-card">
             <div style="width:42px;height:42px;border-radius:12px;background:rgba(0,240,255,0.12);border:1px solid rgba(0,240,255,0.3);display:flex;align-items:center;justify-content:center;font-size:1.3rem;">🧠</div>
             <div>
               <div style="font-size:0.68rem;color:var(--text-dim);font-weight:800;letter-spacing:0.08em;">AI/ML MODELS</div>
               <div style="font-size:0.9rem;font-weight:800;color:var(--neon-cyan);margin-top:2px;">gemini-2.5-flash</div>
             </div>
           </div>
-          <div style="background:var(--bg-card);border:1px solid rgba(168, 85, 247, 0.2);border-radius:16px;padding:16px 20px;display:flex;align-items:center;gap:14px;box-shadow:var(--shadow-main);backdrop-filter:blur(16px);">
+          <div class="runner-meta-card">
             <div style="width:42px;height:42px;border-radius:12px;background:rgba(168,85,247,0.12);border:1px solid rgba(168,85,247,0.3);display:flex;align-items:center;justify-content:center;font-size:1.3rem;">🗄️</div>
             <div>
               <div style="font-size:0.68rem;color:var(--text-dim);font-weight:800;letter-spacing:0.08em;">DATA SOURCES</div>
               <div style="font-size:0.9rem;font-weight:800;color:var(--neon-purple);margin-top:2px;">PostgreSQL • Redis</div>
             </div>
           </div>
-          <div style="background:var(--bg-card);border:1px solid rgba(16, 185, 129, 0.2);border-radius:16px;padding:16px 20px;display:flex;align-items:center;gap:14px;box-shadow:var(--shadow-main);backdrop-filter:blur(16px);">
+          <div class="runner-meta-card">
             <div style="width:42px;height:42px;border-radius:12px;background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.3);display:flex;align-items:center;justify-content:center;font-size:1.3rem;">🌐</div>
             <div>
               <div style="font-size:0.68rem;color:var(--text-dim);font-weight:800;letter-spacing:0.08em;">TARGET REGIONS</div>
               <div style="font-size:0.9rem;font-weight:800;color:var(--neon-emerald);margin-top:2px;">Italy • EU • TN • Remote</div>
             </div>
           </div>
-          <div style="background:var(--bg-card);border:1px solid rgba(245, 158, 11, 0.2);border-radius:16px;padding:16px 20px;display:flex;align-items:center;gap:14px;box-shadow:var(--shadow-main);backdrop-filter:blur(16px);">
+          <div class="runner-meta-card">
             <div style="width:42px;height:42px;border-radius:12px;background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.3);display:flex;align-items:center;justify-content:center;font-size:1.3rem;">🔒</div>
             <div>
               <div style="font-size:0.68rem;color:var(--text-dim);font-weight:800;letter-spacing:0.08em;">PIPELINE SECURITY</div>
@@ -988,7 +1078,7 @@ sidebar {
         </div>
 
         <!-- Main Workflow Node Flow Graph -->
-        <div class="modal-info-panel" style="padding:32px;border:1px solid rgba(0, 240, 255, 0.25);border-radius:20px;margin-bottom:24px;background:rgba(10, 15, 30, 0.85);backdrop-filter:blur(24px);box-shadow:0 20px 50px rgba(0,0,0,0.6);position:relative;">
+        <div class="runner-graph-container">
           <div style="font-size:0.8rem;font-weight:800;color:var(--neon-cyan);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;">
             <div style="display:flex;align-items:center;gap:8px;">
               <span style="color:var(--neon-cyan);">⚡</span>
@@ -1013,44 +1103,44 @@ sidebar {
               </defs>
             </svg>
 
-            <div style="display:grid;grid-template-columns:repeat(5, 1fr);gap:18px;position:relative;z-index:2;">
+            <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(170px, 1fr));gap:18px;position:relative;z-index:2;">
               
               <!-- Node 1 -->
-              <div class="node-box" id="node-1-box" style="background:rgba(15, 23, 42, 0.9);border:1.5px solid rgba(0, 240, 255, 0.4);border-radius:18px;padding:22px 14px;text-align:center;transition:var(--transition);box-shadow:0 0 25px rgba(0, 240, 255, 0.15);">
+              <div class="runner-node-card" id="node-1-box" style="border:1.5px solid rgba(0, 240, 255, 0.4);">
                 <div style="font-size:2rem;margin-bottom:8px;">🌐</div>
-                <div style="font-weight:800;font-size:0.9rem;color:#fff;">1. Discovery</div>
+                <div style="font-weight:800;font-size:0.9rem;">1. Discovery</div>
                 <div style="font-size:0.7rem;color:var(--text-dim);margin-top:4px;line-height:1.3;">Search & Fetch Jobs • APIs • DB</div>
                 <div id="node-1-lbl" style="margin-top:12px;display:inline-block;padding:3px 10px;border-radius:999px;font-size:0.68rem;font-weight:800;background:rgba(16,185,129,0.18);color:var(--neon-emerald);border:1px solid rgba(16,185,129,0.35);">COMPLETED ✓</div>
               </div>
 
               <!-- Node 2 -->
-              <div class="node-box" id="node-2-box" style="background:rgba(15, 23, 42, 0.9);border:1.5px solid rgba(0, 240, 255, 0.4);border-radius:18px;padding:22px 14px;text-align:center;transition:var(--transition);box-shadow:0 0 25px rgba(0, 240, 255, 0.15);">
+              <div class="runner-node-card" id="node-2-box" style="border:1.5px solid rgba(0, 240, 255, 0.4);">
                 <div style="font-size:2rem;margin-bottom:8px;">🛡️</div>
-                <div style="font-weight:800;font-size:0.9rem;color:#fff;">2. Pre-Filter</div>
+                <div style="font-weight:800;font-size:0.9rem;">2. Pre-Filter</div>
                 <div style="font-size:0.7rem;color:var(--text-dim);margin-top:4px;line-height:1.3;">Filter • Rank • Deduplicate • ATS</div>
                 <div id="node-2-lbl" style="margin-top:12px;display:inline-block;padding:3px 10px;border-radius:999px;font-size:0.68rem;font-weight:800;background:rgba(16,185,129,0.18);color:var(--neon-emerald);border:1px solid rgba(16,185,129,0.35);">COMPLETED ✓</div>
               </div>
 
               <!-- Node 3 -->
-              <div class="node-box" id="node-3-box" style="background:rgba(15, 23, 42, 0.9);border:1.5px solid rgba(168, 85, 247, 0.4);border-radius:18px;padding:22px 14px;text-align:center;transition:var(--transition);box-shadow:0 0 25px rgba(168, 85, 247, 0.15);">
+              <div class="runner-node-card" id="node-3-box" style="border:1.5px solid rgba(168, 85, 247, 0.4);">
                 <div style="font-size:2rem;margin-bottom:8px;">🤖</div>
-                <div style="font-weight:800;font-size:0.9rem;color:#fff;">3. AI Matcher</div>
+                <div style="font-weight:800;font-size:0.9rem;">3. AI Matcher</div>
                 <div style="font-size:0.7rem;color:var(--text-dim);margin-top:4px;line-height:1.3;">OpenRouter • LLM Score • Fit</div>
                 <div id="node-3-lbl" style="margin-top:12px;display:inline-block;padding:3px 10px;border-radius:999px;font-size:0.68rem;font-weight:800;background:rgba(16,185,129,0.18);color:var(--neon-emerald);border:1px solid rgba(16,185,129,0.35);">COMPLETED ✓</div>
               </div>
 
               <!-- Node 4 -->
-              <div class="node-box" id="node-4-box" style="background:rgba(15, 23, 42, 0.9);border:1.5px solid rgba(245, 158, 11, 0.4);border-radius:18px;padding:22px 14px;text-align:center;transition:var(--transition);box-shadow:0 0 25px rgba(245, 158, 11, 0.15);">
+              <div class="runner-node-card" id="node-4-box" style="border:1.5px solid rgba(245, 158, 11, 0.4);">
                 <div style="font-size:2rem;margin-bottom:8px;">📄</div>
-                <div style="font-weight:800;font-size:0.9rem;color:#fff;">4. Tailor CV</div>
-                <div style="font-size:0.7rem;color:var(--text-dim);margin-top:4px;line-height:1.3;">Generate Personalized CV</div>
+                <div style="font-weight:800;font-size:0.9rem;">4. Tailor CV</div>
+                <div style="font-size:0.7rem;color:var(--text-dim);margin-top:4px;line-height:1.3;">Generate Personalised CV</div>
                 <div id="node-4-lbl" style="margin-top:12px;display:inline-block;padding:3px 10px;border-radius:999px;font-size:0.68rem;font-weight:800;background:rgba(16,185,129,0.18);color:var(--neon-emerald);border:1px solid rgba(16,185,129,0.35);">COMPLETED ✓</div>
               </div>
 
               <!-- Node 5 -->
-              <div class="node-box" id="node-5-box" style="background:rgba(15, 23, 42, 0.9);border:1.5px solid rgba(16, 185, 129, 0.4);border-radius:18px;padding:22px 14px;text-align:center;transition:var(--transition);box-shadow:0 0 25px rgba(16, 185, 129, 0.15);">
+              <div class="runner-node-card" id="node-5-box" style="border:1.5px solid rgba(16, 185, 129, 0.4);">
                 <div style="font-size:2rem;margin-bottom:8px;">🚀</div>
-                <div style="font-weight:800;font-size:0.9rem;color:#fff;">5. Auto-Apply</div>
+                <div style="font-weight:800;font-size:0.9rem;">5. Auto-Apply</div>
                 <div style="font-size:0.7rem;color:var(--text-dim);margin-top:4px;line-height:1.3;">Complete & Submit • Track</div>
                 <div id="node-5-lbl" style="margin-top:12px;display:inline-block;padding:3px 10px;border-radius:999px;font-size:0.68rem;font-weight:800;background:rgba(16,185,129,0.18);color:var(--neon-emerald);border:1px solid rgba(16,185,129,0.35);">COMPLETED ✓</div>
               </div>
@@ -1073,7 +1163,7 @@ sidebar {
         </div>
 
         <!-- Live Execution Console Container -->
-        <div class="modal-info-panel" style="padding:0;overflow:hidden;background:#03050C;border:1px solid rgba(168, 85, 247, 0.3);border-radius:20px;box-shadow:0 20px 50px rgba(0,0,0,0.7);">
+        <div class="runner-console-container">
           <!-- Console Header Bar -->
           <div style="background:linear-gradient(135deg, rgba(20,27,45,0.95), rgba(15,10,30,0.95));padding:14px 24px;border-bottom:1px solid rgba(255,255,255,0.08);font-size:0.82rem;font-weight:800;font-family:var(--font-code);color:var(--text-muted);display:flex;justify-content:space-between;align-items:center;">
             <div style="display:flex;align-items:center;gap:10px;">
@@ -1086,7 +1176,7 @@ sidebar {
             </div>
           </div>
 
-          <!-- Console Content Grid (Logs + 3D Server Stack Vector Graphic) -->
+          <!-- Console Content Grid (Logs + 3D Server Stack Image Graphic) -->
           <div style="display:grid;grid-template-columns: 1.8fr 1fr;gap:0;">
             <!-- Terminal Log Window -->
             <pre id="runner-log-box" style="padding:24px;font-size:0.84rem;color:#10B981;max-height:320px;overflow-y:auto;white-space:pre-wrap;line-height:1.65;font-family:var(--font-code);background:#03050C;margin:0;">[15:37:01] Orchestrator initialized. System ready for live execution. Click "Run Live Pipeline" to start.
@@ -1103,24 +1193,9 @@ sidebar {
 [15:38:26] ✅  Successfully applied to 47 jobs • Tracking enabled
 [15:38:31] Pipeline execution completed successfully! 🚀</pre>
 
-            <!-- 3D Cyberpunk AI Server Stack Vector Graphic -->
+            <!-- 3D Cyberpunk AI Server Stack Image Graphic -->
             <div style="background:linear-gradient(135deg, rgba(8,12,28,0.95), rgba(18,10,36,0.95));border-left:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:center;padding:20px;position:relative;overflow:hidden;">
-              <svg width="180" height="200" viewBox="0 0 180 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M90 170 L155 135 L90 100 L25 135 Z" fill="rgba(0, 240, 255, 0.08)" stroke="#00F0FF" stroke-width="1.5"/>
-                <path d="M25 135 L25 150 L90 185 L90 170 Z" fill="rgba(0, 240, 255, 0.15)" stroke="#00F0FF" stroke-width="1"/>
-                <path d="M155 135 L155 150 L90 185 L90 170 Z" fill="rgba(168, 85, 247, 0.2)" stroke="#A855F7" stroke-width="1"/>
-                
-                <path d="M90 125 L155 90 L90 55 L25 90 Z" fill="rgba(168, 85, 247, 0.12)" stroke="#A855F7" stroke-width="1.5"/>
-                <path d="M25 90 L25 105 L90 140 L90 125 Z" fill="rgba(168, 85, 247, 0.25)" stroke="#A855F7" stroke-width="1"/>
-                <path d="M155 90 L155 105 L90 140 L90 125 Z" fill="rgba(0, 240, 255, 0.25)" stroke="#00F0FF" stroke-width="1"/>
-
-                <path d="M90 80 L135 55 L90 30 L45 55 Z" fill="rgba(0, 240, 255, 0.4)" stroke="#00F0FF" stroke-width="2"/>
-                <path d="M45 55 L45 68 L90 93 L90 80 Z" fill="rgba(0, 240, 255, 0.3)" stroke="#00F0FF" stroke-width="1.5"/>
-                <path d="M135 55 L135 68 L90 93 L90 80 Z" fill="rgba(168, 85, 247, 0.4)" stroke="#A855F7" stroke-width="1.5"/>
-
-                <line x1="90" y1="30" x2="90" y2="10" stroke="#00F0FF" stroke-width="2.5" stroke-dasharray="4 2"/>
-                <circle cx="90" cy="10" r="4" fill="#00F0FF"/>
-              </svg>
+              <img src="./images/server_3d.png" alt="AI Server Stack 3D" style="max-width:100%;max-height:190px;object-fit:contain;filter:drop-shadow(0 0 20px rgba(168,85,247,0.5));" />
             </div>
           </div>
         </div>
