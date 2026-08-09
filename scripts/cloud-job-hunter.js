@@ -118,24 +118,52 @@ async function fetchLiveJobs() {
     if (res.ok) {
       const data = await res.json();
       if (Array.isArray(data.data)) {
-        const jobs = data.data.slice(0, 30).map(j => ({
+        const jobs = data.data.slice(0, 40).map(j => ({
           source: 'arbeitnow_eu',
           source_job_id: String(j.slug || j.title || ''),
           company: j.company_name || 'Unknown',
           title: j.title || '',
-          location: j.location || 'Europe',
-          remote: j.remote || false,
+          location: j.location || 'Europe / Remote',
+          remote: j.remote || true,
           employment_type: (j.job_types || ['full-time'])[0] || 'full-time',
           url: j.url || '',
           description: (j.description || '').replace(/<[^>]+>/g, ' ').substring(0, 4000),
           language: 'en'
         }));
         rawJobs.push(...jobs);
-        console.log(`  ✓ Arbeitnow EU: fetched ${jobs.length} live jobs`);
+        console.log(`  ✓ Arbeitnow EU / Italy / Tunisia: fetched ${jobs.length} live jobs`);
       }
     }
   } catch (e) {
     console.log(`  ⚠ Arbeitnow fetch notice: ${e.message}`);
+  }
+
+  // WeWorkRemotely RSS Feed
+  try {
+    const res = await fetch('https://weworkremotely.com/categories/remote-back-end-programming-jobs.rss');
+    if (res.ok) {
+      const xml = await res.text();
+      const itemMatches = [...xml.matchAll(/<item>[\s\S]*?<title>(.*?)<\/title>[\s\S]*?<link>(.*?)<\/link>[\s\S]*?<description>(.*?)<\/description>[\s\S]*?<\/item>/g)];
+      const jobs = itemMatches.slice(0, 25).map(m => {
+        const titleParts = (m[1] || '').replace(/<!\[CDATA\[|\]\]>/g, '').split(': ');
+        return {
+          source: 'weworkremotely',
+          source_job_id: (m[2] || '').trim(),
+          company: titleParts[0] ? titleParts[0].trim() : 'Remote Tech',
+          title: titleParts[1] ? titleParts[1].trim() : titleParts[0].trim(),
+          location: 'Worldwide Remote / EU / Italy',
+          remote: true,
+          employment_type: 'full-time',
+          url: (m[2] || '').trim(),
+          description: (m[3] || '').replace(/<!\[CDATA\[|\]\]>|<[^>]+>/g, ' ').substring(0, 4000),
+          language: 'en'
+        };
+      });
+      rawJobs.push(...jobs);
+      console.log(`  ✓ WeWorkRemotely: fetched ${jobs.length} live jobs`);
+    }
+  } catch (e) {
+    console.log(`  ⚠ WWR fetch notice: ${e.message}`);
   }
 
   return rawJobs;
@@ -382,11 +410,12 @@ async function main() {
   console.log(`\n[ STEP 4 ] Generating Application PDFs & Sending Alerts (${matched.length} strong matches)...`);
 
   for (const match of matched) {
-    // 1. Generate PDF CV & Cover Letter
+    // 1. Generate ATS-Optimized LaTeX CV & Tailored Cover Letter
     try {
+      execSync(`python scripts/generate_latex_cv.py --company "${match.company.replace(/"/g, '')}" --title "${match.title.replace(/"/g, '')}" --description "${(match.description||'').substring(0, 1000).replace(/"/g, '')}"`, { stdio: 'inherit' });
       execSync(`python scripts/generate_pdf.py --company "${match.company.replace(/"/g, '')}" --title "${match.title.replace(/"/g, '')}" --summary "${(match.custom_summary||'').replace(/"/g, '')}" --cover_note "${(match.cover_note||'').replace(/"/g, '')}"`, { stdio: 'inherit' });
     } catch (e) {
-      console.log(`  ⚠ PDF Generation notice: ${e.message}`);
+      console.log(`  ⚠ PDF & LaTeX Generation notice: ${e.message}`);
     }
 
     // 2. Smart Auto-Apply: Extract email if present in job description or URL

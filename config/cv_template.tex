@@ -1,0 +1,154 @@
+%-------------------------
+% Resume in LaTeX — Ghaith Oueslati (ATS-Optimized Dynamic Template)
+% Variables replaced at generation time: {{SUMMARY}} {{SKILLS_HIGHLIGHT}} {{JOB_TITLE}}
+%-------------------------
+
+\documentclass[letterpaper,11pt]{article}
+
+\usepackage{latexsym}
+\usepackage[empty]{fullpage}
+\usepackage{titlesec}
+\usepackage{marvosym}
+\usepackage[usenames,dvipsnames]{color}
+\usepackage{enumitem}
+\usepackage[hidelinks]{hyperref}
+\usepackage[english]{babel}
+\usepackage{tabularx}
+\usepackage{fontawesome5}
+\input{glyphtounicode}
+
+\definecolor{cvblue}{HTML}{0E5484}
+\definecolor{black}{HTML}{130810}
+
+\addtolength{\oddsidemargin}{-0.6in}
+\addtolength{\evensidemargin}{-0.5in}
+\addtolength{\textwidth}{1.19in}
+\addtolength{\topmargin}{-.7in}
+\addtolength{\textheight}{1.4in}
+
+\titleformat{\section}{
+  \vspace{-4pt}\scshape\raggedright\large\bfseries
+}{}{0em}{}[\color{black}\titlerule \vspace{-5pt}]
+
+\newcommand{\resumeItem}[1]{\item\small{#1 \vspace{-2pt}}}
+\newcommand{\resumeSubheading}[4]{
+  \vspace{-2pt}\item
+    \begin{tabular*}{1.0\textwidth}{l@{\extracolsep{\fill}}r}
+      \textbf{\large #1} & \textbf{\small #2} \\
+      \textit{\large #3} & \textit{\small #4} \\
+    \end{tabular*}\vspace{-7pt}
+}
+\newcommand{\resumeProjectHeading}[2]{
+    \item
+    \begin{tabular*}{1.0\textwidth}{l@{\extracolsep{\fill}}r}
+      \small #1 & \textbf{\small #2}\\
+    \end{tabular*}\vspace{-7pt}
+}
+\newcommand{\resumeItemListStart}{\begin{itemize}}
+\newcommand{\resumeItemListEnd}{\end{itemize}\vspace{-5pt}}
+\newcommand{\resumeSubHeadingListStart}{\begin{itemize}[leftmargin=0in, label={}]}
+\newcommand{\resumeSubHeadingListEnd}{\end{itemize}}
+
+\begin{document}
+
+%----------HEADING----------
+\begin{center}
+    {\Huge \scshape Ghaith Oueslati} \\ \vspace{1pt}
+    \small
+    \href{tel:+21694854835}{\faPhone\ \underline{+216 94854835}} \quad
+    \href{mailto:ghaythweslaty002@gmail.com}{\faEnvelope\ \underline{ghaythweslaty002@gmail.com}} \quad
+    \href{https://www.linkedin.com/in/ghayth-weslati-520394266/}{\faLinkedin\ \underline{ghayth-weslati}} \quad
+    \href{https://github.com/ghayth002}{\faGithub\ \underline{ghayth002}} \quad
+    \href{https://oueslati-ghaith.onrender.com/}{\faGlobe\ \underline{Portfolio}}
+\end{center}
+
+%-----------SUMMARY-----------
+\section{Summary}
+\small{{{SUMMARY}}}
+
+%-----------EDUCATION-----------
+\section{Education}
+\resumeSubHeadingListStart
+    \resumeSubheading
+      {Esprit}{Sep 2021 -- Jun 2026}
+      {B.Eng. in Computer Engineering (TWIN: Web \& Internet Technologies)}{Ariana, Tunisia}
+      \resumeItemListStart
+        \resumeItem{Relevant coursework: Data Structures, Algorithms, Machine Learning, Cloud Computing, and Distributed Systems.}
+      \resumeItemListEnd
+\resumeSubHeadingListEnd
+
+%------TECHNICAL SKILLS-------
+\section{Technical Skills}
+\begin{itemize}[leftmargin=0.15in, label={}]\small{\item{
+     {{SKILLS_SECTION}}
+}}
+\end{itemize}
+
+%-----------EXPERIENCE-----------
+\section{Experience}
+\resumeSubHeadingListStart
+    \resumeSubheading
+      {SeekMake}{Jan 2026 -- Present}
+      {DevSecOps \& Backend Engineer}{Tunisia}
+      \resumeItemListStart
+        \resumeItem{Cut manual security triage time by \textbf{60\%} by integrating the Google Gemini API into the CI/CD pipeline to classify OWASP ZAP and Trivy scan findings and auto-generate fix suggestions.}
+        \resumeItem{Reduced backend API response latency by \textbf{83\%} by optimizing MongoDB aggregation pipelines and implementing caching for high-traffic endpoints.}
+        \resumeItem{Built an AI-powered test generation agent (\textbf{5,200+ lines}) using Vertex AI, lifting unit test coverage to \textbf{75\%+} through self-healing validation loops triggered on every pull request.}
+        \resumeItem{Contributed to migrating \textbf{38+ CI/CD workflows} from GitHub Actions to GitLab CI/CD, converting workflow syntax and configuring self-hosted runners, cutting pipeline setup time by \textbf{45\%}.}
+        \resumeItem{Partnered with the senior DevOps team to migrate \textbf{8 of 12} microservices from GCP Cloud Run to Azure Container Apps, authoring deployment manifests and configuring Azure Front Door for production routing.}
+        \resumeItem{Participated in Agile sprint ceremonies and peer code reviews across a team of \textbf{6} engineers, maintaining an \textbf{88\%} first-submission pull request approval rate.}
+      \resumeItemListEnd
+
+    \resumeSubheading
+      {Cube IT}{Jun 2025 -- Present}
+      {Mobile Developer Intern}{Tunisia}
+      \resumeItemListStart
+        \resumeItem{Improved travel time estimation accuracy by \textbf{15\%} by integrating mapping APIs and refining routing logic in a cross-platform Flutter transport app.}
+        \resumeItem{Built and unit-tested core booking and payment-gateway features in Flutter and Spring Boot, collaborating via Git-based code review across \textbf{6} sprints.}
+      \resumeItemListEnd
+
+    \resumeSubheading
+      {Barmej Tech}{Jun 2024 -- Aug 2024}
+      {Fullstack Developer Intern}{Tunisia}
+      \resumeItemListStart
+        \resumeItem{Boosted backend performance by \textbf{30\%} by optimizing SQL queries and implementing caching on core HR API endpoints.}
+        \resumeItem{Delivered HR leave-tracking and reporting features end-to-end using REST APIs secured with JWT authentication.}
+      \resumeItemListEnd
+\resumeSubHeadingListEnd
+
+%-----------PROJECTS-----------
+\section{Key Projects}
+\resumeSubHeadingListStart
+
+    \resumeProjectHeading
+      {\textbf{AI-Enhanced DevSecOps Pipeline} $|$ NestJS, GitHub Actions, Vertex AI, Terraform}{Jan 2026 -- Present}
+      \resumeItemListStart
+        \resumeItem{Engineered a security automation pipeline combining OWASP ZAP (DAST), Trivy (SCA), and Gemini-based false-positive filtering, reducing triage effort by \textbf{60\%} across \textbf{9 microservices}.}
+      \resumeItemListEnd
+
+    \resumeProjectHeading
+      {\textbf{Self-Hosted CI/CD Runner Infrastructure} $|$ AWS, Terraform, Lambda, EC2}{2026}
+      \resumeItemListStart
+        \resumeItem{Designed a serverless orchestrator using AWS Lambda and GitHub webhooks to provision self-terminating ephemeral EC2 runners, cutting runner idle costs by \textbf{35\%}.}
+      \resumeItemListEnd
+
+    \resumeProjectHeading
+      {\href{https://github.com/ghayth002}{\textbf{RecruitPro}} $|$ MERN, Machine Learning}{Jan 2025 -- May 2025}
+      \resumeItemListStart
+        \resumeItem{Built an AI-based recruitment platform improving job-candidate matching accuracy by \textbf{25\%} and cutting hiring time by \textbf{20\%} via integrated analytics dashboards.}
+      \resumeItemListEnd
+
+\resumeSubHeadingListEnd
+
+\small{\textbf{Additional Projects:} Cloud Migration (GCP\,\textrightarrow\,Azure) \textbullet\ Bambu Lab 3D Printer Integration \textbullet\ \href{https://ecoevents-5twin5-1.onrender.com}{EcoEvents} \textbullet\ AI-Powered Journal App \textbullet\ University Management Platform \textbullet\ \href{https://github.com/ghayth002/PiDev-EquitationCenter}{Equestrian Center App} --- full details on \href{https://github.com/ghayth002}{GitHub}}
+
+%-----------LANGUAGES-----------
+\section{Languages}
+\resumeSubHeadingListStart
+    \resumeItem{Arabic: Native}
+    \resumeItem{French: Professional Working Proficiency}
+    \resumeItem{English: Professional Working Proficiency}
+    \resumeItem{Italian: Upper Intermediate (CISIA B2 Certified)}
+\resumeSubHeadingListEnd
+
+\end{document}
