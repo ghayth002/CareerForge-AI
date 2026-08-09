@@ -245,6 +245,13 @@ def generate_cv(company: str, title: str, description: str = "") -> str:
             print(f"  📎 Using base CV PDF as fallback: {pdf_path}")
         else:
             print(f"  ℹ LaTeX .tex file saved (compile locally with pdflatex)")
+            
+    # Copy to public/cvs/ so dashboard instantly hosts the file
+    public_cv_dir = os.path.join(ROOT, "public", "cvs")
+    os.makedirs(public_cv_dir, exist_ok=True)
+    if os.path.exists(pdf_path):
+        shutil.copy(pdf_path, os.path.join(public_cv_dir, f"{base_name}.pdf"))
+        print(f"  📄 Copied to public/cvs/{base_name}.pdf for 1-click dashboard download")
     
     return pdf_path
 
