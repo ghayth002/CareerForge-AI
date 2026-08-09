@@ -657,6 +657,74 @@ sidebar {
   box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12);
 }
 
+/* ═══════════════════════════════════════════════════════════════
+   DYNAMIC FREE-FLOWING WORKFLOW GRAPH (PURE CSS + VECTOR SVG)
+═══════════════════════════════════════════════════════════════ */
+@keyframes floatBob {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-7px) rotate(2deg); }
+}
+
+@keyframes beamFlow {
+  0% { stroke-dashoffset: 28; }
+  100% { stroke-dashoffset: 0; }
+}
+
+@keyframes pulseDot {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.4); opacity: 0.6; }
+}
+
+.free-flow-graph-wrapper {
+  position: relative;
+  padding: 36px 12px;
+  margin-bottom: 28px;
+  background: transparent;
+}
+
+.free-flow-node-card {
+  border-radius: 22px;
+  padding: 24px 16px;
+  text-align: center;
+  position: relative;
+  z-index: 2;
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(20px);
+}
+[data-theme="dark"] .free-flow-node-card {
+  background: rgba(15, 23, 42, 0.88);
+  color: #FFFFFF;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+[data-theme="light"] .free-flow-node-card {
+  background: rgba(255, 255, 255, 0.95);
+  color: #0F172A;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.07);
+}
+
+.free-flow-node-card:hover {
+  transform: translateY(-10px) scale(1.04);
+  z-index: 10;
+}
+[data-theme="dark"] .free-flow-node-card:hover {
+  box-shadow: 0 20px 45px rgba(0, 240, 255, 0.35) !important;
+}
+[data-theme="light"] .free-flow-node-card:hover {
+  box-shadow: 0 20px 45px rgba(2, 132, 199, 0.25) !important;
+}
+
+.node-bobbing-icon {
+  font-size: 2.2rem;
+  margin-bottom: 10px;
+  display: inline-block;
+  animation: floatBob 3.5s ease-in-out infinite;
+}
+
+.beam-path-animated {
+  stroke-dasharray: 8 6;
+  animation: beamFlow 1.2s linear infinite;
+}
+
 /* Empty state */
 .empty-data-state {
   text-align: center;
@@ -1028,9 +1096,31 @@ sidebar {
           </div>
 
           <div style="display:flex;align-items:center;gap:24px;z-index:2;flex-wrap:wrap;">
-            <!-- 3D Isometric AI Orchestration Graphic -->
-            <div style="width:130px;height:100px;display:flex;align-items:center;justify-content:center;">
-              <img src="./images/hero_3d.png" alt="AI 3D Platform" style="max-width:100%;max-height:100%;object-fit:contain;filter:drop-shadow(0 0 15px rgba(0,240,255,0.4));" />
+            <!-- Seamless Native 3D Holographic AI Orchestrator Vector SVG -->
+            <div style="width:160px;height:110px;display:flex;align-items:center;justify-content:center;">
+              <svg width="160" height="110" viewBox="0 0 200 140" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter:drop-shadow(0 0 25px rgba(0, 240, 255, 0.5));">
+                <circle cx="100" cy="70" r="60" fill="url(#heroGlow)" opacity="0.6"/>
+                <path d="M100 120 L170 85 L100 50 L30 85 Z" fill="rgba(0, 240, 255, 0.06)" stroke="url(#cyanPurpleGrad)" stroke-width="1.8"/>
+                <path d="M100 100 L150 75 L100 50 L50 75 Z" fill="rgba(168, 85, 247, 0.12)" stroke="#A855F7" stroke-width="1.5"/>
+                <path d="M100 80 L140 60 L100 40 L60 60 Z" fill="rgba(0, 240, 255, 0.25)" stroke="#00F0FF" stroke-width="2"/>
+                <path d="M60 60 L60 72 L100 92 L100 80 Z" fill="rgba(0, 240, 255, 0.3)" stroke="#00F0FF" stroke-width="1.5"/>
+                <path d="M140 60 L140 72 L100 92 L100 80 Z" fill="rgba(168, 85, 247, 0.35)" stroke="#A855F7" stroke-width="1.5"/>
+                <path d="M100 50 L120 40 L100 30 L80 40 Z" fill="#00F0FF" stroke="#FFFFFF" stroke-width="1.5"/>
+                <path d="M80 40 L80 50 L100 60 L100 50 Z" fill="rgba(0, 240, 255, 0.8)" stroke="#00F0FF" stroke-width="1"/>
+                <path d="M120 40 L120 50 L100 60 L100 50 Z" fill="rgba(168, 85, 247, 0.8)" stroke="#A855F7" stroke-width="1"/>
+                <line x1="100" y1="30" x2="100" y2="10" stroke="#00F0FF" stroke-width="2.5" stroke-dasharray="4 2"/>
+                <circle cx="100" cy="10" r="4" fill="#00F0FF" style="filter:drop-shadow(0 0 10px #00F0FF);"/>
+                <defs>
+                  <radialGradient id="heroGlow" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" stop-color="#00F0FF" stop-opacity="0.4"/>
+                    <stop offset="100%" stop-color="#A855F7" stop-opacity="0"/>
+                  </radialGradient>
+                  <linearGradient id="cyanPurpleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#00F0FF"/>
+                    <stop offset="100%" stop-color="#A855F7"/>
+                  </linearGradient>
+                </defs>
+              </svg>
             </div>
 
             <!-- Action Buttons -->
@@ -1046,7 +1136,7 @@ sidebar {
         </div>
 
         <!-- Pipeline Metadata Ribbon (4 Compact Cards) -->
-        <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(210px, 1fr));gap:16px;margin-bottom:24px;">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(210px, 1fr));gap:16px;margin-bottom:32px;">
           <div class="runner-meta-card">
             <div style="width:42px;height:42px;border-radius:12px;background:rgba(0,240,255,0.12);border:1px solid rgba(0,240,255,0.3);display:flex;align-items:center;justify-content:center;font-size:1.3rem;">🧠</div>
             <div>
@@ -1077,79 +1167,81 @@ sidebar {
           </div>
         </div>
 
-        <!-- Main Workflow Node Flow Graph -->
-        <div class="runner-graph-container">
-          <div style="font-size:0.8rem;font-weight:800;color:var(--neon-cyan);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;">
-            <div style="display:flex;align-items:center;gap:8px;">
-              <span style="color:var(--neon-cyan);">⚡</span>
-              <span>INTERACTIVE LIVE NODE FLOW</span>
+        <!-- ── UNBOXED DYNAMIC FREE-FLOWING WORKFLOW GRAPH ── -->
+        <div class="free-flow-graph-wrapper">
+          <!-- Flow Header -->
+          <div style="font-size:0.85rem;font-weight:800;color:var(--neon-cyan);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:28px;display:flex;align-items:center;justify-content:space-between;">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <span style="color:var(--neon-cyan);font-size:1.1rem;">⚡</span>
+              <span>DYNAMIC AUTONOMOUS WORKFLOW FLOW</span>
             </div>
-            <span style="font-size:0.75rem;color:var(--neon-emerald);font-weight:700;display:flex;align-items:center;gap:6px;">
-              <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--neon-emerald);box-shadow:0 0 8px var(--neon-emerald);"></span>
-              5 CONNECTED EXECUTION NODES
+            <span style="font-size:0.75rem;color:var(--neon-emerald);font-weight:700;display:flex;align-items:center;gap:6px;background:rgba(16,185,129,0.12);padding:4px 12px;border-radius:999px;border:1px solid rgba(16,185,129,0.3);">
+              <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--neon-emerald);animation:pulseDot 2s infinite;"></span>
+              5 LIVE CONNECTED NODES
             </span>
           </div>
 
-          <!-- Nodes Container with SVG Connector Lines -->
+          <!-- Free-Flow Nodes Grid with Animated Energy Laser Beams -->
           <div style="position:relative;">
-            <svg style="position:absolute;top:50px;left:8%;width:84%;height:40px;pointer-events:none;z-index:1;" viewBox="0 0 1000 40" preserveAspectRatio="none">
-              <path d="M 50 20 Q 250 -10 450 20 T 850 20" fill="none" stroke="url(#nodeBeamGradient)" stroke-width="3" stroke-dasharray="6 4"/>
+            <!-- Animated Dynamic Energy Laser Path SVG -->
+            <svg style="position:absolute;top:60px;left:5%;width:90%;height:50px;pointer-events:none;z-index:1;" viewBox="0 0 1000 50" preserveAspectRatio="none">
+              <path d="M 50 25 Q 250 -5 450 25 T 850 25" fill="none" stroke="url(#freeFlowGradient)" stroke-width="3.5" class="beam-path-animated"/>
               <defs>
-                <linearGradient id="nodeBeamGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stop-color="#00F0FF" stop-opacity="0.8"/>
-                  <stop offset="50%" stop-color="#A855F7" stop-opacity="0.8"/>
-                  <stop offset="100%" stop-color="#10B981" stop-opacity="0.8"/>
+                <linearGradient id="freeFlowGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#00F0FF" stop-opacity="0.9"/>
+                  <stop offset="50%" stop-color="#A855F7" stop-opacity="0.9"/>
+                  <stop offset="100%" stop-color="#10B981" stop-opacity="0.9"/>
                 </linearGradient>
               </defs>
             </svg>
 
-            <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(170px, 1fr));gap:18px;position:relative;z-index:2;">
+            <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(170px, 1fr));gap:22px;position:relative;z-index:2;">
               
               <!-- Node 1 -->
-              <div class="runner-node-card" id="node-1-box" style="border:1.5px solid rgba(0, 240, 255, 0.4);">
-                <div style="font-size:2rem;margin-bottom:8px;">🌐</div>
-                <div style="font-weight:800;font-size:0.9rem;">1. Discovery</div>
-                <div style="font-size:0.7rem;color:var(--text-dim);margin-top:4px;line-height:1.3;">Search & Fetch Jobs • APIs • DB</div>
-                <div id="node-1-lbl" style="margin-top:12px;display:inline-block;padding:3px 10px;border-radius:999px;font-size:0.68rem;font-weight:800;background:rgba(16,185,129,0.18);color:var(--neon-emerald);border:1px solid rgba(16,185,129,0.35);">COMPLETED ✓</div>
+              <div class="free-flow-node-card" id="node-1-box" style="border:1.5px solid rgba(0, 240, 255, 0.45);box-shadow:0 10px 30px rgba(0, 240, 255, 0.18);">
+                <div class="node-bobbing-icon">🌐</div>
+                <div style="font-weight:800;font-size:0.95rem;">1. Discovery</div>
+                <div style="font-size:0.72rem;color:var(--text-dim);margin-top:4px;line-height:1.3;">Search & Fetch Jobs • APIs • DB</div>
+                <div id="node-1-lbl" style="margin-top:14px;display:inline-block;padding:4px 12px;border-radius:999px;font-size:0.68rem;font-weight:800;background:rgba(16,185,129,0.18);color:var(--neon-emerald);border:1px solid rgba(16,185,129,0.4);">COMPLETED ✓</div>
               </div>
 
               <!-- Node 2 -->
-              <div class="runner-node-card" id="node-2-box" style="border:1.5px solid rgba(0, 240, 255, 0.4);">
-                <div style="font-size:2rem;margin-bottom:8px;">🛡️</div>
-                <div style="font-weight:800;font-size:0.9rem;">2. Pre-Filter</div>
-                <div style="font-size:0.7rem;color:var(--text-dim);margin-top:4px;line-height:1.3;">Filter • Rank • Deduplicate • ATS</div>
-                <div id="node-2-lbl" style="margin-top:12px;display:inline-block;padding:3px 10px;border-radius:999px;font-size:0.68rem;font-weight:800;background:rgba(16,185,129,0.18);color:var(--neon-emerald);border:1px solid rgba(16,185,129,0.35);">COMPLETED ✓</div>
+              <div class="free-flow-node-card" id="node-2-box" style="border:1.5px solid rgba(0, 240, 255, 0.45);box-shadow:0 10px 30px rgba(0, 240, 255, 0.18);">
+                <div class="node-bobbing-icon" style="animation-delay:0.5s;">🛡️</div>
+                <div style="font-weight:800;font-size:0.95rem;">2. Pre-Filter</div>
+                <div style="font-size:0.72rem;color:var(--text-dim);margin-top:4px;line-height:1.3;">Filter • Rank • Deduplicate • ATS</div>
+                <div id="node-2-lbl" style="margin-top:14px;display:inline-block;padding:4px 12px;border-radius:999px;font-size:0.68rem;font-weight:800;background:rgba(16,185,129,0.18);color:var(--neon-emerald);border:1px solid rgba(16,185,129,0.4);">COMPLETED ✓</div>
               </div>
 
               <!-- Node 3 -->
-              <div class="runner-node-card" id="node-3-box" style="border:1.5px solid rgba(168, 85, 247, 0.4);">
-                <div style="font-size:2rem;margin-bottom:8px;">🤖</div>
-                <div style="font-weight:800;font-size:0.9rem;">3. AI Matcher</div>
-                <div style="font-size:0.7rem;color:var(--text-dim);margin-top:4px;line-height:1.3;">OpenRouter • LLM Score • Fit</div>
-                <div id="node-3-lbl" style="margin-top:12px;display:inline-block;padding:3px 10px;border-radius:999px;font-size:0.68rem;font-weight:800;background:rgba(16,185,129,0.18);color:var(--neon-emerald);border:1px solid rgba(16,185,129,0.35);">COMPLETED ✓</div>
+              <div class="free-flow-node-card" id="node-3-box" style="border:1.5px solid rgba(168, 85, 247, 0.45);box-shadow:0 10px 30px rgba(168, 85, 247, 0.18);">
+                <div class="node-bobbing-icon" style="animation-delay:1s;">🤖</div>
+                <div style="font-weight:800;font-size:0.95rem;">3. AI Matcher</div>
+                <div style="font-size:0.72rem;color:var(--text-dim);margin-top:4px;line-height:1.3;">OpenRouter • LLM Score • Fit</div>
+                <div id="node-3-lbl" style="margin-top:14px;display:inline-block;padding:4px 12px;border-radius:999px;font-size:0.68rem;font-weight:800;background:rgba(16,185,129,0.18);color:var(--neon-emerald);border:1px solid rgba(16,185,129,0.4);">COMPLETED ✓</div>
               </div>
 
               <!-- Node 4 -->
-              <div class="runner-node-card" id="node-4-box" style="border:1.5px solid rgba(245, 158, 11, 0.4);">
-                <div style="font-size:2rem;margin-bottom:8px;">📄</div>
-                <div style="font-weight:800;font-size:0.9rem;">4. Tailor CV</div>
-                <div style="font-size:0.7rem;color:var(--text-dim);margin-top:4px;line-height:1.3;">Generate Personalised CV</div>
-                <div id="node-4-lbl" style="margin-top:12px;display:inline-block;padding:3px 10px;border-radius:999px;font-size:0.68rem;font-weight:800;background:rgba(16,185,129,0.18);color:var(--neon-emerald);border:1px solid rgba(16,185,129,0.35);">COMPLETED ✓</div>
+              <div class="free-flow-node-card" id="node-4-box" style="border:1.5px solid rgba(245, 158, 11, 0.45);box-shadow:0 10px 30px rgba(245, 158, 11, 0.18);">
+                <div class="node-bobbing-icon" style="animation-delay:1.5s;">📄</div>
+                <div style="font-weight:800;font-size:0.95rem;">4. Tailor CV</div>
+                <div style="font-size:0.72rem;color:var(--text-dim);margin-top:4px;line-height:1.3;">Generate Personalised CV</div>
+                <div id="node-4-lbl" style="margin-top:14px;display:inline-block;padding:4px 12px;border-radius:999px;font-size:0.68rem;font-weight:800;background:rgba(16,185,129,0.18);color:var(--neon-emerald);border:1px solid rgba(16,185,129,0.4);">COMPLETED ✓</div>
               </div>
 
               <!-- Node 5 -->
-              <div class="runner-node-card" id="node-5-box" style="border:1.5px solid rgba(16, 185, 129, 0.4);">
-                <div style="font-size:2rem;margin-bottom:8px;">🚀</div>
-                <div style="font-weight:800;font-size:0.9rem;">5. Auto-Apply</div>
-                <div style="font-size:0.7rem;color:var(--text-dim);margin-top:4px;line-height:1.3;">Complete & Submit • Track</div>
-                <div id="node-5-lbl" style="margin-top:12px;display:inline-block;padding:3px 10px;border-radius:999px;font-size:0.68rem;font-weight:800;background:rgba(16,185,129,0.18);color:var(--neon-emerald);border:1px solid rgba(16,185,129,0.35);">COMPLETED ✓</div>
+              <div class="free-flow-node-card" id="node-5-box" style="border:1.5px solid rgba(16, 185, 129, 0.45);box-shadow:0 10px 30px rgba(16, 185, 129, 0.18);">
+                <div class="node-bobbing-icon" style="animation-delay:2s;">🚀</div>
+                <div style="font-weight:800;font-size:0.95rem;">5. Auto-Apply</div>
+                <div style="font-size:0.72rem;color:var(--text-dim);margin-top:4px;line-height:1.3;">Complete & Submit • Track</div>
+                <div id="node-5-lbl" style="margin-top:14px;display:inline-block;padding:4px 12px;border-radius:999px;font-size:0.68rem;font-weight:800;background:rgba(16,185,129,0.18);color:var(--neon-emerald);border:1px solid rgba(16,185,129,0.4);">COMPLETED ✓</div>
               </div>
 
             </div>
           </div>
 
           <!-- Orchestration Progress Bar -->
-          <div style="margin-top:28px;">
+          <div style="margin-top:32px;">
             <div style="display:flex;justify-content:space-between;font-size:0.82rem;color:var(--text-muted);margin-bottom:8px;">
               <span style="font-weight:700;">Overall Orchestration Progress</span>
               <span id="runner-pct-num" style="font-family:var(--font-code);font-weight:800;color:var(--neon-cyan);font-size:0.95rem;">100%</span>
@@ -1176,7 +1268,7 @@ sidebar {
             </div>
           </div>
 
-          <!-- Console Content Grid (Logs + 3D Server Stack Image Graphic) -->
+          <!-- Console Content Grid (Logs + Seamless Native 3D Cyberpunk AI Server Stack Vector SVG) -->
           <div style="display:grid;grid-template-columns: 1.8fr 1fr;gap:0;">
             <!-- Terminal Log Window -->
             <pre id="runner-log-box" style="padding:24px;font-size:0.84rem;color:#10B981;max-height:320px;overflow-y:auto;white-space:pre-wrap;line-height:1.65;font-family:var(--font-code);background:#03050C;margin:0;">[15:37:01] Orchestrator initialized. System ready for live execution. Click "Run Live Pipeline" to start.
@@ -1193,9 +1285,25 @@ sidebar {
 [15:38:26] ✅  Successfully applied to 47 jobs • Tracking enabled
 [15:38:31] Pipeline execution completed successfully! 🚀</pre>
 
-            <!-- 3D Cyberpunk AI Server Stack Image Graphic -->
+            <!-- Seamless Native 3D Cyberpunk AI Server Stack Vector SVG -->
             <div style="background:linear-gradient(135deg, rgba(8,12,28,0.95), rgba(18,10,36,0.95));border-left:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:center;padding:20px;position:relative;overflow:hidden;">
-              <img src="./images/server_3d.png" alt="AI Server Stack 3D" style="max-width:100%;max-height:190px;object-fit:contain;filter:drop-shadow(0 0 20px rgba(168,85,247,0.5));" />
+              <svg width="200" height="220" viewBox="0 0 200 220" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter:drop-shadow(0 0 20px rgba(168, 85, 247, 0.45));">
+                <circle cx="100" cy="110" r="75" fill="rgba(168, 85, 247, 0.12)"/>
+                <path d="M100 180 L165 145 L100 110 L35 145 Z" fill="rgba(0, 240, 255, 0.08)" stroke="#00F0FF" stroke-width="1.5"/>
+                <path d="M35 145 L35 160 L100 195 L100 180 Z" fill="rgba(0, 240, 255, 0.18)" stroke="#00F0FF" stroke-width="1"/>
+                <path d="M165 145 L165 160 L100 195 L100 180 Z" fill="rgba(168, 85, 247, 0.25)" stroke="#A855F7" stroke-width="1"/>
+                <path d="M100 135 L165 100 L100 65 L35 100 Z" fill="rgba(168, 85, 247, 0.12)" stroke="#A855F7" stroke-width="1.5"/>
+                <path d="M35 100 L35 115 L100 150 L100 135 Z" fill="rgba(168, 85, 247, 0.3)" stroke="#A855F7" stroke-width="1"/>
+                <path d="M165 100 L165 115 L100 150 L100 135 Z" fill="rgba(0, 240, 255, 0.3)" stroke="#00F0FF" stroke-width="1"/>
+                <path d="M100 90 L145 65 L100 40 L55 65 Z" fill="rgba(0, 240, 255, 0.45)" stroke="#00F0FF" stroke-width="2"/>
+                <path d="M55 65 L55 78 L100 103 L100 90 Z" fill="rgba(0, 240, 255, 0.35)" stroke="#00F0FF" stroke-width="1.5"/>
+                <path d="M145 65 L145 78 L100 103 L100 90 Z" fill="rgba(168, 85, 247, 0.45)" stroke="#A855F7" stroke-width="1.5"/>
+                <line x1="100" y1="40" x2="100" y2="15" stroke="#10B981" stroke-width="2.5" stroke-dasharray="4 2"/>
+                <circle cx="100" cy="15" r="4.5" fill="#10B981" style="filter:drop-shadow(0 0 10px #10B981);"/>
+                <circle cx="65" cy="90" r="2.5" fill="#00F0FF"/>
+                <circle cx="135" cy="90" r="2.5" fill="#A855F7"/>
+                <circle cx="65" cy="135" r="2.5" fill="#10B981"/>
+              </svg>
             </div>
           </div>
         </div>
