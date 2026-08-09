@@ -2042,7 +2042,7 @@ let isWorkflowRunning = false;
 async function triggerRealGitHubDispatch(manualToken = null) {
   let token = manualToken || localStorage.getItem('cf_gh_pat') || (document.getElementById('github-pat-input')?.value || '').trim() || decryptedDataStore?.dispatch?.token;
   const n8nUrl = decryptedDataStore?.dispatch?.n8n_webhook;
-  const cloudApiUrl = localStorage.getItem('cf_cloud_api') || decryptedDataStore?.dispatch?.cloud_api || 'https://careerforge-ai-api.onrender.com/api/trigger';
+  const cloudApiUrl = localStorage.getItem('cf_cloud_api') || decryptedDataStore?.dispatch?.cloud_api || (window.location.origin + '/api/trigger');
 
   appendConsoleLog('\n====================================================');
   appendConsoleLog('🚀 INITIATING REAL CLOUD WORKFLOW DISPATCH');

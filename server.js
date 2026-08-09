@@ -106,31 +106,14 @@ app.get('/api/data.enc', (req, res) => {
   }
 });
 
-// Root route
+// ── 4. Full SaaS Application Route ──────────────────────────────────────────
 app.get('/', (req, res) => {
-  res.send(`
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <title>CareerForge AI — Cloud API Node</title>
-      <style>
-        body { font-family: system-ui, sans-serif; background: #060813; color: #F8FAFC; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
-        .card { background: rgba(20,28,48,0.8); border: 1px solid rgba(0,240,255,0.3); border-radius: 20px; padding: 40px; text-align: center; box-shadow: 0 20px 50px rgba(0,240,255,0.2); max-width: 500px; }
-        h1 { background: linear-gradient(135deg, #00F0FF, #A855F7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .badge { background: rgba(16,185,129,0.2); color: #10B981; border: 1px solid #10B981; padding: 4px 12px; border-radius: 999px; font-weight: 700; font-size: 0.8rem; display: inline-block; margin-bottom: 16px; }
-        a { color: #00F0FF; text-decoration: none; font-weight: 700; }
-      </style>
-    </head>
-    <body>
-      <div class="card">
-        <div class="badge">● CLOUD API ONLINE</div>
-        <h1>CareerForge AI Cloud Node</h1>
-        <p>Autonomous AI Job Hunter & Multi-User Pipeline Orchestrator API is running live.</p>
-        <p><a href="https://ghayth002.github.io/CareerForge-AI/" target="_blank">🚀 Open Live Dashboard →</a></p>
-      </div>
-    </body>
-    </html>
-  `);
+  const indexPath = path.join(__dirname, 'public', 'index.html');
+  if (fs.existsSync(indexPath)) {
+    res.sendFile(indexPath);
+  } else {
+    res.status(404).send('CareerForge AI Dashboard initializing... Please wait 30 seconds and refresh.');
+  }
 });
 
 app.listen(PORT, () => {
