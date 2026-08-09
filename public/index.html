@@ -1338,11 +1338,19 @@ function toggleThemeMode() {
 let isWorkflowRunning = false;
 
 async function triggerRealGitHubDispatch(manualToken = null) {
-  const token = manualToken || (document.getElementById('github-pat-input')?.value || '').trim() || decryptedDataStore?.dispatch?.token;
+  let token = manualToken || localStorage.getItem('cf_gh_pat') || (document.getElementById('github-pat-input')?.value || '').trim() || decryptedDataStore?.dispatch?.token;
   const n8nUrl = decryptedDataStore?.dispatch?.n8n_webhook;
 
+  if (!token && !n8nUrl) {
+    const userEntered = prompt("Enter your GitHub Personal Access Token (GH_PAT) once to enable 1-Click Real Cloud Dispatch from this Dashboard:");
+    if (userEntered && userEntered.trim()) {
+      token = userEntered.trim();
+      localStorage.setItem('cf_gh_pat', token);
+    }
+  }
+
   appendConsoleLog('\n====================================================');
-  appendConsoleLog('🚀 INITIATING AUTOMATIC WORKFLOW TRIGGER');
+  appendConsoleLog('🚀 INITIATING REAL CLOUD WORKFLOW DISPATCH');
   appendConsoleLog('====================================================');
 
   // Priority 1: Trigger n8n webhook if configured
@@ -1360,7 +1368,7 @@ async function triggerRealGitHubDispatch(manualToken = null) {
     }
   }
 
-  // Priority 2: Trigger GitHub Actions API with token (decrypted or manual)
+  // Priority 2: Trigger GitHub Actions API with token
   if (token) {
     appendConsoleLog('  📡 Sending workflow_dispatch request to GitHub REST API...');
     try {
@@ -1374,22 +1382,22 @@ async function triggerRealGitHubDispatch(manualToken = null) {
       });
 
       if (res.status === 204) {
-        appendConsoleLog('  ✅ REAL CLOUD DISPATCH SUCCESSFUL!', 'success');
-        appendConsoleLog('  🚀 GitHub Actions Cloud Runner activated on GitHub servers.', 'success');
-        appendConsoleLog('  ℹ️ Executing OpenRouter AI scoring, LaTeX CV compilation, & SMTP auto-apply.');
-        appendConsoleLog('  👉 Monitor live run: https://github.com/ghayth002/CareerForge-AI/actions');
+        appendConsoleLog('  ✅ REAL CLOUD DISPATCH SUCCESSFUL! (HTTP 204)', 'success');
+        appendConsoleLog('  🚀 Real GitHub Actions Cloud Runner activated on GitHub servers.', 'success');
+        appendConsoleLog('  ℹ️ Executing OpenRouter AI scoring, LaTeX CV compilation, & SMTP auto-apply in cloud.');
+        appendConsoleLog('  👉 Live Action Monitor: https://github.com/ghayth002/CareerForge-AI/actions', 'success');
         executeWorkflowPipeline();
         return;
       } else {
         const err = await res.json().catch(() => ({}));
-        appendConsoleLog(`  ⚠️ GitHub API response ${res.status}: ${err.message || 'Unauthorized / Invalid PAT'}`);
+        appendConsoleLog(`  ❌ GitHub API error ${res.status}: ${err.message || 'Unauthorized / Invalid PAT token'}`);
       }
     } catch (e) {
-      appendConsoleLog(`  ⚠️ Network error connecting to GitHub API: ${e.message}`);
+      appendConsoleLog(`  ❌ Network error connecting to GitHub API: ${e.message}`);
     }
   }
 
-  // Fallback: Run visual flowchart simulation
+  // Fallback
   appendConsoleLog('  ℹ️ Running Live Node Flowchart Visualizer...');
   executeWorkflowPipeline();
 }
