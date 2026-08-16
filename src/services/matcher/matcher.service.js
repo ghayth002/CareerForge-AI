@@ -29,6 +29,8 @@ Evaluate the candidate's exact fit for the job posting below and generate a tail
 CANDIDATE PROFILE:
 Name: ${candidate.name || 'Ghaith Oueslati'}
 Title: ${candidate.title || 'DevSecOps & Backend Engineer'}
+Experience Level: Junior to Mid-Level (1-2 years hands-on experience, graduating ESPRIT in 2026)
+Target Roles: Junior DevSecOps Engineer, Backend Engineer, Cloud Engineer, Platform Engineer, Graduate Software Engineer (0-3 years YoE).
 Key Achievements & Facts:
 - ${candidateFacts}
 
@@ -37,10 +39,13 @@ Company: ${job.company}
 Title: ${job.title}
 Location: ${job.location || 'Remote'}
 Required Skills: ${(job.skills || []).join(', ')}
+Seniority Tag: ${job.seniority_level || 'Junior / Mid'}
 Description: ${(job.description || '').substring(0, 2000)}
 
 EVALUATION & GENERATION INSTRUCTIONS:
-1. Match Score (0-100): Calculate an objective fit score based on skills, tech stack, and responsibilities.
+1. Experience & Seniority Calibration:
+   - If the job requires 4+ or 5+ years of experience or senior architect/staff leadership, score it low (<50%) due to seniority mismatch.
+   - If the job is Junior, Graduate, Entry-Level, Associate, or Mid-Level (0-3 years YoE) matching candidate's stack (Docker, CI/CD, Azure, AWS, Python, Node.js, NestJS, MongoDB, Redis, OWASP ZAP, Trivy), calculate an objective high match score (80-98%).
 2. Tailored ATS CV Summary: Write a compelling 2-3 sentence executive profile tailored specifically to ${job.company}'s requirements.
 3. Prioritized ATS Skills: Extract and prioritize the top technical skills directly matching this role.
 4. Professional Letter of Motivation (Cover Letter): Write a complete, professional, 3-paragraph letter:
@@ -54,6 +59,7 @@ RETURN ONLY A VALID JSON OBJECT WITH THIS EXACT SCHEMA:
   "match_score": 88,
   "technical_score": 92,
   "experience_score": 85,
+  "experience_alignment": "Excellent match for Junior / Mid DevSecOps & Backend profile (0-3 yrs).",
   "strengths": ["Strong CI/CD security automation", "Demonstrated backend latency optimization"],
   "missing_skills": ["Role-specific cloud tools"],
   "ai_reasoning": "Direct match for DevSecOps & backend goals with proven achievements from candidate background.",

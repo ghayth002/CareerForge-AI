@@ -1,18 +1,19 @@
-/**
- * CareerForge AI — Crawler Service
- * Coordinates multi-source job discovery with parallel fetching and error isolation.
- */
-
 const { logger } = require('../../core/logger');
 const RemotiveAdapter = require('./adapters/remotive.adapter');
 const RemoteOkAdapter = require('./adapters/remoteok.adapter');
 const ArbeitnowAdapter = require('./adapters/arbeitnow.adapter');
 const WeWorkRemotelyAdapter = require('./adapters/weworkremotely.adapter');
+const JobicyAdapter = require('./adapters/jobicy.adapter');
+const HackerNewsAdapter = require('./adapters/hackernews.adapter');
+const WorkingNomadsAdapter = require('./adapters/workingnomads.adapter');
 
 class CrawlerService {
   constructor(adapters = {}) {
     this.adapters = {
       remotive: adapters.remotive || RemotiveAdapter,
+      jobicy: adapters.jobicy || JobicyAdapter,
+      hackernews: adapters.hackernews || HackerNewsAdapter,
+      workingnomads: adapters.workingnomads || WorkingNomadsAdapter,
       remoteok: adapters.remoteok || RemoteOkAdapter,
       arbeitnow: adapters.arbeitnow || ArbeitnowAdapter,
       weworkremotely: adapters.weworkremotely || WeWorkRemotelyAdapter

@@ -63,6 +63,7 @@ async function main() {
     filter.setCriteria({
       targetKeywords: ['rust', 'blockchain', 'solidity'],
       disallowedKeywords: ['junior', 'intern'],
+      prohibitedSeniority: [],
       preferredLocations: ['remote', 'italy']
     });
 

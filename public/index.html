@@ -1603,7 +1603,10 @@ sidebar {
           <span style="font-size:1.1rem;color:var(--text-muted);">🔍</span>
           <input type="text" id="all-jobs-search-input" class="filter-search-input" placeholder="Search company, job title, or required technical skill..." oninput="applyAdvancedFilters('all-jobs-stack')" />
           <div style="display:flex;gap:6px;flex-wrap:wrap;">
-            <button class="filter-pill-btn active" onclick="setSourceFilter('', this, 'all-jobs-stack')">All Sources</button>
+            <button class="filter-pill-btn active" onclick="setSourceFilter('', this, 'all-jobs-stack')">All Platforms</button>
+            <button class="filter-pill-btn" onclick="setSourceFilter('jobicy', this, 'all-jobs-stack')">Jobicy (Direct)</button>
+            <button class="filter-pill-btn" onclick="setSourceFilter('hackernews', this, 'all-jobs-stack')">HackerNews (Founders)</button>
+            <button class="filter-pill-btn" onclick="setSourceFilter('workingnomads', this, 'all-jobs-stack')">WorkingNomads</button>
             <button class="filter-pill-btn" onclick="setSourceFilter('remotive', this, 'all-jobs-stack')">Remotive</button>
             <button class="filter-pill-btn" onclick="setSourceFilter('remoteok', this, 'all-jobs-stack')">RemoteOK</button>
             <button class="filter-pill-btn" onclick="setSourceFilter('arbeitnow', this, 'all-jobs-stack')">Arbeitnow</button>
@@ -2513,8 +2516,9 @@ function renderJobsCardsStack(containerId, jobs) {
         <div class="job-title-text">${j.title || 'Unknown Role'}</div>
         <div class="job-chips-row">
           ${j.remote ? '<span class="chip-tag chip-green">🌍 Remote</span>' : ''}
-          <span class="chip-tag chip-blue">${(j.source || 'api').replace('_', ' ')}</span>
-          <span class="chip-tag chip-purple">📄 ATS LaTeX Ready</span>
+          <span class="chip-tag chip-emerald">🎯 ${j.seniority_level || 'Junior/Mid (0-3 yrs)'}</span>
+          <span class="chip-tag chip-blue">📡 ${(j.source || 'api').replace('_', ' ')}</span>
+          <span class="chip-tag chip-purple">📄 ATS Ready</span>
           ${j.location ? `<span class="chip-tag chip-amber">📍 ${j.location}</span>` : ''}
         </div>
       </div>
@@ -2593,12 +2597,22 @@ function openJobModal(jobIdentifier) {
   document.getElementById('modal-job-title').textContent = job.title;
   document.getElementById('modal-chips-bar').innerHTML = `
     ${job.remote ? '<span class="chip-tag chip-green">🌍 Remote</span>' : ''}
+    <span class="chip-tag chip-emerald">🎯 ${job.seniority_level || 'Junior / Mid (0-3 yrs)'}</span>
     <span class="chip-tag chip-blue">${score}% AI Match</span>
     ${job.location ? `<span class="chip-tag chip-purple">📍 ${job.location}</span>` : ''}
     ${job.salary ? `<span class="chip-tag chip-amber">💰 ${job.salary}</span>` : ''}
   `;
 
   document.getElementById('modal-dialog-body').innerHTML = `
+    <!-- Experience-Level Qualification Assessment Banner -->
+    <div class="modal-info-panel" style="border-color:var(--neon-emerald);background:rgba(16,185,129,0.06);">
+      <div class="modal-info-label" style="color:var(--neon-emerald);">🎯 Experience-Level Qualification Assessment</div>
+      <div style="font-size:0.88rem;color:var(--text-main);line-height:1.55;">
+        <div><b>Role Seniority:</b> ${job.seniority_level || 'Junior / Graduate (0-2 yrs)'}</div>
+        <div style="margin-top:4px;color:var(--text-muted);"><b>Candidate Fit:</b> ${job.experience_alignment || 'Direct qualification match for ESPRIT 2026 graduate with hands-on DevSecOps & backend experience (0-3 YoE).'}</div>
+      </div>
+    </div>
+
     <!-- CRM Stage Tracker Bar -->
     <div class="modal-info-panel" style="border-color:var(--neon-purple);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
       <div>
