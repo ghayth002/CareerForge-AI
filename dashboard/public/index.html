@@ -2717,13 +2717,7 @@ function downloadTailoredCvPdf(jobIdentifier) {
   let title = (job.title || 'DevSecOps & Backend Engineer').replace(/\s*\(f\/m\/d\)/gi, '').replace(/\s*\(m\/f\/d\)/gi, '').trim();
   if (/current openings|careers|job opening|open position/i.test(title)) title = 'DevSecOps & Backend Engineer';
 
-  const tailoredSummary = job.custom_summary || `DevSecOps & Backend Engineer graduating from ESPRIT in 2026, with hands-on experience building automated CI/CD security scanning, cloud microservice architectures, and high-performance APIs customized specifically for ${company}'s platform goals.`;
-  const matchingBullets = job.key_matching_points || [
-    'Cut manual CI/CD security triage time by 60% by integrating Google Gemini API + Trivy and OWASP ZAP into automated pipelines.',
-    'Reduced backend REST API latency by 83% through MongoDB aggregation query optimization and multi-tier Redis caching.',
-    'Migrated 38+ CI/CD workflows to GitLab CI/CD and containerized microservices to Azure Container Apps and AWS.'
-  ];
-  const tailoredSkills = (job.tailored_skills && job.tailored_skills.length) ? job.tailored_skills : ['Docker', 'GitLab CI/CD', 'Python', 'Azure', 'Node.js', 'OWASP ZAP', 'Trivy', 'MongoDB', 'Redis'];
+  const tailoredSummary = job.custom_summary || `Backend-leaning full-stack engineer graduating from ESPRIT in 2026, with hands-on internship experience shipping DevSecOps automation, CI/CD pipelines, and AI-integrated backend services in production environments. Built and shipped an AI test-generation agent (5,200+ lines) and cut security triage time 60% at SeekMake. Comfortable across the stack (NestJS, Spring Boot, React, Flutter) but strongest in backend systems and cloud infrastructure, tailored for ${company}'s ${title} requirements.`;
 
   const printWindow = window.open('', '_blank');
   if (!printWindow) return;
@@ -2734,104 +2728,224 @@ function downloadTailoredCvPdf(jobIdentifier) {
   <meta charset="utf-8">
   <title>Ghaith_Oueslati_CV_${company.replace(/\W+/g, '_')}.pdf</title>
   <style>
-    @page { size: A4; margin: 15mm 18mm; }
+    @page {
+      size: letter;
+      margin: 14mm 16mm 14mm 16mm;
+    }
     @media print {
-      html, body { width: 100%; height: 100%; margin: 0; padding: 0; }
+      html, body { width: 100%; margin: 0; padding: 0; }
       .no-print { display: none; }
     }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-      color: #1e293b;
-      line-height: 1.5;
+      font-family: 'Latin Modern Roman', 'CMU Serif', 'Times New Roman', Times, Georgia, serif;
+      color: #000000;
+      line-height: 1.28;
       margin: 0;
-      padding: 24px 32px;
-      font-size: 11px;
+      padding: 16px 20px;
+      font-size: 10.5pt;
       background: #ffffff;
       -webkit-font-smoothing: antialiased;
     }
-    .cv-header { text-align: center; border-bottom: 2.5px solid #0284c7; padding-bottom: 10px; margin-bottom: 12px; }
-    .cv-name { font-size: 22px; font-weight: 800; color: #0f172a; letter-spacing: -0.02em; text-transform: uppercase; }
-    .cv-target { font-size: 11.5px; font-weight: 700; color: #0284c7; margin-top: 3px; letter-spacing: 0.05em; text-transform: uppercase; }
-    .cv-contact { font-size: 9.5px; color: #64748b; margin-top: 5px; }
-    .cv-section-title { font-size: 11px; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 0.06em; border-bottom: 1px solid #e2e8f0; padding-bottom: 3px; margin-top: 11px; margin-bottom: 5px; }
-    .cv-summary-text { font-size: 10.5px; color: #334155; line-height: 1.55; text-align: justify; margin-bottom: 6px; }
-    .skills-grid { display: grid; grid-template-columns: 130px 1fr; gap: 3px 8px; font-size: 10px; color: #334155; margin-bottom: 6px; }
-    .skills-category { font-weight: 700; color: #0f172a; }
-    .exp-item { margin-bottom: 9px; }
-    .exp-header { display: flex; justify-content: space-between; align-items: baseline; font-size: 11px; margin-bottom: 2px; }
-    .exp-company { font-weight: 800; color: #0f172a; }
-    .exp-role { font-style: italic; color: #0284c7; font-weight: 600; }
-    .exp-date { font-size: 9.5px; color: #64748b; font-weight: 600; }
-    .cv-bullets { margin: 0; padding-left: 16px; font-size: 10px; color: #334155; line-height: 1.45; }
-    .cv-bullets li { margin-bottom: 2px; }
+    .header-box {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    .header-name {
+      font-size: 19pt;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-variant: small-caps;
+      margin-bottom: 3px;
+    }
+    .header-links {
+      font-size: 9pt;
+      color: #000000;
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .header-links a {
+      color: #000000;
+      text-decoration: underline;
+    }
+    .section-title {
+      font-size: 11.5pt;
+      font-weight: 700;
+      font-variant: small-caps;
+      letter-spacing: 0.04em;
+      border-bottom: 0.75pt solid #000000;
+      padding-bottom: 1.5pt;
+      margin-top: 8pt;
+      margin-bottom: 4pt;
+    }
+    .summary-text {
+      font-size: 9.8pt;
+      text-align: justify;
+      line-height: 1.32;
+      margin-bottom: 4pt;
+    }
+    .item-heading {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-top: 3pt;
+      margin-bottom: 1pt;
+    }
+    .item-title-bold { font-size: 10.5pt; font-weight: 700; }
+    .item-date-bold { font-size: 9.5pt; font-weight: 700; }
+    .item-sub-italic { font-size: 10pt; font-style: italic; }
+    .item-loc-italic { font-size: 9.5pt; font-style: italic; }
+    
+    ul.bullet-list {
+      margin: 2pt 0 4pt 0;
+      padding-left: 18pt;
+      list-style-type: disc;
+    }
+    ul.bullet-list li {
+      font-size: 9.6pt;
+      line-height: 1.32;
+      margin-bottom: 1.5pt;
+      text-align: justify;
+    }
+    .skills-block {
+      font-size: 9.6pt;
+      line-height: 1.38;
+      margin-top: 2pt;
+      margin-bottom: 4pt;
+    }
+    .skills-block b { font-weight: 700; }
   </style>
 </head>
 <body>
-  <div class="cv-header">
-    <div class="cv-name">GHAITH OUESLATI</div>
-    <div class="cv-target">${title} &bull; Tailored Application for ${company}</div>
-    <div class="cv-contact">📞 +216 94854835 &nbsp;|&nbsp; ✉️ ghaythweslaty002@gmail.com &nbsp;|&nbsp; 🔗 linkedin.com/in/ghayth-weslati &nbsp;|&nbsp; 💻 github.com/ghayth002 &nbsp;|&nbsp; 📍 Tunisia (Open to Remote / Relocation)</div>
-  </div>
-
-  <div class="cv-section-title">Professional Executive Summary (Customized for ${company})</div>
-  <div class="cv-summary-text">${tailoredSummary}</div>
-
-  <div class="cv-section-title">Target Role Priority Technical Stack</div>
-  <div class="skills-grid">
-    <div class="skills-category">Priority Match Tools:</div>
-    <div><b>${tailoredSkills.join(', ')}</b></div>
-    <div class="skills-category">DevOps & Cloud:</div>
-    <div>Docker, Kubernetes, Terraform, GitHub Actions, GitLab CI/CD, Azure (Container Apps, Front Door, ACR), AWS (EC2, Lambda), GCP</div>
-    <div class="skills-category">Languages & DBs:</div>
-    <div>Python, TypeScript, JavaScript, Node.js, NestJS, Spring Boot, Java, C#, SQL, MongoDB, PostgreSQL, Redis</div>
-    <div class="skills-category">Security & Testing:</div>
-    <div>DevSecOps, SAST/DAST/SCA, OWASP ZAP, Trivy, SonarQube, Grafana, Postman, Linux, REST APIs, Microservices</div>
-  </div>
-
-  <div class="cv-section-title">Professional Experience</div>
-
-  <div class="exp-item">
-    <div class="exp-header">
-      <div><span class="exp-company">SeekMake</span> &bull; <span class="exp-role">DevSecOps & Backend Engineer</span></div>
-      <div class="exp-date">Jan 2026 – Present | Tunisia</div>
+  <!-- HEADER -->
+  <div class="header-box">
+    <div class="header-name">Ghaith Oueslati</div>
+    <div class="header-links">
+      <span>📞 <a href="tel:+21694854835">+216 94854835</a></span>
+      <span>✉ <a href="mailto:ghaythweslaty002@gmail.com">ghaythweslaty002@gmail.com</a></span>
+      <span>🔗 <a href="https://linkedin.com/in/ghayth-weslati">ghayth-weslati</a></span>
+      <span>💻 <a href="https://github.com/ghayth002">ghayth002</a></span>
+      <span>🌐 <a href="https://oueslati-ghaith.onrender.com">Portfolio</a></span>
     </div>
-    <ul class="cv-bullets">
-      <li>Cut manual security triage time by <b>60%</b> by integrating Google Gemini API into CI/CD pipelines to classify OWASP ZAP and Trivy findings.</li>
-      <li>Reduced backend REST API response latency by <b>83%</b> via MongoDB aggregation optimization and Redis distributed caching.</li>
-      <li>Engineered an AI-powered test generation agent (<b>5,200+ lines</b>) with Vertex AI, lifting unit test coverage to <b>75%+</b>.</li>
-      <li>Migrated <b>38+ CI/CD workflows</b> from GitHub Actions to GitLab CI/CD with self-hosted runner infrastructure.</li>
-      <li>Migrated 8 microservices from GCP Cloud Run to Azure Container Apps and configured Azure Front Door production routing.</li>
-    </ul>
   </div>
 
-  <div class="exp-item">
-    <div class="exp-header">
-      <div><span class="exp-company">Cube IT</span> &bull; <span class="exp-role">Mobile Developer Intern</span></div>
-      <div class="exp-date">Jun 2025 – Present | Tunisia</div>
-    </div>
-    <ul class="cv-bullets">
-      <li>Improved travel time estimation accuracy by <b>15%</b> by integrating mapping APIs and routing algorithms in cross-platform transport app.</li>
-      <li>Built and unit-tested core booking and payment gateway features using Flutter and Spring Boot microservices.</li>
-    </ul>
+  <!-- SUMMARY -->
+  <div class="section-title">Summary</div>
+  <div class="summary-text">${tailoredSummary}</div>
+
+  <!-- EDUCATION -->
+  <div class="section-title">Education</div>
+  <div class="item-heading">
+    <span class="item-title-bold">Esprit</span>
+    <span class="item-date-bold">Sep 2021 – Jun 2026</span>
+  </div>
+  <div class="item-heading" style="margin-top:0;">
+    <span class="item-sub-italic">B.Eng. in Computer Engineering (TWIN: Web & Internet Technologies)</span>
+    <span class="item-loc-italic">Ariana, Tunisia</span>
+  </div>
+  <ul class="bullet-list">
+    <li>Relevant coursework: Data Structures, Algorithms, Machine Learning, Cloud Computing, and Distributed Systems.</li>
+  </ul>
+
+  <!-- TECHNICAL SKILLS -->
+  <div class="section-title">Technical Skills</div>
+  <div class="skills-block">
+    <div><b>Languages:</b> JavaScript, TypeScript, Python, Java, C#, C++, C, PL/SQL, SQL</div>
+    <div><b>Frameworks:</b> React, Angular, Node.js, NestJS, Spring Boot, .NET, Flutter, Django, Laravel, Symfony</div>
+    <div><b>Databases:</b> MySQL, MongoDB</div>
+    <div><b>DevOps & Cloud:</b> Docker, Terraform, GitHub Actions, GitLab CI/CD, AWS (EC2, Lambda, Secrets Manager), Azure (Container Apps, Front Door, ACR), GCP (Cloud Run, GAR)</div>
+    <div><b>Testing & Quality:</b> Unit Testing, SonarQube, Code Review</div>
+    <div><b>Tools:</b> Jenkins, Git, Swagger, Postman, Grafana, Figma, Trivy, OWASP ZAP</div>
+    <div><b>Concepts:</b> REST APIs, Microservices, CI/CD Automation, DevSecOps, Agile/Scrum, Blue/Green Deployments, Infrastructure as Code, JWT, Keycloak, MQTT</div>
   </div>
 
-  <div class="exp-item">
-    <div class="exp-header">
-      <div><span class="exp-company">Barmej Tech</span> &bull; <span class="exp-role">Fullstack Developer Intern</span></div>
-      <div class="exp-date">Jun 2024 – Aug 2024 | Tunisia</div>
-    </div>
-    <ul class="cv-bullets">
-      <li>Boosted backend performance by <b>30%</b> by optimizing SQL queries and caching core HR API endpoints with JWT authentication.</li>
-    </ul>
+  <!-- EXPERIENCE -->
+  <div class="section-title">Experience</div>
+
+  <div class="item-heading">
+    <span class="item-title-bold">SeekMake</span>
+    <span class="item-date-bold">Jan 2026 – Present</span>
+  </div>
+  <div class="item-heading" style="margin-top:0;">
+    <span class="item-sub-italic">DevSecOps & Backend Engineer</span>
+    <span class="item-loc-italic">Tunisia</span>
+  </div>
+  <ul class="bullet-list">
+    <li>Cut manual security triage time by <b>60%</b> by integrating the Google Gemini API into the CI/CD pipeline to classify OWASP ZAP and Trivy scan findings and auto-generate fix suggestions.</li>
+    <li>Reduced backend API response latency by <b>83%</b> by optimizing MongoDB aggregation pipelines and implementing caching for high-traffic endpoints.</li>
+    <li>Built an AI-powered test generation agent (<b>5,200+ lines</b>) using Vertex AI, lifting unit test coverage to <b>75%+</b> through self-healing validation loops triggered on every pull request.</li>
+    <li>Contributed to migrating <b>38+ CI/CD workflows</b> from GitHub Actions to GitLab CI/CD, converting workflow syntax and configuring self-hosted runners, cutting pipeline setup time by <b>45%</b>.</li>
+    <li>Partnered with the senior DevOps team to migrate <b>8 of 12</b> microservices from GCP Cloud Run to Azure Container Apps, authoring deployment manifests and configuring Azure Front Door for production routing.</li>
+    <li>Participated in Agile sprint ceremonies and peer code reviews across a team of <b>6</b> engineers, maintaining an <b>88%</b> first-submission pull request approval rate.</li>
+  </ul>
+
+  <div class="item-heading">
+    <span class="item-title-bold">Cube IT</span>
+    <span class="item-date-bold">Jun 2025 – Present</span>
+  </div>
+  <div class="item-heading" style="margin-top:0;">
+    <span class="item-sub-italic">Mobile Developer Intern</span>
+    <span class="item-loc-italic">Tunisia</span>
+  </div>
+  <ul class="bullet-list">
+    <li>Improved travel time estimation accuracy by <b>15%</b> by integrating mapping APIs and refining routing logic in a cross-platform Flutter transport app.</li>
+    <li>Built and unit-tested core booking and payment-gateway features in Flutter and Spring Boot, collaborating via Git-based code review across <b>6</b> sprints.</li>
+  </ul>
+
+  <div class="item-heading">
+    <span class="item-title-bold">Barmej Tech</span>
+    <span class="item-date-bold">Jun 2024 – Aug 2024</span>
+  </div>
+  <div class="item-heading" style="margin-top:0;">
+    <span class="item-sub-italic">Fullstack Developer Intern</span>
+    <span class="item-loc-italic">Tunisia</span>
+  </div>
+  <ul class="bullet-list">
+    <li>Boosted backend performance by <b>30%</b> by optimizing SQL queries and implementing caching on core HR API endpoints.</li>
+    <li>Delivered HR leave-tracking and reporting features end-to-end using REST APIs secured with JWT authentication.</li>
+  </ul>
+
+  <!-- KEY PROJECTS -->
+  <div class="section-title">Key Projects</div>
+
+  <div class="item-heading">
+    <span class="item-title-bold">AI-Enhanced DevSecOps Pipeline | NestJS, GitHub Actions, Vertex AI, Terraform</span>
+    <span class="item-date-bold">Jan 2026 – Present</span>
+  </div>
+  <ul class="bullet-list">
+    <li>Engineered a security automation pipeline combining OWASP ZAP (DAST), Trivy (SCA), and Gemini-based false-positive filtering, reducing triage effort by <b>60%</b> across <b>9 microservices</b>.</li>
+  </ul>
+
+  <div class="item-heading">
+    <span class="item-title-bold">Self-Hosted CI/CD Runner Infrastructure | AWS, Terraform, Lambda, EC2</span>
+    <span class="item-date-bold">2026</span>
+  </div>
+  <ul class="bullet-list">
+    <li>Designed a serverless orchestrator using AWS Lambda and GitHub webhooks to provision self-terminating ephemeral EC2 runners, cutting runner idle costs by <b>35%</b>.</li>
+  </ul>
+
+  <div class="item-heading">
+    <span class="item-title-bold">RecruitPro | MERN, Machine Learning</span>
+    <span class="item-date-bold">Jan 2025 – May 2025</span>
+  </div>
+  <ul class="bullet-list">
+    <li>Built an AI-based recruitment platform improving job-candidate matching accuracy by <b>25%</b> and cutting hiring time by <b>20%</b> via integrated analytics dashboards.</li>
+  </ul>
+
+  <div style="font-size:9pt;margin-top:4pt;margin-bottom:4pt;">
+    <b>Additional Projects:</b> Cloud Migration (GCP → Azure) • Bambu Lab 3D Printer Integration • EcoEvents • AI-Powered Journal App • University Management Platform • Equestrian Center App — full details on GitHub.
   </div>
 
-  <div class="cv-section-title">Education & Certifications</div>
-  <div style="font-size:10px;color:#334155;margin-bottom:3px;">
-    <b>ESPRIT (Tunisia)</b> &bull; <i>B.Eng. in Computer Engineering (TWIN: Web & Internet Technologies)</i> &bull; Graduating June 2026
-  </div>
-  <div style="font-size:9.5px;color:#64748b;">
-    <b>Languages:</b> Arabic (Native) &bull; French (Professional) &bull; English (Professional) &bull; Italian (B2 Certified)
-  </div>
+  <!-- LANGUAGES -->
+  <div class="section-title">Languages</div>
+  <ul class="bullet-list">
+    <li><b>Arabic:</b> Native</li>
+    <li><b>French:</b> Professional Working Proficiency</li>
+    <li><b>English:</b> Professional Working Proficiency</li>
+    <li><b>Italian:</b> Upper Intermediate (CISIA B2 Certified)</li>
+  </ul>
 
   <script>
     window.onload = function() {
