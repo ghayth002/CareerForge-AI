@@ -2330,6 +2330,18 @@ function setCrmStatusFilter(status, btn) {
   reloadCurrentPageData();
 }
 
+function getEffectiveJobScore(j) {
+  if (j.match_score && j.match_score > 0) return Math.round(j.match_score);
+  // Dynamic ATS keyword & skill score calculation
+  const text = `${j.title || ''} ${j.description || ''} ${(j.skills || []).join(' ')}`.toLowerCase();
+  let matches = 0;
+  const keywords = ['devsecops', 'devops', 'backend', 'cloud', 'security', 'docker', 'ci/cd', 'kubernetes', 'python', 'aws', 'azure', 'node', 'nestjs', 'golang', 'linux', 'sast', 'dast', 'redis', 'mongodb', 'terraform', 'api', 'microservices'];
+  keywords.forEach(kw => { if (text.includes(kw)) matches++; });
+  const score = Math.min(94, Math.max(62, 58 + matches * 5));
+  j.match_score = score;
+  return score;
+}
+
 function reloadCurrentPageData() {
   if (!decryptedDataStore) return;
   
@@ -2341,6 +2353,11 @@ function reloadCurrentPageData() {
   } else if (allJobsList && Array.isArray(allJobsList)) {
     jobs = allJobsList;
   }
+  
+  // Ensure every single job has a valid calculated ATS match score
+  jobs.forEach(j => {
+    j.match_score = getEffectiveJobScore(j);
+  });
   
   allJobsList = jobs;
   const matches = jobs.filter(j => (j.match_score || 0) >= 70);

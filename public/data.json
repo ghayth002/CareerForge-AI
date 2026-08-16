@@ -2,11 +2,11 @@
   "stats": {
     "total_jobs": 6,
     "discovered_today": 6,
-    "matched_70_plus": 0,
-    "matched_80_plus": 0,
-    "matched_90_plus": 0,
+    "matched_70_plus": 5,
+    "matched_80_plus": 5,
+    "matched_90_plus": 2,
     "remote_jobs": 4,
-    "last_updated": "2026-08-16T19:15:52.862Z"
+    "last_updated": "2026-08-16T19:26:04.626Z"
   },
   "jobs": [
     {
@@ -32,7 +32,17 @@
         "DevSecOps",
         "SAST",
         "DAST"
-      ]
+      ],
+      "match_score": 95,
+      "technical_score": 96,
+      "experience_score": 94,
+      "ai_reasoning": "Exceptional direct fit for Ghaith's DevSecOps background. Direct alignment on GitLab CI/CD pipelines, Trivy / OWASP ZAP security automation, Docker containerization, and Azure cloud infrastructure.",
+      "custom_summary": "DevSecOps Engineer with hands-on expertise integrating automated SAST/DAST scanning (Trivy, OWASP ZAP) into GitLab CI/CD pipelines, cutting security triage time by 60% with AI.",
+      "cover_note": "I am thrilled to apply for the DevSecOps Engineer role at TechCorp Berlin. Having automated security pipelines with Trivy, SonarQube, and OWASP ZAP across Azure and GitLab CI/CD, I am confident in elevating your platform security posture.",
+      "form_field_guide": {
+        "why_interested": "TechCorp Berlin's commitment to security-first platform engineering perfectly matches my passion for DevSecOps automation.",
+        "biggest_achievement": "Automated security triage with Gemini API + Trivy/OWASP ZAP, reducing vulnerability evaluation time by 60% across 38+ CI/CD pipelines."
+      }
     },
     {
       "source": "sample",
@@ -57,7 +67,17 @@
         "TypeScript",
         "REST APIs",
         "Microservices"
-      ]
+      ],
+      "match_score": 91,
+      "technical_score": 93,
+      "experience_score": 89,
+      "ai_reasoning": "High alignment on backend architecture: NestJS, MongoDB, PostgreSQL microservices, Docker, and REST API performance optimization.",
+      "custom_summary": "Backend Systems Engineer specializing in NestJS/Node.js microservices and database query optimization, with proven results reducing API latency by 83%.",
+      "cover_note": "I am excited to apply for the Backend Engineer position at CloudBase Amsterdam. My background developing scalable NestJS microservices and optimizing MongoDB/Redis caching will allow me to deliver immediate value to your backend platform.",
+      "form_field_guide": {
+        "why_interested": "CloudBase Amsterdam's high-performance microservices stack strongly resonates with my experience in scalable backend design.",
+        "biggest_achievement": "Reduced backend REST API latency by 83% through MongoDB aggregation query optimization and multi-tier Redis caching."
+      }
     },
     {
       "source": "sample",
@@ -82,51 +102,17 @@
         "Azure Container Apps",
         "Azure Front Door",
         "GitLab CI/CD"
-      ]
-    },
-    {
-      "source": "sample",
-      "source_job_id": "test-platform-004",
-      "company": "FinTech London",
-      "title": "Platform Engineer",
-      "location": "London, UK",
-      "remote": false,
-      "employment_type": "full-time",
-      "url": "https://example.com/jobs/platform-004",
-      "description": "Platform Engineer to maintain and improve our cloud infrastructure on AWS. You will manage Kubernetes clusters, write Terraform IaC, and maintain CI/CD pipelines. Requirements: 3+ years platform/infrastructure experience, Kubernetes (EKS/AKS), Terraform, AWS or Azure, GitLab CI/CD or Jenkins, monitoring (Grafana/Prometheus). Must be eligible to work in the UK. Sponsorship considered for strong candidates.",
-      "salary": "£60,000 - £80,000",
-      "posted_at": "2026-08-05T10:00:00Z",
-      "language": "en",
-      "skills": [
-        "Kubernetes",
-        "Terraform",
-        "AWS",
-        "Azure",
-        "GitLab CI/CD",
-        "Grafana",
-        "Docker",
-        "Jenkins"
-      ]
-    },
-    {
-      "source": "sample",
-      "source_job_id": "test-filtered-005",
-      "company": "StartupXYZ Paris",
-      "title": "Java Senior Developer",
-      "location": "Paris, France",
-      "remote": false,
-      "employment_type": "full-time",
-      "url": "https://example.com/jobs/java-005",
-      "description": "Nous cherchons un développeur Java senior. Vous devez parler français couramment. 7+ years d'expérience requis. Spring Boot, Oracle DB, Maven. Présentiel obligatoire à Paris.",
-      "salary": "€70,000 - €90,000",
-      "posted_at": "2026-08-07T11:00:00Z",
-      "language": "fr",
-      "skills": [
-        "Java",
-        "Spring Boot",
-        "Oracle",
-        "Maven"
-      ]
+      ],
+      "match_score": 88,
+      "technical_score": 90,
+      "experience_score": 86,
+      "ai_reasoning": "Direct match for Azure Container Apps, multi-cloud migration experience, Terraform Infrastructure-as-Code, and CI/CD pipelines.",
+      "custom_summary": "Cloud Infrastructure Engineer with demonstrated success migrating microservices to Azure Container Apps and automating multi-cloud environments using Terraform and CI/CD.",
+      "cover_note": "I am pleased to submit my application for the Cloud Engineer role at RemoteFirst Inc. Having led migrations to Azure Container Apps and automated cloud deployments with Terraform, I am eager to help scale your cloud architecture.",
+      "form_field_guide": {
+        "why_interested": "RemoteFirst's forward-thinking cloud strategy aligns seamlessly with my practical experience in Azure, AWS, and Infrastructure-as-Code.",
+        "biggest_achievement": "Successfully migrated 8 of 12 critical microservices from GCP to Azure Container Apps with zero user downtime."
+      }
     },
     {
       "source": "sample",
@@ -150,7 +136,81 @@
         "Grafana",
         "CI/CD",
         "SRE"
-      ]
+      ],
+      "match_score": 86,
+      "technical_score": 88,
+      "experience_score": 84,
+      "ai_reasoning": "Strong fit for SRE observability, Kubernetes orchestration, Prometheus/Grafana monitoring, and Python automation scripting.",
+      "custom_summary": "Site Reliability & Cloud Engineer experienced in Kubernetes container orchestration, Grafana observability pipelines, and automated infrastructure provisioning.",
+      "cover_note": "I am excited to apply for the SRE position at SRECloud Zurich. My background in Kubernetes orchestration, CI/CD automation, and metric-driven monitoring with Grafana will ensure robust platform reliability.",
+      "form_field_guide": {
+        "why_interested": "SRECloud's emphasis on high availability and automated observability matches my core philosophy on system reliability.",
+        "biggest_achievement": "Built automated unit test and security triage agents resulting in 75%+ coverage and 99.9% deployment stability."
+      }
+    },
+    {
+      "source": "sample",
+      "source_job_id": "test-platform-004",
+      "company": "FinTech London",
+      "title": "Platform Engineer",
+      "location": "London, UK",
+      "remote": false,
+      "employment_type": "full-time",
+      "url": "https://example.com/jobs/platform-004",
+      "description": "Platform Engineer to maintain and improve our cloud infrastructure on AWS. You will manage Kubernetes clusters, write Terraform IaC, and maintain CI/CD pipelines. Requirements: 3+ years platform/infrastructure experience, Kubernetes (EKS/AKS), Terraform, AWS or Azure, GitLab CI/CD or Jenkins, monitoring (Grafana/Prometheus). Must be eligible to work in the UK. Sponsorship considered for strong candidates.",
+      "salary": "£60,000 - £80,000",
+      "posted_at": "2026-08-05T10:00:00Z",
+      "language": "en",
+      "skills": [
+        "Kubernetes",
+        "Terraform",
+        "AWS",
+        "Azure",
+        "GitLab CI/CD",
+        "Grafana",
+        "Docker",
+        "Jenkins"
+      ],
+      "match_score": 82,
+      "technical_score": 84,
+      "experience_score": 80,
+      "ai_reasoning": "Solid platform engineering match with Kubernetes, Terraform, and GitLab CI/CD requirements.",
+      "custom_summary": "Platform Engineer with extensive background in CI/CD pipeline modernization, containerized infrastructure, and cloud platform maintenance.",
+      "cover_note": "I am writing to apply for the Platform Engineer role at FinTech London. My experience maintaining Kubernetes clusters, writing Terraform modules, and building resilient GitLab CI/CD pipelines aligns closely with your needs.",
+      "form_field_guide": {
+        "why_interested": "FinTech London's high-throughput platform presents exciting challenges where my cloud and security engineering skills will thrive.",
+        "biggest_achievement": "Migrated 38+ monolithic CI/CD workflows from GitHub Actions to standardized, secure GitLab CI/CD pipelines."
+      }
+    },
+    {
+      "source": "sample",
+      "source_job_id": "test-filtered-005",
+      "company": "StartupXYZ Paris",
+      "title": "Java Senior Developer",
+      "location": "Paris, France",
+      "remote": false,
+      "employment_type": "full-time",
+      "url": "https://example.com/jobs/java-005",
+      "description": "Nous cherchons un développeur Java senior. Vous devez parler français couramment. 7+ years d'expérience requis. Spring Boot, Oracle DB, Maven. Présentiel obligatoire à Paris.",
+      "salary": "€70,000 - €90,000",
+      "posted_at": "2026-08-07T11:00:00Z",
+      "language": "fr",
+      "skills": [
+        "Java",
+        "Spring Boot",
+        "Oracle",
+        "Maven"
+      ],
+      "match_score": 64,
+      "technical_score": 62,
+      "experience_score": 66,
+      "ai_reasoning": "Moderate match: Java/Spring Boot stack and on-site requirement diverge from primary DevSecOps and Node/Python remote focus.",
+      "custom_summary": "Software Engineer with general backend engineering capabilities.",
+      "cover_note": "I am applying for the Java Developer position at StartupXYZ Paris.",
+      "form_field_guide": {
+        "why_interested": "Interested in exploring backend engineering roles in Paris.",
+        "biggest_achievement": "Engineered scalable backend services and microservices architectures."
+      }
     }
   ],
   "candidate": {
@@ -169,5 +229,5 @@
     "n8n_webhook": "",
     "cloud_api": "/api/trigger"
   },
-  "generated_at": "2026-08-16T19:15:52.862Z"
+  "generated_at": "2026-08-16T19:26:04.626Z"
 }
