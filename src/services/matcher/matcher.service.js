@@ -23,8 +23,8 @@ class MatcherService {
       'Migrated 8/12 microservices GCP -> Azure Container Apps'
     ]).join('\n- ');
 
-    return `You are a strict, expert technical recruiter and ATS evaluator.
-Evaluate the candidate's exact fit for the job posting below.
+    return `You are a world-class technical recruiter and ATS optimization expert.
+Evaluate the candidate's exact fit for the job posting below and generate a tailored ATS package.
 
 CANDIDATE PROFILE:
 Name: ${candidate.name || 'Ghaith Oueslati'}
@@ -37,14 +37,17 @@ Company: ${job.company}
 Title: ${job.title}
 Location: ${job.location || 'Remote'}
 Required Skills: ${(job.skills || []).join(', ')}
-Description: ${(job.description || '').substring(0, 1800)}
+Description: ${(job.description || '').substring(0, 2000)}
 
-EVALUATION INSTRUCTIONS:
-- Calculate an objective 0-100 match score based on technical skills and direct experience.
-- Provide structured reasoning, verified strengths, and missing skills.
-- Compose a 2-sentence tailored CV summary for this role.
-- Compose a concise 2-3 sentence Letter of Motivation / Cover Note.
-- Formulate answers to two standard hiring form questions: "Why are you interested in this company?" and "What is your biggest relevant technical achievement?".
+EVALUATION & GENERATION INSTRUCTIONS:
+1. Match Score (0-100): Calculate an objective fit score based on skills, tech stack, and responsibilities.
+2. Tailored ATS CV Summary: Write a compelling 2-3 sentence executive profile tailored specifically to ${job.company}'s requirements.
+3. Prioritized ATS Skills: Extract and prioritize the top technical skills directly matching this role.
+4. Professional Letter of Motivation (Cover Letter): Write a complete, professional, 3-paragraph letter:
+   - Paragraph 1: Enthusiastic opening addressing the hiring manager at ${job.company} for the ${job.title} position, demonstrating understanding of their product/mission.
+   - Paragraph 2: Direct evidence of capability matching their required tech stack (${(job.skills || []).slice(0, 5).join(', ')}), referencing specific metrics (e.g., 60% triage automation, 83% latency reduction, multi-cloud migrations).
+   - Paragraph 3: Confident closing expressing eagerness for a technical discussion.
+5. Form Field Guide: High-converting answers to "Why are you interested in this role?" and "What is your biggest relevant technical achievement?".
 
 RETURN ONLY A VALID JSON OBJECT WITH THIS EXACT SCHEMA:
 {
@@ -54,7 +57,14 @@ RETURN ONLY A VALID JSON OBJECT WITH THIS EXACT SCHEMA:
   "strengths": ["Strong CI/CD security automation", "Demonstrated backend latency optimization"],
   "missing_skills": ["Role-specific cloud tools"],
   "ai_reasoning": "Direct match for DevSecOps & backend goals with proven achievements from candidate background.",
-  "custom_summary": "DevSecOps & Backend Engineer with hands-on experience optimizing CI/CD pipelines, cutting triage effort by 60%, and engineering scalable backend systems.",
+  "custom_summary": "DevSecOps & Backend Engineer with proven experience optimizing CI/CD pipelines, integrating automated SAST/DAST security scanning, and architecting scalable backend microservices.",
+  "tailored_skills": ["Docker", "GitLab CI/CD", "Python", "Azure", "OWASP ZAP", "Trivy", "MongoDB", "Redis"],
+  "key_matching_points": [
+    "Cut manual CI/CD security triage time by 60% using Gemini API + Trivy/OWASP ZAP",
+    "Reduced backend REST API latency by 83% via database query optimization and Redis caching",
+    "Proven multi-cloud migration experience across Azure Container Apps and AWS"
+  ],
+  "cover_letter": "Dear Hiring Team at ${job.company},\n\nI am writing to express my strong interest in the ${job.title} position at ${job.company}. Having followed your engineering innovations, I am eager to bring my expertise in cloud security automation, container orchestration, and high-performance backend systems to your platform.\n\nIn my previous engineering work, I have focused on automating security across CI/CD pipelines and scaling microservices. Specifically, I integrated automated vulnerability scanning with Trivy and OWASP ZAP to reduce security triage effort by 60%, and optimized backend aggregation queries and Redis caching to reduce API latency by 83%. My hands-on proficiency with ${(job.skills || []).slice(0, 4).join(', ') || 'Docker, CI/CD, and Cloud Infrastructure'} directly aligns with the technical challenges ${job.company} is tackling.\n\nI would welcome the opportunity to discuss how my technical background and problem-solving mindset can contribute to ${job.company}'s upcoming milestones. Thank you for your time and consideration.\n\nSincerely,\n${candidate.name || 'Ghaith Oueslati'}",
   "cover_note": "I am excited to apply for the ${job.title} position at ${job.company}. My background in security automation, cloud migrations, and API performance optimization aligns directly with your goals.",
   "form_field_guide": {
     "why_interested": "I am deeply impressed by ${job.company}'s engineering focus and want to contribute my security and backend optimization experience.",
@@ -75,9 +85,16 @@ RETURN ONLY A VALID JSON OBJECT WITH THIS EXACT SCHEMA:
         experience_score: baseScore - 2,
         strengths: ['Relevant backend engineering profile', 'Proven cloud and security automation'],
         missing_skills: [],
-        ai_reasoning: 'Evaluated based on technical skills match.',
-        custom_summary: `${candidate.title} with experience in cloud infrastructure, security automation, and scalable backend services.`,
-        cover_note: `I am pleased to apply for the ${job.title} role at ${job.company}.`,
+        ai_reasoning: `Technical alignment evaluated for ${job.title} at ${job.company} based on ${matchedCount} matching skills.`,
+        custom_summary: `${candidate.title} with experience in cloud infrastructure, security automation, and scalable backend services matching ${job.company}'s stack.`,
+        tailored_skills: (job.skills || []).length > 0 ? job.skills : ['Docker', 'CI/CD', 'Python', 'Azure', 'Node.js'],
+        key_matching_points: [
+          'Automated CI/CD security triage with SAST/DAST tools, reducing effort by 60%',
+          'Optimized backend aggregation queries and multi-tier Redis caching to cut latency by 83%',
+          'Experience deploying and maintaining containerized microservices on Azure and AWS'
+        ],
+        cover_letter: `Dear Hiring Team at ${job.company},\n\nI am writing to express my strong enthusiasm for the ${job.title} opportunity at ${job.company}. My background in DevSecOps automation, backend systems, and cloud infrastructure directly aligns with your engineering goals.\n\nThroughout my career, I have specialized in building reliable CI/CD pipelines and scalable backend services. Notable achievements include cutting security vulnerability triage time by 60% with AI-assisted scanning and optimizing database performance to reduce API latency by 83%. With hands-on proficiency in ${(job.skills || []).slice(0, 4).join(', ') || 'Docker, CI/CD, and Cloud Architecture'}, I am confident in my ability to deliver immediate value.\n\nI look forward to discussing how my experience can support ${job.company}'s platform objectives.\n\nSincerely,\n${candidate.name || 'Ghaith Oueslati'}`,
+        cover_note: `I am pleased to apply for the ${job.title} role at ${job.company}. My technical background in cloud infrastructure and backend engineering matches your requirements.`,
         form_field_guide: {
           why_interested: `Strong alignment with ${job.company}'s technology stack and engineering goals.`,
           biggest_achievement: 'Reduced backend API latency 83% and automated security triage with AI.'

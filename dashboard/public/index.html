@@ -1137,15 +1137,15 @@ sidebar {
   display: none;
   position: fixed;
   inset: 0;
-  background: rgba(4, 7, 16, 0.85);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  z-index: 1000;
+  background: rgba(4, 7, 16, 0.88);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  z-index: 99999;
   align-items: center;
   justify-content: center;
   padding: 24px;
 }
-.modal-backdrop.open { display: flex; animation: fadeInModal 0.25s ease; }
+.modal-backdrop.open { display: flex !important; animation: fadeInModal 0.25s ease; }
 @keyframes fadeInModal { from { opacity: 0; } to { opacity: 1; } }
 
 .modal-dialog-box {
@@ -2482,24 +2482,26 @@ function renderJobsCardsStack(containerId, jobs) {
     return;
   }
 
-  container.innerHTML = jobs.map(j => {
+  container.innerHTML = jobs.map((j, idx) => {
+    const uid = j._uid || `job_${idx}`;
+    j._uid = uid;
     const score = Math.round(j.match_score || 0);
     const scoreClass = score >= 80 ? 'score-badge-high' : 'score-badge-mid';
     const initials = (j.company || '?').substring(0, 2).toUpperCase();
-    const crmStatus = getJobCrmStatus(j.id);
+    const crmStatus = getJobCrmStatus(j.id || uid);
     const statusClass = crmStatus === 'APPLIED' ? 'status-applied' :
                         crmStatus === 'INTERVIEW' ? 'status-interview' :
                         crmStatus === 'OFFER' ? 'status-offer' :
                         crmStatus === 'ARCHIVED' ? 'status-archived' : 'status-ready';
 
     return `
-    <div class="job-item-card" onclick="openJobModal('${(j.id || '').replace(/'/g, "\\'")}')">
+    <div class="job-item-card" data-uid="${uid}" onclick="openJobModal('${uid}')" style="cursor:pointer;">
       <div class="job-logo-box">${initials}</div>
       <div class="job-details-col">
         <div style="display:flex;align-items:center;gap:10px;justify-content:space-between;">
           <div class="job-company-tag">${j.company || 'Unknown'}</div>
           <span class="status-pill-btn ${statusClass}" onclick="event.stopPropagation();">
-            <select onchange="setJobCrmStatus('${(j.id || '').replace(/'/g, "\\'")}', this.value, event)" style="background:transparent;border:none;color:inherit;font-family:inherit;font-size:inherit;font-weight:inherit;outline:none;cursor:pointer;">
+            <select onchange="setJobCrmStatus('${j.id || uid}', this.value, event)" style="background:transparent;border:none;color:inherit;font-family:inherit;font-size:inherit;font-weight:inherit;outline:none;cursor:pointer;">
               <option value="READY" ${crmStatus==='READY'?'selected':''}>📝 Ready</option>
               <option value="APPLIED" ${crmStatus==='APPLIED'?'selected':''}>✉️ Applied</option>
               <option value="INTERVIEW" ${crmStatus==='INTERVIEW'?'selected':''}>🎯 Interview</option>
@@ -2559,17 +2561,33 @@ function filterJobsList(query, containerId) {
   renderJobsCardsStack(containerId, filtered);
 }
 
-function openJobModal(jobId) {
-  const job = allJobsList.find(j => String(j.id) === String(jobId) || j.id === jobId);
+function openJobModal(jobIdentifier) {
+  const job = allJobsList.find(j => 
+    j._uid === jobIdentifier || 
+    String(j.id) === String(jobIdentifier) || 
+    j.source_job_id === jobIdentifier || 
+    j.title === jobIdentifier
+  );
   if (!job) return;
+
   const score = Math.round(job.match_score || 0);
   const guide = job.form_field_guide || {};
-  const safeCo = (job.company || '').replace(/[^\w]/g, '_').substring(0, 30);
-  const safeTi = (job.title || '').replace(/[^\w]/g, '_').substring(0, 30);
+  const safeCo = (job.company || 'Company').replace(/[^\w]/g, '_').substring(0, 30);
+  const safeTi = (job.title || 'Role').replace(/[^\w]/g, '_').substring(0, 30);
   const cvName = job.cv_filename || `Ghaith_Oueslati_CV_${safeCo}_${safeTi}.pdf`;
   const coverName = job.cover_filename || `Cover_Letter_${safeCo}_${safeTi}.pdf`;
-  const crmStatus = getJobCrmStatus(job.id);
-  const existingNotes = crmStateStore[job.id]?.notes || '';
+  const jobId = job.id || job._uid;
+  const crmStatus = getJobCrmStatus(jobId);
+  const existingNotes = crmStateStore[jobId]?.notes || '';
+
+  const fullCoverLetter = job.cover_letter || `Dear Hiring Team at ${job.company},\n\nI am writing to express my strong enthusiasm for the ${job.title} opportunity at ${job.company}. Having followed your engineering accomplishments, I am eager to bring my expertise in DevSecOps automation, cloud infrastructure, and scalable backend architecture to your engineering team.\n\nThroughout my career, I have specialized in building secure, highly automated CI/CD pipelines and high-performance backend microservices. Key achievements include cutting security vulnerability triage time by 60% with AI-assisted scanning (Trivy, OWASP ZAP) and optimizing database queries and Redis caching to reduce API latency by 83%. My hands-on proficiency with ${(job.skills || []).slice(0, 5).join(', ') || 'Docker, CI/CD, Azure, and Python'} directly matches ${job.company}'s engineering priorities.\n\nI look forward to discussing how my experience and problem-solving mindset can support ${job.company}'s upcoming milestones. Thank you for your time and consideration.\n\nSincerely,\nGhaith Oueslati`;
+
+  const tailoredSummary = job.custom_summary || `DevSecOps & Backend Engineer specializing in cloud infrastructure, container orchestration, and automated CI/CD security triage, tailored for ${job.company}'s engineering stack.`;
+  const matchingPoints = job.key_matching_points || [
+    `Direct proficiency in ${(job.skills || []).slice(0, 4).join(', ') || 'Docker, CI/CD, Azure, Python'}`,
+    'Cut manual CI/CD security triage time by 60% with AI-driven vulnerability evaluation',
+    'Reduced backend REST API latency by 83% via MongoDB query optimization and Redis caching'
+  ];
 
   document.getElementById('modal-company-name').textContent = job.company;
   document.getElementById('modal-job-title').textContent = job.title;
@@ -2588,64 +2606,76 @@ function openJobModal(jobId) {
         <div style="font-size:0.8rem;color:var(--text-muted);">Current recruitment state:</div>
       </div>
       <div style="display:flex;gap:6px;flex-wrap:wrap;">
-        <button class="status-pill-btn ${crmStatus==='READY'?'status-ready':''}" onclick="setJobCrmStatus('${job.id}', 'READY')">📝 Ready</button>
-        <button class="status-pill-btn ${crmStatus==='APPLIED'?'status-applied':''}" onclick="setJobCrmStatus('${job.id}', 'APPLIED')">✉️ Applied</button>
-        <button class="status-pill-btn ${crmStatus==='INTERVIEW'?'status-interview':''}" onclick="setJobCrmStatus('${job.id}', 'INTERVIEW')">🎯 Interview</button>
-        <button class="status-pill-btn ${crmStatus==='OFFER'?'status-offer':''}" onclick="setJobCrmStatus('${job.id}', 'OFFER')">🎉 Offer</button>
-        <button class="status-pill-btn ${crmStatus==='ARCHIVED'?'status-archived':''}" onclick="setJobCrmStatus('${job.id}', 'ARCHIVED')">📁 Archive</button>
+        <button class="status-pill-btn ${crmStatus==='READY'?'status-ready':''}" onclick="setJobCrmStatus('${jobId}', 'READY')">📝 Ready</button>
+        <button class="status-pill-btn ${crmStatus==='APPLIED'?'status-applied':''}" onclick="setJobCrmStatus('${jobId}', 'APPLIED')">✉️ Applied</button>
+        <button class="status-pill-btn ${crmStatus==='INTERVIEW'?'status-interview':''}" onclick="setJobCrmStatus('${jobId}', 'INTERVIEW')">🎯 Interview</button>
+        <button class="status-pill-btn ${crmStatus==='OFFER'?'status-offer':''}" onclick="setJobCrmStatus('${jobId}', 'OFFER')">🎉 Offer</button>
+        <button class="status-pill-btn ${crmStatus==='ARCHIVED'?'status-archived':''}" onclick="setJobCrmStatus('${jobId}', 'ARCHIVED')">📁 Archive</button>
       </div>
     </div>
 
     <!-- Candidate Private Notes -->
     <div class="modal-info-panel">
       <div class="modal-info-label">📝 Candidate Notes & Interview Follow-ups</div>
-      <textarea id="modal-job-notes" class="form-input" style="min-height:65px;resize:vertical;" placeholder="Add notes (e.g. Interview date, recruiter contact, technical questions asked)..." oninput="saveJobCrmNotes('${job.id}', this.value)">${existingNotes}</textarea>
+      <textarea id="modal-job-notes" class="form-input" style="min-height:65px;resize:vertical;" placeholder="Add notes (e.g. Interview date, recruiter contact, technical questions asked)..." oninput="saveJobCrmNotes('${jobId}', this.value)">${existingNotes}</textarea>
     </div>
 
-    <div class="modal-info-panel" style="border-color:var(--neon-emerald);">
-      <div class="modal-info-label" style="color:var(--neon-emerald);">📄 Tailored ATS-Optimized Application Package</div>
-      <div style="font-size:0.85rem;color:var(--text-main);margin-bottom:6px;">Files: <code>${cvName}</code> | <code>${coverName}</code></div>
-      <div style="font-size:0.82rem;color:var(--text-muted);margin-bottom:14px;">Custom Summary, ATS-ordered Skills & personalized Letter of Motivation compiled specifically for <b>${job.company} — ${job.title}</b>.</div>
-      <div style="display:flex;gap:12px;flex-wrap:wrap;">
+    <!-- Tailored ATS CV Highlights Section -->
+    <div class="modal-info-panel" style="border-color:var(--neon-cyan);">
+      <div class="modal-info-label" style="color:var(--neon-cyan);">📄 Tailored ATS CV Summary & Matching Highlights</div>
+      <div style="font-size:0.88rem;color:var(--text-main);line-height:1.6;margin-bottom:10px;"><b>Tailored Executive Profile:</b> ${tailoredSummary}</div>
+      <div style="font-size:0.82rem;font-weight:700;color:var(--text-dim);margin-bottom:6px;">TOP MATCHING ACHIEVEMENTS:</div>
+      <ul style="padding-left:20px;font-size:0.84rem;color:var(--text-main);margin-bottom:14px;line-height:1.5;">
+        ${matchingPoints.map(pt => `<li>${pt}</li>`).join('')}
+      </ul>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
         <a href="./cvs/${cvName}" download="${cvName}" target="_blank" class="ui-btn ui-btn-primary" style="font-size:0.82rem;padding:8px 16px;display:inline-flex;" onclick="downloadCvWithFallback(event, '${cvName}', 'cv')">📥 Download Tailored CV PDF</a>
         <a href="./cvs/${coverName}" download="${coverName}" target="_blank" class="ui-btn ui-btn-purple" style="font-size:0.82rem;padding:8px 16px;display:inline-flex;" onclick="downloadCvWithFallback(event, '${coverName}', 'cover')">✉️ Download Motivation Letter PDF</a>
       </div>
     </div>
 
-    <div class="modal-info-panel">
-      <div class="modal-info-label">🤖 AI Recruiter Evaluation</div>
-      <div style="font-size:0.88rem;color:var(--text-main);">${job.reasoning || job.ai_reasoning || 'Strong technical match based on DevSecOps & backend engineering profile.'}</div>
+    <!-- Full Professional Motivation Letter Section -->
+    <div class="modal-info-panel" style="border-color:var(--neon-emerald);">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <div class="modal-info-label" style="color:var(--neon-emerald);margin-bottom:0;">✉️ AI-Generated Professional Letter of Motivation</div>
+        <button class="ui-btn ui-btn-ghost" style="padding:4px 12px;font-size:0.75rem;" onclick="copyTextToClipboard(this, document.getElementById('full-motivation-letter-box').innerText)">📋 Copy Letter</button>
+      </div>
+      <div id="full-motivation-letter-box" style="background:var(--bg-dark);border:1px solid var(--border-glass-strong);border-radius:var(--radius-md);padding:18px 20px;font-size:0.88rem;color:var(--text-main);line-height:1.75;white-space:pre-wrap;font-family:var(--font-main);">
+${fullCoverLetter}
+      </div>
     </div>
 
-    ${job.cover_note ? `
+    <!-- AI Recruiter Evaluation -->
     <div class="modal-info-panel">
-      <div class="modal-info-label">✉️ Letter of Motivation Preview</div>
-      <div style="font-size:0.88rem;font-style:italic;color:var(--text-main);line-height:1.6;">"${job.cover_note}"</div>
-    </div>` : ''}
+      <div class="modal-info-label">🤖 AI Recruiter Fit Analysis</div>
+      <div style="font-size:0.88rem;color:var(--text-main);line-height:1.5;">${job.reasoning || job.ai_reasoning || 'Strong technical match based on candidate DevSecOps, cloud infrastructure, and backend engineering profile.'}</div>
+    </div>
 
+    <!-- Application Form Auto-Fill Guide -->
     <div class="modal-info-panel" style="border-color:var(--border-glow);">
-      <div class="modal-info-label">📋 Application Form Guide — Copy & Paste</div>
+      <div class="modal-info-label">📋 Application Form Answers — 1-Click Copy</div>
       
       <div style="margin-bottom:12px;">
-        <div style="font-size:0.75rem;color:var(--text-dim)">Q: Why are you interested in ${job.company}?</div>
+        <div style="font-size:0.75rem;color:var(--text-dim);font-weight:700;">Q: Why are you interested in ${job.company}?</div>
         <div class="copy-answer-box">
-          <span>${guide.why_interested || 'Strong interest in company engineering challenges.'}</span>
-          <button class="ui-btn ui-btn-ghost" style="padding:3px 10px;font-size:0.72rem;" onclick="copyTextToClipboard(this, '${(guide.why_interested || '').replace(/'/g, "\\'").replace(/"/g, '&quot;')}')">Copy</button>
+          <span>${guide.why_interested || `Strong alignment with ${job.company}'s technology stack and engineering goals.`}</span>
+          <button class="ui-btn ui-btn-ghost" style="padding:3px 10px;font-size:0.72rem;" onclick="copyTextToClipboard(this, '${(guide.why_interested || `Strong alignment with ${job.company}'s technology stack and engineering goals.`).replace(/'/g, "\\'").replace(/"/g, '&quot;')}')">Copy</button>
         </div>
       </div>
 
       <div style="margin-bottom:12px;">
-        <div style="font-size:0.75rem;color:var(--text-dim)">Q: Biggest technical achievement?</div>
+        <div style="font-size:0.75rem;color:var(--text-dim);font-weight:700;">Q: Biggest relevant technical achievement?</div>
         <div class="copy-answer-box">
-          <span>${guide.biggest_achievement || 'Cut CI/CD security triage time by 60% with Gemini API & reduced API latency 83%.'}</span>
-          <button class="ui-btn ui-btn-ghost" style="padding:3px 10px;font-size:0.72rem;" onclick="copyTextToClipboard(this, '${(guide.biggest_achievement || '').replace(/'/g, "\\'").replace(/"/g, '&quot;')}')">Copy</button>
+          <span>${guide.biggest_achievement || 'Cut CI/CD security triage time by 60% with Gemini API & reduced API latency by 83%.'}</span>
+          <button class="ui-btn ui-btn-ghost" style="padding:3px 10px;font-size:0.72rem;" onclick="copyTextToClipboard(this, '${(guide.biggest_achievement || 'Cut CI/CD security triage time by 60% with Gemini API & reduced API latency by 83%.').replace(/'/g, "\\'").replace(/"/g, '&quot;')}')">Copy</button>
         </div>
       </div>
     </div>
 
+    <!-- Actions Toolbar -->
     <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:24px;">
-      <a href="${job.url}" target="_blank" class="ui-btn ui-btn-primary">🔗 View Full Job Post</a>
-      <button class="ui-btn ui-btn-purple" onclick="window.open('${job.url}', '_blank'); setJobCrmStatus('${job.id}', 'APPLIED');">🚀 Open & Mark Applied</button>
+      <a href="${job.url || '#'}" target="_blank" class="ui-btn ui-btn-primary">🔗 View Full Job Post</a>
+      <button class="ui-btn ui-btn-purple" onclick="if('${job.url}') window.open('${job.url}', '_blank'); setJobCrmStatus('${jobId}', 'APPLIED');">🚀 Open & Mark Applied</button>
       <button class="ui-btn ui-btn-ghost" onclick="closeJobModal()">✕ Close</button>
     </div>
   `;

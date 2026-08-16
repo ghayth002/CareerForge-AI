@@ -14,8 +14,11 @@ class FilterService {
     ];
 
     this.disallowedKeywords = options.disallowedKeywords || [
-      'c# .net', 'sales representative', 'customer support', 'php wordpress',
-      'marketing manager', 'recruiter', 'account executive', 'financial analyst'
+      'cabin cleaning', 'cleaning agent', 'cleaner', 'graphic design', 'graphic designer',
+      'ui/ux designer', 'product designer', 'sales representative', 'customer support',
+      'helpdesk', 'service desk', 'tier iii service', 'tier i', 'tier ii', 'call center',
+      'telemarketing', 'php wordpress', 'marketing manager', 'recruiter', 'account executive',
+      'financial analyst', 'accountant', 'driver', 'warehouse', 'nurse', 'cook'
     ];
 
     this.preferredLocations = options.preferredLocations || [];
