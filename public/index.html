@@ -2643,8 +2643,9 @@ function openJobModal(jobIdentifier) {
         ${matchingPoints.map(pt => `<li>${pt}</li>`).join('')}
       </ul>
       <div style="display:flex;gap:10px;flex-wrap:wrap;">
-        <button type="button" class="ui-btn ui-btn-primary" style="font-size:0.82rem;padding:8px 16px;display:inline-flex;" onclick="downloadCandidateCv('${cvName}')">📥 Download Tailored CV PDF</button>
+        <button type="button" class="ui-btn ui-btn-primary" style="font-size:0.82rem;padding:8px 16px;display:inline-flex;" onclick="downloadTailoredCvPdf('${jobId}')">📄 Export Tailored ATS Resume PDF</button>
         <button type="button" class="ui-btn ui-btn-purple" style="font-size:0.82rem;padding:8px 16px;display:inline-flex;" onclick="downloadMotivationLetterPdf('${(job.company||'Company').replace(/'/g, "\\'")}', '${(job.title||'Role').replace(/'/g, "\\'")}', document.getElementById('full-motivation-letter-box').innerText, '${coverName}')">✉️ Print / Save Motivation Letter PDF</button>
+        <button type="button" class="ui-btn ui-btn-ghost" style="font-size:0.82rem;padding:8px 16px;display:inline-flex;" onclick="downloadCandidateCv('${cvName}')">📥 Master CV PDF</button>
       </div>
     </div>
 
@@ -2702,6 +2703,147 @@ ${fullCoverLetter}
 
 function closeJobModal() {
   document.getElementById('job-modal-dialog').classList.remove('open');
+}
+
+function downloadTailoredCvPdf(jobIdentifier) {
+  const job = allJobsList.find(j => 
+    j._uid === jobIdentifier || 
+    String(j.id) === String(jobIdentifier) || 
+    j.source_job_id === jobIdentifier || 
+    j.title === jobIdentifier
+  ) || {};
+
+  const company = (job.company || 'Target Company').replace(/\s*\(\s*Formerly.*?\)/gi, '').trim();
+  let title = (job.title || 'DevSecOps & Backend Engineer').replace(/\s*\(f\/m\/d\)/gi, '').replace(/\s*\(m\/f\/d\)/gi, '').trim();
+  if (/current openings|careers|job opening|open position/i.test(title)) title = 'DevSecOps & Backend Engineer';
+
+  const tailoredSummary = job.custom_summary || `DevSecOps & Backend Engineer graduating from ESPRIT in 2026, with hands-on experience building automated CI/CD security scanning, cloud microservice architectures, and high-performance APIs customized specifically for ${company}'s platform goals.`;
+  const matchingBullets = job.key_matching_points || [
+    'Cut manual CI/CD security triage time by 60% by integrating Google Gemini API + Trivy and OWASP ZAP into automated pipelines.',
+    'Reduced backend REST API latency by 83% through MongoDB aggregation query optimization and multi-tier Redis caching.',
+    'Migrated 38+ CI/CD workflows to GitLab CI/CD and containerized microservices to Azure Container Apps and AWS.'
+  ];
+  const tailoredSkills = (job.tailored_skills && job.tailored_skills.length) ? job.tailored_skills : ['Docker', 'GitLab CI/CD', 'Python', 'Azure', 'Node.js', 'OWASP ZAP', 'Trivy', 'MongoDB', 'Redis'];
+
+  const printWindow = window.open('', '_blank');
+  if (!printWindow) return;
+
+  const htmlContent = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Ghaith_Oueslati_CV_${company.replace(/\W+/g, '_')}.pdf</title>
+  <style>
+    @page { size: A4; margin: 15mm 18mm; }
+    @media print {
+      html, body { width: 100%; height: 100%; margin: 0; padding: 0; }
+      .no-print { display: none; }
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      color: #1e293b;
+      line-height: 1.5;
+      margin: 0;
+      padding: 24px 32px;
+      font-size: 11px;
+      background: #ffffff;
+      -webkit-font-smoothing: antialiased;
+    }
+    .cv-header { text-align: center; border-bottom: 2.5px solid #0284c7; padding-bottom: 10px; margin-bottom: 12px; }
+    .cv-name { font-size: 22px; font-weight: 800; color: #0f172a; letter-spacing: -0.02em; text-transform: uppercase; }
+    .cv-target { font-size: 11.5px; font-weight: 700; color: #0284c7; margin-top: 3px; letter-spacing: 0.05em; text-transform: uppercase; }
+    .cv-contact { font-size: 9.5px; color: #64748b; margin-top: 5px; }
+    .cv-section-title { font-size: 11px; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 0.06em; border-bottom: 1px solid #e2e8f0; padding-bottom: 3px; margin-top: 11px; margin-bottom: 5px; }
+    .cv-summary-text { font-size: 10.5px; color: #334155; line-height: 1.55; text-align: justify; margin-bottom: 6px; }
+    .skills-grid { display: grid; grid-template-columns: 130px 1fr; gap: 3px 8px; font-size: 10px; color: #334155; margin-bottom: 6px; }
+    .skills-category { font-weight: 700; color: #0f172a; }
+    .exp-item { margin-bottom: 9px; }
+    .exp-header { display: flex; justify-content: space-between; align-items: baseline; font-size: 11px; margin-bottom: 2px; }
+    .exp-company { font-weight: 800; color: #0f172a; }
+    .exp-role { font-style: italic; color: #0284c7; font-weight: 600; }
+    .exp-date { font-size: 9.5px; color: #64748b; font-weight: 600; }
+    .cv-bullets { margin: 0; padding-left: 16px; font-size: 10px; color: #334155; line-height: 1.45; }
+    .cv-bullets li { margin-bottom: 2px; }
+  </style>
+</head>
+<body>
+  <div class="cv-header">
+    <div class="cv-name">GHAITH OUESLATI</div>
+    <div class="cv-target">${title} &bull; Tailored Application for ${company}</div>
+    <div class="cv-contact">📞 +216 94854835 &nbsp;|&nbsp; ✉️ ghaythweslaty002@gmail.com &nbsp;|&nbsp; 🔗 linkedin.com/in/ghayth-weslati &nbsp;|&nbsp; 💻 github.com/ghayth002 &nbsp;|&nbsp; 📍 Tunisia (Open to Remote / Relocation)</div>
+  </div>
+
+  <div class="cv-section-title">Professional Executive Summary (Customized for ${company})</div>
+  <div class="cv-summary-text">${tailoredSummary}</div>
+
+  <div class="cv-section-title">Target Role Priority Technical Stack</div>
+  <div class="skills-grid">
+    <div class="skills-category">Priority Match Tools:</div>
+    <div><b>${tailoredSkills.join(', ')}</b></div>
+    <div class="skills-category">DevOps & Cloud:</div>
+    <div>Docker, Kubernetes, Terraform, GitHub Actions, GitLab CI/CD, Azure (Container Apps, Front Door, ACR), AWS (EC2, Lambda), GCP</div>
+    <div class="skills-category">Languages & DBs:</div>
+    <div>Python, TypeScript, JavaScript, Node.js, NestJS, Spring Boot, Java, C#, SQL, MongoDB, PostgreSQL, Redis</div>
+    <div class="skills-category">Security & Testing:</div>
+    <div>DevSecOps, SAST/DAST/SCA, OWASP ZAP, Trivy, SonarQube, Grafana, Postman, Linux, REST APIs, Microservices</div>
+  </div>
+
+  <div class="cv-section-title">Professional Experience</div>
+
+  <div class="exp-item">
+    <div class="exp-header">
+      <div><span class="exp-company">SeekMake</span> &bull; <span class="exp-role">DevSecOps & Backend Engineer</span></div>
+      <div class="exp-date">Jan 2026 – Present | Tunisia</div>
+    </div>
+    <ul class="cv-bullets">
+      <li>Cut manual security triage time by <b>60%</b> by integrating Google Gemini API into CI/CD pipelines to classify OWASP ZAP and Trivy findings.</li>
+      <li>Reduced backend REST API response latency by <b>83%</b> via MongoDB aggregation optimization and Redis distributed caching.</li>
+      <li>Engineered an AI-powered test generation agent (<b>5,200+ lines</b>) with Vertex AI, lifting unit test coverage to <b>75%+</b>.</li>
+      <li>Migrated <b>38+ CI/CD workflows</b> from GitHub Actions to GitLab CI/CD with self-hosted runner infrastructure.</li>
+      <li>Migrated 8 microservices from GCP Cloud Run to Azure Container Apps and configured Azure Front Door production routing.</li>
+    </ul>
+  </div>
+
+  <div class="exp-item">
+    <div class="exp-header">
+      <div><span class="exp-company">Cube IT</span> &bull; <span class="exp-role">Mobile Developer Intern</span></div>
+      <div class="exp-date">Jun 2025 – Present | Tunisia</div>
+    </div>
+    <ul class="cv-bullets">
+      <li>Improved travel time estimation accuracy by <b>15%</b> by integrating mapping APIs and routing algorithms in cross-platform transport app.</li>
+      <li>Built and unit-tested core booking and payment gateway features using Flutter and Spring Boot microservices.</li>
+    </ul>
+  </div>
+
+  <div class="exp-item">
+    <div class="exp-header">
+      <div><span class="exp-company">Barmej Tech</span> &bull; <span class="exp-role">Fullstack Developer Intern</span></div>
+      <div class="exp-date">Jun 2024 – Aug 2024 | Tunisia</div>
+    </div>
+    <ul class="cv-bullets">
+      <li>Boosted backend performance by <b>30%</b> by optimizing SQL queries and caching core HR API endpoints with JWT authentication.</li>
+    </ul>
+  </div>
+
+  <div class="cv-section-title">Education & Certifications</div>
+  <div style="font-size:10px;color:#334155;margin-bottom:3px;">
+    <b>ESPRIT (Tunisia)</b> &bull; <i>B.Eng. in Computer Engineering (TWIN: Web & Internet Technologies)</i> &bull; Graduating June 2026
+  </div>
+  <div style="font-size:9.5px;color:#64748b;">
+    <b>Languages:</b> Arabic (Native) &bull; French (Professional) &bull; English (Professional) &bull; Italian (B2 Certified)
+  </div>
+
+  <script>
+    window.onload = function() {
+      setTimeout(function() { window.print(); }, 200);
+    };
+  <\/script>
+</body>
+</html>`;
+
+  printWindow.document.open();
+  printWindow.document.write(htmlContent);
+  printWindow.document.close();
 }
 
 function downloadMotivationLetterPdf(company, title, fullText, filename) {
