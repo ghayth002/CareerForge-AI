@@ -6,10 +6,10 @@
 <title>CareerForge AI — Next-Gen Autonomous Job Intelligence & Career Accelerator</title>
 <meta name="description" content="State-of-the-Art AI-Powered Autonomous Job Search, AST Candidate Matching & Application Platform" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" />
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="cv_base64.js"></script>
 <style>
 /* ═══════════════════════════════════════════════════════════════
    DESIGN SYSTEM TOKENS & DUAL-MODE PALETTE (ULTRA-MODERN SAAS)
@@ -2629,7 +2629,7 @@ function openJobModal(jobIdentifier) {
         ${matchingPoints.map(pt => `<li>${pt}</li>`).join('')}
       </ul>
       <div style="display:flex;gap:10px;flex-wrap:wrap;">
-        <a href="./cvs/${cvName}" download="${cvName}" target="_blank" class="ui-btn ui-btn-primary" style="font-size:0.82rem;padding:8px 16px;display:inline-flex;" onclick="downloadCvWithFallback(event, '${cvName}', 'cv')">📥 Download Tailored CV PDF</a>
+        <button type="button" class="ui-btn ui-btn-primary" style="font-size:0.82rem;padding:8px 16px;display:inline-flex;" onclick="downloadCandidateCv('${cvName}')">📥 Download Tailored CV PDF</button>
         <button type="button" class="ui-btn ui-btn-purple" style="font-size:0.82rem;padding:8px 16px;display:inline-flex;" onclick="downloadMotivationLetterPdf('${(job.company||'Company').replace(/'/g, "\\'")}', '${(job.title||'Role').replace(/'/g, "\\'")}', document.getElementById('full-motivation-letter-box').innerText, '${coverName}')">✉️ Print / Save Motivation Letter PDF</button>
       </div>
     </div>
@@ -2861,30 +2861,50 @@ function downloadMotivationLetterPdf(company, title, fullText, filename) {
   printWindow.document.close();
 }
 
-async function downloadCvWithFallback(e, fileName, type = 'cv') {
-  e.preventDefault();
-  const primaryUrl = `./cvs/${fileName}`;
-  const fallbackUrl = `./cvs/Ghaith_Oueslati_CV.pdf`;
-  
-  try {
-    const res = await fetch(primaryUrl, { method: 'HEAD' });
-    if (res.ok) {
+function downloadCandidateCv(fileName) {
+  let cleanName = (fileName || 'Ghaith_Oueslati_CV.pdf').replace(/Current_openings/gi, 'DevSecOps_Engineer');
+  if (window.BASE_CV_BASE64) {
+    try {
+      const binaryString = atob(window.BASE_CV_BASE64);
+      const len = binaryString.length;
+      const bytes = new Uint8Array(len);
+      for (let i = 0; i < len; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+      }
+      const blob = new Blob([bytes], { type: 'application/pdf' });
+      const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
-      a.href = primaryUrl;
-      a.download = fileName;
+      a.href = url;
+      a.download = cleanName;
       document.body.appendChild(a);
       a.click();
-      document.body.removeChild(a);
+      setTimeout(() => {
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }, 800);
       return;
+    } catch(err) {
+      console.warn('Base64 decode notice:', err);
     }
-  } catch(ex) {}
-  
+  }
+
+  // Fallback to static direct file
   const a = document.createElement('a');
-  a.href = fallbackUrl;
-  a.download = fileName;
+  a.href = `./cvs/Ghaith_Oueslati_CV.pdf`;
+  a.download = cleanName;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
+}
+
+function downloadCvWithFallback(e, fileName, type = 'cv') {
+  if (e) e.preventDefault();
+  if (type === 'cover') {
+    const fullText = document.getElementById('full-motivation-letter-box')?.innerText || '';
+    downloadMotivationLetterPdf('Company', 'DevSecOps & Backend Engineer', fullText, fileName);
+    return;
+  }
+  downloadCandidateCv(fileName);
 }
 
 function copyTextToClipboard(btn, text) {
