@@ -249,34 +249,52 @@ def create_pdf_cover_letter(candidate, job_data, output_path):
     story.append(Paragraph(today_str, date_style))
     
     company = job_data.get('company', 'Hiring Team')
-    title = job_data.get('title', 'Engineering Position')
-    story.append(Paragraph(f"Hiring Manager / Recruitment Team<br/><b>{company}</b>", recipient_style))
+    title = job_data.get('title', 'DevSecOps & Backend Engineer')
     
-    story.append(Paragraph(f"<b>RE: Application for {title} Role</b>", ParagraphStyle('Sub', parent=body_style, fontName='Helvetica-Bold', spaceAfter=14)))
+    # Sanitize title & company
+    if any(gt in title.lower() for gt in ['current openings', 'careers', 'openings', 'spontaneous', 'job opening']):
+        title = 'DevSecOps & Backend Engineer'
+    import re
+    company = re.sub(r'\s*\(\s*Formerly.*?\)', '', company).strip()
 
-    # Cover note content
-    cover_note = job_data.get('cover_note') or (
-        f"I am writing to express my enthusiastic interest in the {title} role at {company}. "
-        f"With hands-on experience in DevSecOps automation, microservice optimization, and AI tool integration at SeekMake, "
-        f"I am confident in my ability to bring immediate technical value to your team."
+    story.append(Paragraph(f"<b>Hiring Manager & Engineering Leadership</b><br/>{company}", recipient_style))
+    story.append(Paragraph(f"<b>RE: Application for {title} Role</b>", ParagraphStyle('Sub', parent=body_style, fontName='Helvetica-Bold', fontSize=10.5, textColor=ACCENT_COLOR, spaceAfter=14)))
+
+    # Bullet style for achievements
+    cl_bullet_style = ParagraphStyle(
+        'CLBullet',
+        parent=body_style,
+        fontSize=9.5,
+        leading=14,
+        leftIndent=14,
+        firstLineIndent=-10,
+        spaceAfter=5
     )
 
-    p1 = f"Dear Hiring Manager,"
-    p2 = cover_note
-    p3 = (
-        f"During my time at SeekMake, I successfully reduced security triage time by 60% by integrating Google Gemini API "
-        f"into our CI/CD pipeline to analyze OWASP ZAP and Trivy findings, and reduced backend API latency by 83% via MongoDB "
-        f"aggregation optimization. Additionally, I contributed to migrating 38+ CI/CD workflows to GitLab CI/CD and migrating "
-        f"8 microservices to Azure Container Apps."
+    p1 = f"Dear Hiring Team at {company},"
+    p2 = job_data.get('cover_note') or (
+        f"I am writing to express my strong enthusiasm for the {title} position at {company}. "
+        f"With hands-on experience in DevSecOps automation, microservice architecture, and AI tool integration, "
+        f"I am confident in my ability to bring immediate technical value to your engineering organization."
     )
+    p3_lead = "Key technical achievements and relevant qualifications from my experience include:"
+    b1 = "&bull; <b>CI/CD Security Automation:</b> Cut manual vulnerability triage time by <b>60%</b> by integrating Google Gemini API + Trivy and OWASP ZAP scanners directly into automated pipelines."
+    b2 = "&bull; <b>Backend Performance & Latency:</b> Reduced API response latency by <b>83%</b> through MongoDB aggregation pipeline optimization and multi-tier Redis caching."
+    b3 = "&bull; <b>Cloud & Container Orchestration:</b> Successfully migrated 38+ CI/CD workflows to GitLab CI/CD and migrated containerized microservices to Azure Container Apps and AWS."
+
     p4 = (
-        f"I would welcome the opportunity to discuss how my background in backend engineering, cloud infrastructure, "
-        f"and security automation aligns with {company}'s goals. Thank you for your time and consideration."
+        f"I would welcome the opportunity to discuss how my technical expertise in cloud infrastructure, "
+        f"backend systems, and security automation can support {company}'s upcoming milestones. Thank you for your time and consideration."
     )
 
     story.append(Paragraph(p1, body_style))
     story.append(Paragraph(p2, body_style))
-    story.append(Paragraph(p3, body_style))
+    story.append(Spacer(1, 4))
+    story.append(Paragraph(p3_lead, body_style))
+    story.append(Paragraph(b1, cl_bullet_style))
+    story.append(Paragraph(b2, cl_bullet_style))
+    story.append(Paragraph(b3, cl_bullet_style))
+    story.append(Spacer(1, 4))
     story.append(Paragraph(p4, body_style))
     story.append(Spacer(1, 14))
 
