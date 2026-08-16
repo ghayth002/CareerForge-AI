@@ -2630,7 +2630,7 @@ function openJobModal(jobIdentifier) {
       </ul>
       <div style="display:flex;gap:10px;flex-wrap:wrap;">
         <a href="./cvs/${cvName}" download="${cvName}" target="_blank" class="ui-btn ui-btn-primary" style="font-size:0.82rem;padding:8px 16px;display:inline-flex;" onclick="downloadCvWithFallback(event, '${cvName}', 'cv')">📥 Download Tailored CV PDF</a>
-        <a href="./cvs/${coverName}" download="${coverName}" target="_blank" class="ui-btn ui-btn-purple" style="font-size:0.82rem;padding:8px 16px;display:inline-flex;" onclick="downloadCvWithFallback(event, '${coverName}', 'cover')">✉️ Download Motivation Letter PDF</a>
+        <button type="button" class="ui-btn ui-btn-purple" style="font-size:0.82rem;padding:8px 16px;display:inline-flex;" onclick="downloadMotivationLetterPdf('${(job.company||'Company').replace(/'/g, "\\'")}', '${(job.title||'Role').replace(/'/g, "\\'")}', document.getElementById('full-motivation-letter-box').innerText, '${coverName}')">✉️ Print / Save Motivation Letter PDF</button>
       </div>
     </div>
 
@@ -2638,7 +2638,10 @@ function openJobModal(jobIdentifier) {
     <div class="modal-info-panel" style="border-color:var(--neon-emerald);">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
         <div class="modal-info-label" style="color:var(--neon-emerald);margin-bottom:0;">✉️ AI-Generated Professional Letter of Motivation</div>
-        <button class="ui-btn ui-btn-ghost" style="padding:4px 12px;font-size:0.75rem;" onclick="copyTextToClipboard(this, document.getElementById('full-motivation-letter-box').innerText)">📋 Copy Letter</button>
+        <div style="display:flex;gap:8px;">
+          <button class="ui-btn ui-btn-ghost" style="padding:4px 12px;font-size:0.75rem;" onclick="copyTextToClipboard(this, document.getElementById('full-motivation-letter-box').innerText)">📋 Copy Letter</button>
+          <button class="ui-btn ui-btn-emerald" style="padding:4px 12px;font-size:0.75rem;" onclick="downloadMotivationLetterPdf('${(job.company||'Company').replace(/'/g, "\\'")}', '${(job.title||'Role').replace(/'/g, "\\'")}', document.getElementById('full-motivation-letter-box').innerText, '${coverName}')">📥 Export PDF</button>
+        </div>
       </div>
       <div id="full-motivation-letter-box" style="background:var(--bg-dark);border:1px solid var(--border-glass-strong);border-radius:var(--radius-md);padding:18px 20px;font-size:0.88rem;color:var(--text-main);line-height:1.75;white-space:pre-wrap;font-family:var(--font-main);">
 ${fullCoverLetter}
@@ -2687,10 +2690,71 @@ function closeJobModal() {
   document.getElementById('job-modal-dialog').classList.remove('open');
 }
 
+function downloadMotivationLetterPdf(company, title, fullText, filename) {
+  const printWindow = window.open('', '_blank');
+  if (!printWindow) return;
+  const today = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+  const htmlContent = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>${filename || 'Letter_of_Motivation.pdf'}</title>
+  <style>
+    @page { size: A4; margin: 25mm 20mm; }
+    body { font-family: 'Helvetica Neue', Arial, sans-serif; color: #1e293b; line-height: 1.65; margin: 0; padding: 36px 40px; font-size: 13.5px; }
+    .header-name { font-size: 24px; font-weight: 800; color: #0f172a; letter-spacing: -0.02em; }
+    .header-role { font-size: 12px; font-weight: 700; color: #0284c7; margin-top: 2px; text-transform: uppercase; letter-spacing: 0.05em; }
+    .header-contact { font-size: 10.5px; color: #64748b; margin-top: 6px; padding-bottom: 14px; border-bottom: 2px solid #0284c7; }
+    .date-row { margin-top: 24px; font-size: 11.5px; color: #64748b; font-weight: 500; }
+    .recipient-block { margin-top: 14px; font-size: 12.5px; line-height: 1.4; color: #0f172a; font-weight: 600; }
+    .re-subject { margin-top: 18px; font-size: 13.5px; font-weight: 800; color: #0f172a; padding: 8px 12px; background: #f1f5f9; border-left: 3px solid #0284c7; border-radius: 4px; }
+    .letter-body { margin-top: 20px; font-size: 13px; color: #334155; line-height: 1.85; white-space: pre-wrap; }
+    .sign-off { margin-top: 28px; }
+    @media print {
+      body { padding: 0; }
+      .no-print { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="header-name">GHAITH OUESLATI</div>
+  <div class="header-role">DevSecOps & Backend Engineer</div>
+  <div class="header-contact">📞 +216 94854835 &nbsp;|&nbsp; ✉️ ghaythweslaty002@gmail.com &nbsp;|&nbsp; 🔗 linkedin.com/in/ghayth-weslati &nbsp;|&nbsp; 🐙 github.com/ghayth002 &nbsp;|&nbsp; 📍 Tunisia / Remote EU</div>
+  
+  <div class="date-row">${today}</div>
+  
+  <div class="recipient-block">
+    Hiring Team & Technical Recruitment<br>
+    <b>${company}</b>
+  </div>
+
+  <div class="re-subject">APPLICATION: ${title}</div>
+
+  <div class="letter-body">${fullText}</div>
+
+  <div class="sign-off">
+    <div style="font-size:12px;color:#64748b;">Sincerely,</div>
+    <div style="font-size:15px;font-weight:bold;color:#0f172a;margin-top:4px;">Ghaith Oueslati</div>
+    <div style="font-size:11px;color:#64748b;">DevSecOps & Backend Engineer</div>
+  </div>
+
+  <script>
+    window.onload = function() {
+      setTimeout(function() { window.print(); }, 250);
+    };
+  <\/script>
+</body>
+</html>`;
+
+  printWindow.document.open();
+  printWindow.document.write(htmlContent);
+  printWindow.document.close();
+}
+
 async function downloadCvWithFallback(e, fileName, type = 'cv') {
   e.preventDefault();
   const primaryUrl = `./cvs/${fileName}`;
-  const fallbackUrl = type === 'cover' ? `./cvs/Cover_Letter_Ghaith_Oueslati.pdf` : `./cvs/Ghaith_Oueslati_CV.pdf`;
+  const fallbackUrl = `./cvs/Ghaith_Oueslati_CV.pdf`;
   
   try {
     const res = await fetch(primaryUrl, { method: 'HEAD' });

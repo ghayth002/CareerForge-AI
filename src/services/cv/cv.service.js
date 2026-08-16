@@ -30,13 +30,8 @@ class CvService {
     logger.info(`Compiling ATS application packages for ${matchedJobs.length} matches...`);
     this.ensureDirectoryExists(this.outputDir);
 
-    // Ensure base CV is copied to public/cvs/
-    const defaultCvDest = path.join(this.outputDir, 'Ghaith_Oueslati_CV.pdf');
-    if (fs.existsSync(this.baseCvPath) && !fs.existsSync(defaultCvDest)) {
-      fs.copyFileSync(this.baseCvPath, defaultCvDest);
-    }
-
     const generatedPackages = [];
+    const pythonScript = path.join(__dirname, '../../../scripts/generate_pdf.py');
 
     for (const job of matchedJobs) {
       const cvFilename = this.generateSafeFilename(job.company, job.title, 'Ghaith_Oueslati_CV');
@@ -45,12 +40,33 @@ class CvService {
       const cvPath = path.join(this.outputDir, cvFilename);
       const coverPath = path.join(this.outputDir, coverFilename);
 
-      // Link or copy base CV for static download availability
-      if (fs.existsSync(this.baseCvPath) && !fs.existsSync(cvPath)) {
-        fs.copyFileSync(this.baseCvPath, cvPath);
+      // Attempt Python reportlab generation
+      try {
+        if (fs.existsSync(pythonScript)) {
+          const { spawnSync } = require('child_process');
+          const summary = job.custom_summary || '';
+          const coverNote = job.cover_note || '';
+          
+          spawnSync('python', [
+            pythonScript,
+            '--company', job.company || 'Tech Company',
+            '--title', job.title || 'Software Engineer',
+            '--summary', summary,
+            '--cover_note', coverNote,
+            '--output_dir', this.outputDir
+          ], { stdio: 'ignore', timeout: 8000 });
+        }
+      } catch (err) {
+        logger.warn(`Python PDF generation notice: ${err.message}`);
       }
-      if (fs.existsSync(this.baseCvPath) && !fs.existsSync(coverPath)) {
-        fs.copyFileSync(this.baseCvPath, coverPath);
+
+      // If specific cover letter was created by python script, move to safe name if needed
+      const safeCo = (job.company || '').replace(/\s+/g, '_').replace(/\//g, '_');
+      const safeTi = (job.title || '').replace(/\s+/g, '_').replace(/\//g, '_');
+      const pyCoverPath = path.join(this.outputDir, `Cover_Letter_${safeCo}_${safeTi}.pdf`);
+      
+      if (fs.existsSync(pyCoverPath) && !fs.existsSync(coverPath)) {
+        fs.copyFileSync(pyCoverPath, coverPath);
       }
 
       job.cv_filename = cvFilename;
