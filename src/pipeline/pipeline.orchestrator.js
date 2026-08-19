@@ -17,6 +17,8 @@ const MatcherService = require('../services/matcher/matcher.service');
 const CvService = require('../services/cv/cv.service');
 const NotifierService = require('../services/notifier/notifier.service');
 const PublisherService = require('../services/publisher/publisher.service');
+const { connectDB } = require('../core/database');
+const JobRepository = require('../services/db/job.repository');
 
 class PipelineOrchestrator {
   constructor(config = defaultConfig) {
@@ -113,9 +115,14 @@ class PipelineOrchestrator {
       };
 
       // ── NODE 6: DEPLOY & PUBLISH ──────────────────────────────────
-      logger.step(6, 'Deploy & Publish: Generating encrypted AES-256 package');
+      logger.step(6, 'Deploy & Publish: Generating encrypted package & MongoDB Atlas sync');
       const node6Start = Date.now();
       const publishResult = this.publisher.publishEncryptedBundle(consolidatedJobs, this.config.candidate);
+      
+      // Auto-sync to MongoDB Atlas
+      await connectDB();
+      await JobRepository.upsertJobs(consolidatedJobs);
+
       executionLog.nodes.deploy = {
         status: 'COMPLETED',
         encryptedPath: publishResult.encryptedPath,
@@ -132,6 +139,19 @@ class PipelineOrchestrator {
         strongMatches: matchedJobs.length,
         durationSeconds: (totalDuration / 1000).toFixed(1)
       };
+
+      // Log telemetry run to MongoDB
+      await JobRepository.logPipelineRun({
+        run_id: `run_${Date.now()}`,
+        status: 'COMPLETED',
+        sources_crawled: crawlerResult.stats,
+        total_discovered: crawlerResult.total,
+        total_passed_filter: filterResult.totalPassed,
+        total_ai_matched: matchedJobs.length,
+        high_matches_count: matchedJobs.length,
+        ai_model_used: this.config.openRouter?.model || 'google/gemini-2.5-flash',
+        duration_ms: totalDuration
+      });
 
       logger.banner(`✅ PIPELINE COMPLETE in ${executionLog.summary.durationSeconds}s (${matchedJobs.length} matches ready)`);
       return executionLog;

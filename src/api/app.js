@@ -30,6 +30,9 @@ function createApp() {
   app.post('/api/trigger', PipelineController.triggerPipeline);
   app.get('/api/data.enc', JobsController.getEncryptedData);
   app.get('/api/data.json', JobsController.getJobsJson);
+  app.get('/api/jobs', JobsController.getMongoJobs);
+  app.patch('/api/jobs/:id/crm', JobsController.updateCrmStatus);
+  app.get('/api/analytics', JobsController.getAnalytics);
 
   // 4. Fallback Single Page Application Route
   app.get('*', (req, res) => {
