@@ -82,8 +82,8 @@ RETURN ONLY A VALID JSON OBJECT WITH THIS EXACT SCHEMA:
   async evaluateSingleJob(candidate, job, options = {}) {
     if (!this.client) {
       // Fallback deterministic scoring if no API key is provided
-      const matchedCount = (job.skills || []).length;
-      const baseScore = Math.min(95, Math.max(65, 60 + matchedCount * 5));
+      const candidateRole = candidate?.role || candidate?.title || (candidate?.target_roles && candidate.target_roles[0]) || 'DevSecOps & Backend Engineer';
+      const candidateName = candidate?.name || 'Ghaith Oueslati';
       return {
         ...job,
         match_score: baseScore,
@@ -92,7 +92,7 @@ RETURN ONLY A VALID JSON OBJECT WITH THIS EXACT SCHEMA:
         strengths: ['Relevant backend engineering profile', 'Proven cloud and security automation'],
         missing_skills: [],
         ai_reasoning: `Technical alignment evaluated for ${job.title} at ${job.company} based on ${matchedCount} matching skills.`,
-        custom_summary: `${candidate.title} with experience in cloud infrastructure, security automation, and scalable backend services matching ${job.company}'s stack.`,
+        custom_summary: `${candidateRole} specializing in cloud infrastructure, CI/CD automation, and scalable backend services, matching ${job.company}'s engineering stack.`,
         tailored_skills: (job.skills || []).length > 0 ? job.skills : ['Docker', 'CI/CD', 'Python', 'Azure', 'Node.js'],
         key_matching_points: [
           'Automated CI/CD security triage with SAST/DAST tools, reducing effort by 60%',
@@ -169,13 +169,14 @@ RETURN ONLY A VALID JSON OBJECT WITH THIS EXACT SCHEMA:
       // Fallback deterministic score if evaluation failed
       const matchedCount = (job.skills || []).length;
       const fallbackScore = Math.min(92, Math.max(55, 55 + matchedCount * 5));
+      const candidateRole = candidate?.role || candidate?.title || (candidate?.target_roles && candidate.target_roles[0]) || 'DevSecOps & Backend Engineer';
       return {
         ...job,
         match_score: fallbackScore,
         technical_score: fallbackScore,
         experience_score: fallbackScore - 3,
         ai_reasoning: `Matched ${matchedCount} technical skills from candidate profile.`,
-        custom_summary: `${candidate.title} with hands-on technical skills matching ${job.company} requirements.`
+        custom_summary: `${candidateRole} with hands-on technical skills matching ${job.company} requirements.`
       };
     });
 

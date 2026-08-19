@@ -35,7 +35,7 @@ class PublisherService {
         technical_score: j.technical_score || score + 2,
         experience_score: j.experience_score || score - 2,
         ai_reasoning: j.ai_reasoning || j.reasoning || `Strong technical fit evaluated for ${j.title || 'engineering role'} based on candidate profile.`,
-        custom_summary: j.custom_summary || `${candidate.title || 'DevSecOps Engineer'} with hands-on experience matching ${j.company || 'target'} requirements.`,
+        custom_summary: j.custom_summary || `${candidate.role || candidate.title || 'DevSecOps & Backend Engineer'} with hands-on experience matching ${j.company || 'target'} requirements.`,
         cover_note: j.cover_note || `I am excited to apply for the ${j.title || 'Engineer'} role at ${j.company || 'your team'}. My technical background in cloud infrastructure, security automation, and backend systems directly aligns with your goals.`,
         form_field_guide: j.form_field_guide || {
           why_interested: `Strong alignment with ${j.company || 'the team'}'s engineering goals and technical challenges.`,
