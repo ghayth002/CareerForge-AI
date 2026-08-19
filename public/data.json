@@ -1,215 +1,28 @@
 {
   "stats": {
-    "total_jobs": 6,
-    "discovered_today": 6,
-    "matched_70_plus": 5,
-    "matched_80_plus": 5,
-    "matched_90_plus": 2,
-    "remote_jobs": 4,
-    "last_updated": "2026-08-19T21:49:42.305Z"
+    "total_jobs": 1,
+    "discovered_today": 1,
+    "matched_70_plus": 1,
+    "matched_80_plus": 1,
+    "matched_90_plus": 0,
+    "remote_jobs": 1,
+    "last_updated": "2026-08-19T22:01:19.863Z"
   },
   "jobs": [
     {
-      "source": "sample",
-      "source_job_id": "test-devsecops-001",
-      "company": "TechCorp Berlin",
-      "title": "DevSecOps Engineer",
-      "location": "Berlin, Germany",
+      "id": "job-1",
+      "company": "Tech Inc",
+      "title": "Backend Engineer",
+      "match_score": 85,
       "remote": true,
-      "employment_type": "full-time",
-      "url": "https://example.com/jobs/devsecops-001",
-      "description": "We are looking for a DevSecOps Engineer to join our security-focused platform team. You will integrate security tools into CI/CD pipelines, work with Docker containers, and implement SAST/DAST scanning. Requirements: experience with GitLab CI/CD or GitHub Actions, familiarity with OWASP ZAP or Trivy or SonarQube, Python or JavaScript scripting, Docker, cloud experience (AWS/Azure/GCP). Nice to have: Terraform, Kubernetes, SIEM tools. We are a remote-first company with engineers across Europe. Visa sponsorship available for exceptional candidates. English required.",
-      "salary": "€55,000 - €75,000",
-      "posted_at": "2026-08-07T09:00:00Z",
-      "language": "en",
-      "skills": [
-        "GitLab CI/CD",
-        "OWASP ZAP",
-        "Trivy",
-        "Docker",
-        "Python",
-        "Azure",
-        "DevSecOps",
-        "SAST",
-        "DAST"
-      ],
-      "match_score": 95,
-      "technical_score": 96,
-      "experience_score": 94,
-      "ai_reasoning": "Exceptional direct fit for Ghaith's DevSecOps background. Direct alignment on GitLab CI/CD pipelines, Trivy / OWASP ZAP security automation, Docker containerization, and Azure cloud infrastructure.",
-      "custom_summary": "DevSecOps Engineer with hands-on expertise integrating automated SAST/DAST scanning (Trivy, OWASP ZAP) into GitLab CI/CD pipelines, cutting security triage time by 60% with AI.",
-      "cover_note": "I am thrilled to apply for the DevSecOps Engineer role at TechCorp Berlin. Having automated security pipelines with Trivy, SonarQube, and OWASP ZAP across Azure and GitLab CI/CD, I am confident in elevating your platform security posture.",
+      "technical_score": 87,
+      "experience_score": 83,
+      "ai_reasoning": "Strong technical fit evaluated for Backend Engineer based on candidate profile.",
+      "custom_summary": "DevSecOps & Backend Engineer with hands-on experience matching Tech Inc requirements.",
+      "cover_note": "I am excited to apply for the Backend Engineer role at Tech Inc. My technical background in cloud infrastructure, security automation, and backend systems directly aligns with your goals.",
       "form_field_guide": {
-        "why_interested": "TechCorp Berlin's commitment to security-first platform engineering perfectly matches my passion for DevSecOps automation.",
-        "biggest_achievement": "Automated security triage with Gemini API + Trivy/OWASP ZAP, reducing vulnerability evaluation time by 60% across 38+ CI/CD pipelines."
-      }
-    },
-    {
-      "source": "sample",
-      "source_job_id": "test-backend-002",
-      "company": "CloudBase Amsterdam",
-      "title": "Backend Engineer (Node.js / NestJS)",
-      "location": "Amsterdam, Netherlands",
-      "remote": true,
-      "employment_type": "full-time",
-      "url": "https://example.com/jobs/backend-002",
-      "description": "Join our backend team building high-performance microservices. We use NestJS, MongoDB, PostgreSQL, and deploy on AWS. You will design and build REST APIs, optimize database performance, and maintain CI/CD pipelines. Requirements: 1+ years backend development, Node.js/NestJS or Express.js, MongoDB or PostgreSQL, REST API design, Docker, Git. Nice to have: AWS, TypeScript, Redis, Kafka, Microservices architecture. We offer relocation support and visa sponsorship. Team speaks English.",
-      "salary": "€50,000 - €70,000",
-      "posted_at": "2026-08-06T14:00:00Z",
-      "language": "en",
-      "skills": [
-        "NestJS",
-        "Node.js",
-        "MongoDB",
-        "PostgreSQL",
-        "Docker",
-        "AWS",
-        "TypeScript",
-        "REST APIs",
-        "Microservices"
-      ],
-      "match_score": 91,
-      "technical_score": 93,
-      "experience_score": 89,
-      "ai_reasoning": "High alignment on backend architecture: NestJS, MongoDB, PostgreSQL microservices, Docker, and REST API performance optimization.",
-      "custom_summary": "Backend Systems Engineer specializing in NestJS/Node.js microservices and database query optimization, with proven results reducing API latency by 83%.",
-      "cover_note": "I am excited to apply for the Backend Engineer position at CloudBase Amsterdam. My background developing scalable NestJS microservices and optimizing MongoDB/Redis caching will allow me to deliver immediate value to your backend platform.",
-      "form_field_guide": {
-        "why_interested": "CloudBase Amsterdam's high-performance microservices stack strongly resonates with my experience in scalable backend design.",
-        "biggest_achievement": "Reduced backend REST API latency by 83% through MongoDB aggregation query optimization and multi-tier Redis caching."
-      }
-    },
-    {
-      "source": "sample",
-      "source_job_id": "test-cloud-003",
-      "company": "RemoteFirst Inc",
-      "title": "Cloud Engineer (AWS/Azure)",
-      "location": "Remote",
-      "remote": true,
-      "employment_type": "full-time",
-      "url": "https://example.com/jobs/cloud-003",
-      "description": "We need a Cloud Engineer to help migrate and manage our multi-cloud infrastructure (AWS + Azure). You will write Terraform modules, set up CI/CD pipelines, work with container services, and implement monitoring. Requirements: AWS (EC2, Lambda, S3, IAM), Azure (Container Apps, Front Door), Terraform, Docker, CI/CD pipelines (GitHub Actions or GitLab), scripting (Python or Bash). Nice to have: GCP, Kubernetes, GitOps, Grafana. Fully remote, work from anywhere. No visa restrictions.",
-      "salary": "$60,000 - $85,000",
-      "posted_at": "2026-08-08T08:00:00Z",
-      "language": "en",
-      "skills": [
-        "AWS",
-        "Azure",
-        "Terraform",
-        "Docker",
-        "Python",
-        "CI/CD",
-        "Azure Container Apps",
-        "Azure Front Door",
-        "GitLab CI/CD"
-      ],
-      "match_score": 88,
-      "technical_score": 90,
-      "experience_score": 86,
-      "ai_reasoning": "Direct match for Azure Container Apps, multi-cloud migration experience, Terraform Infrastructure-as-Code, and CI/CD pipelines.",
-      "custom_summary": "Cloud Infrastructure Engineer with demonstrated success migrating microservices to Azure Container Apps and automating multi-cloud environments using Terraform and CI/CD.",
-      "cover_note": "I am pleased to submit my application for the Cloud Engineer role at RemoteFirst Inc. Having led migrations to Azure Container Apps and automated cloud deployments with Terraform, I am eager to help scale your cloud architecture.",
-      "form_field_guide": {
-        "why_interested": "RemoteFirst's forward-thinking cloud strategy aligns seamlessly with my practical experience in Azure, AWS, and Infrastructure-as-Code.",
-        "biggest_achievement": "Successfully migrated 8 of 12 critical microservices from GCP to Azure Container Apps with zero user downtime."
-      }
-    },
-    {
-      "source": "sample",
-      "source_job_id": "test-sre-006",
-      "company": "SRECloud Zurich",
-      "title": "Site Reliability Engineer",
-      "location": "Zurich, Switzerland",
-      "remote": true,
-      "employment_type": "full-time",
-      "url": "https://example.com/jobs/sre-006",
-      "description": "SRE role focused on reliability, observability, and automation. You will work with Kubernetes, Terraform, AWS, and build monitoring pipelines. Requirements: experience with cloud infrastructure, Docker/Kubernetes, CI/CD, Grafana/Prometheus, Python scripting. Junior/mid level welcome. Visa sponsorship available for EU Blue Card. English team.",
-      "salary": "CHF 90,000 - CHF 120,000",
-      "posted_at": "2026-08-08T07:00:00Z",
-      "language": "en",
-      "skills": [
-        "Kubernetes",
-        "AWS",
-        "Docker",
-        "Terraform",
-        "Python",
-        "Grafana",
-        "CI/CD",
-        "SRE"
-      ],
-      "match_score": 86,
-      "technical_score": 88,
-      "experience_score": 84,
-      "ai_reasoning": "Strong fit for SRE observability, Kubernetes orchestration, Prometheus/Grafana monitoring, and Python automation scripting.",
-      "custom_summary": "Site Reliability & Cloud Engineer experienced in Kubernetes container orchestration, Grafana observability pipelines, and automated infrastructure provisioning.",
-      "cover_note": "I am excited to apply for the SRE position at SRECloud Zurich. My background in Kubernetes orchestration, CI/CD automation, and metric-driven monitoring with Grafana will ensure robust platform reliability.",
-      "form_field_guide": {
-        "why_interested": "SRECloud's emphasis on high availability and automated observability matches my core philosophy on system reliability.",
-        "biggest_achievement": "Built automated unit test and security triage agents resulting in 75%+ coverage and 99.9% deployment stability."
-      }
-    },
-    {
-      "source": "sample",
-      "source_job_id": "test-platform-004",
-      "company": "FinTech London",
-      "title": "Platform Engineer",
-      "location": "London, UK",
-      "remote": false,
-      "employment_type": "full-time",
-      "url": "https://example.com/jobs/platform-004",
-      "description": "Platform Engineer to maintain and improve our cloud infrastructure on AWS. You will manage Kubernetes clusters, write Terraform IaC, and maintain CI/CD pipelines. Requirements: 3+ years platform/infrastructure experience, Kubernetes (EKS/AKS), Terraform, AWS or Azure, GitLab CI/CD or Jenkins, monitoring (Grafana/Prometheus). Must be eligible to work in the UK. Sponsorship considered for strong candidates.",
-      "salary": "£60,000 - £80,000",
-      "posted_at": "2026-08-05T10:00:00Z",
-      "language": "en",
-      "skills": [
-        "Kubernetes",
-        "Terraform",
-        "AWS",
-        "Azure",
-        "GitLab CI/CD",
-        "Grafana",
-        "Docker",
-        "Jenkins"
-      ],
-      "match_score": 82,
-      "technical_score": 84,
-      "experience_score": 80,
-      "ai_reasoning": "Solid platform engineering match with Kubernetes, Terraform, and GitLab CI/CD requirements.",
-      "custom_summary": "Platform Engineer with extensive background in CI/CD pipeline modernization, containerized infrastructure, and cloud platform maintenance.",
-      "cover_note": "I am writing to apply for the Platform Engineer role at FinTech London. My experience maintaining Kubernetes clusters, writing Terraform modules, and building resilient GitLab CI/CD pipelines aligns closely with your needs.",
-      "form_field_guide": {
-        "why_interested": "FinTech London's high-throughput platform presents exciting challenges where my cloud and security engineering skills will thrive.",
-        "biggest_achievement": "Migrated 38+ monolithic CI/CD workflows from GitHub Actions to standardized, secure GitLab CI/CD pipelines."
-      }
-    },
-    {
-      "source": "sample",
-      "source_job_id": "test-filtered-005",
-      "company": "StartupXYZ Paris",
-      "title": "Java Senior Developer",
-      "location": "Paris, France",
-      "remote": false,
-      "employment_type": "full-time",
-      "url": "https://example.com/jobs/java-005",
-      "description": "Nous cherchons un développeur Java senior. Vous devez parler français couramment. 7+ years d'expérience requis. Spring Boot, Oracle DB, Maven. Présentiel obligatoire à Paris.",
-      "salary": "€70,000 - €90,000",
-      "posted_at": "2026-08-07T11:00:00Z",
-      "language": "fr",
-      "skills": [
-        "Java",
-        "Spring Boot",
-        "Oracle",
-        "Maven"
-      ],
-      "match_score": 64,
-      "technical_score": 62,
-      "experience_score": 66,
-      "ai_reasoning": "Moderate match: Java/Spring Boot stack and on-site requirement diverge from primary DevSecOps and Node/Python remote focus.",
-      "custom_summary": "Software Engineer with general backend engineering capabilities.",
-      "cover_note": "I am applying for the Java Developer position at StartupXYZ Paris.",
-      "form_field_guide": {
-        "why_interested": "Interested in exploring backend engineering roles in Paris.",
-        "biggest_achievement": "Engineered scalable backend services and microservices architectures."
+        "why_interested": "Strong alignment with Tech Inc's engineering goals and technical challenges.",
+        "biggest_achievement": "Reduced backend API latency by 83% and cut security triage time 60% with AI automation."
       }
     }
   ],
@@ -229,5 +42,5 @@
     "n8n_webhook": "",
     "cloud_api": "/api/trigger"
   },
-  "generated_at": "2026-08-19T21:49:42.306Z"
+  "generated_at": "2026-08-19T22:01:19.863Z"
 }
