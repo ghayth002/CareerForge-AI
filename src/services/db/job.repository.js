@@ -1,8 +1,9 @@
 /**
- * CareerForge AI — Job Repository
- * Handles all database persistence, bulk upserting, and CRM queries on MongoDB Atlas.
+ * CareerForge AI — Job Repository (Multi-Tenant)
+ * Scopes all database operations, bulk upserts, and CRM queries by userId on MongoDB Atlas.
  */
 
+const mongoose = require('mongoose');
 const Job = require('../../models/job.model');
 const PipelineRun = require('../../models/pipeline_run.model');
 const { isConnected } = require('../../core/database');
@@ -10,14 +11,17 @@ const { logger } = require('../../core/logger');
 
 class JobRepository {
   /**
-   * Bulk upserts jobs into MongoDB Atlas using source_job_id as unique key.
+   * Bulk upserts jobs for a specific user into MongoDB Atlas.
    */
-  static async upsertJobs(jobs = []) {
-    if (!isConnected() || !jobs || jobs.length === 0) return 0;
+  static async upsertJobs(userId, jobs = []) {
+    if (!isConnected() || !userId || !jobs || jobs.length === 0) return 0;
+
+    const userObjectId = typeof userId === 'string' ? new mongoose.Types.ObjectId(userId) : userId;
 
     const ops = jobs.map(j => {
       const uniqueId = j.source_job_id || `${j.source}_${Buffer.from((j.company || '') + (j.title || '')).toString('hex').substring(0, 16)}`;
       const updateDoc = {
+        user_id: userObjectId,
         source: j.source || 'crawler',
         source_job_id: uniqueId,
         title: j.title,
@@ -47,7 +51,7 @@ class JobRepository {
 
       return {
         updateOne: {
-          filter: { source_job_id: uniqueId },
+          filter: { user_id: userObjectId, source_job_id: uniqueId },
           update: { $set: updateDoc },
           upsert: true
         }
@@ -57,7 +61,7 @@ class JobRepository {
     try {
       const res = await Job.bulkWrite(ops);
       const affected = (res.upsertedCount || 0) + (res.modifiedCount || 0);
-      logger.success(`MongoDB Atlas: Upserted ${affected} jobs (${res.upsertedCount} new, ${res.modifiedCount} updated)`);
+      logger.success(`MongoDB Atlas: Upserted ${affected} jobs for user ${userId} (${res.upsertedCount} new, ${res.modifiedCount} updated)`);
       return affected;
     } catch (err) {
       logger.error(`JobRepository upsert error: ${err.message}`);
@@ -66,12 +70,15 @@ class JobRepository {
   }
 
   /**
-   * Fetches jobs from MongoDB Atlas with optional filtering and sorting.
+   * Fetches jobs strictly belonging to a specific user.
    */
-  static async getJobs(query = {}, options = {}) {
+  static async getJobs(userId, query = {}, options = {}) {
     if (!isConnected()) return [];
     try {
       const filter = {};
+      if (userId) {
+        filter.user_id = typeof userId === 'string' ? new mongoose.Types.ObjectId(userId) : userId;
+      }
       if (query.source) filter.source = query.source;
       if (query.crm_status) filter.crm_status = query.crm_status;
       if (query.min_score) filter.match_score = { $gte: Number(query.min_score) };
@@ -88,19 +95,21 @@ class JobRepository {
   }
 
   /**
-   * Updates recruitment CRM stage and candidate notes.
+   * Updates recruitment CRM stage and candidate notes for a specific user's job.
    */
-  static async updateCrmStatus(jobIdentifier, status, notes = null) {
-    if (!isConnected()) return false;
+  static async updateCrmStatus(userId, jobIdentifier, status, notes = null) {
+    if (!isConnected() || !userId) return false;
     try {
+      const userObjectId = typeof userId === 'string' ? new mongoose.Types.ObjectId(userId) : userId;
       const updateData = { crm_status: status };
       if (status === 'APPLIED') updateData.applied_at = new Date();
       if (notes !== null) updateData.candidate_notes = notes;
 
       const filter = {
+        user_id: userObjectId,
         $or: [
           { source_job_id: jobIdentifier },
-          { _id: jobIdentifier.match(/^[0-9a-fA-F]{24}$/) ? jobIdentifier : null }
+          { _id: mongoose.Types.ObjectId.isValid(jobIdentifier) ? new mongoose.Types.ObjectId(jobIdentifier) : null }
         ].filter(Boolean)
       };
 
@@ -113,17 +122,22 @@ class JobRepository {
   }
 
   /**
-   * Computes aggregation statistics for the dashboard.
+   * Computes aggregation statistics scoped strictly to a user.
    */
-  static async getStats() {
+  static async getStats(userId) {
     if (!isConnected()) return null;
     try {
-      const total = await Job.countDocuments();
-      const strongMatches = await Job.countDocuments({ match_score: { $gte: 70 } });
-      const ready = await Job.countDocuments({ crm_status: 'READY' });
-      const applied = await Job.countDocuments({ crm_status: 'APPLIED' });
-      const interview = await Job.countDocuments({ crm_status: 'INTERVIEW' });
-      const offer = await Job.countDocuments({ crm_status: 'OFFER' });
+      const filter = {};
+      if (userId) {
+        filter.user_id = typeof userId === 'string' ? new mongoose.Types.ObjectId(userId) : userId;
+      }
+
+      const total = await Job.countDocuments(filter);
+      const strongMatches = await Job.countDocuments({ ...filter, match_score: { $gte: 70 } });
+      const ready = await Job.countDocuments({ ...filter, crm_status: 'READY' });
+      const applied = await Job.countDocuments({ ...filter, crm_status: 'APPLIED' });
+      const interview = await Job.countDocuments({ ...filter, crm_status: 'INTERVIEW' });
+      const offer = await Job.countDocuments({ ...filter, crm_status: 'OFFER' });
 
       return {
         total,
@@ -137,7 +151,7 @@ class JobRepository {
   }
 
   /**
-   * Logs a pipeline execution run.
+   * Logs a pipeline execution run scoped to a user.
    */
   static async logPipelineRun(runData) {
     if (!isConnected()) return null;

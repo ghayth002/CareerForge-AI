@@ -1,46 +1,70 @@
 /**
- * CareerForge AI — Express Application Factory
+ * CareerForge AI — Express Application Factory (SaaS Multi-Tenant)
  */
 
 const express = require('express');
 const cors = require('cors');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 const path = require('path');
 const config = require('../core/config');
 const HealthController = require('./controllers/health.controller');
 const PipelineController = require('./controllers/pipeline.controller');
 const JobsController = require('./controllers/jobs.controller');
+const AuthController = require('./controllers/auth.controller');
+const { authMiddleware, optionalAuthMiddleware } = require('./middleware/auth.middleware');
 const errorHandler = require('./middleware/error.middleware');
 
 function createApp() {
   const app = express();
 
-  // 1. Global Middleware
+  // 1. Security & Global Middleware
+  app.use(helmet({
+    contentSecurityPolicy: false, // Allow inline styles & scripts for dashboard single-file UI
+    crossOriginEmbedderPolicy: false
+  }));
+
   app.use(cors({
     origin: '*',
-    methods: ['GET', 'POST', 'OPTIONS'],
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
   }));
   app.use(express.json());
 
-  // 2. Static Asset Hosting
+  // 2. Rate Limiting for Auth endpoints
+  const authLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 60, // Limit each IP to 60 requests per windowMs
+    message: { success: false, error: 'Too many authentication attempts. Please try again later.' }
+  });
+
+  // 3. Static Asset Hosting
   app.use(express.static(config.paths.public));
 
-  // 3. API Routes
-  app.get('/api/health', HealthController.getHealth);
-  app.post('/api/trigger', PipelineController.triggerPipeline);
-  app.get('/api/data.enc', JobsController.getEncryptedData);
-  app.get('/api/data.json', JobsController.getJobsJson);
-  app.get('/api/jobs', JobsController.getMongoJobs);
-  app.patch('/api/jobs/:id/crm', JobsController.updateCrmStatus);
-  app.get('/api/analytics', JobsController.getAnalytics);
+  // 4. Auth Routes
+  app.post('/api/auth/register', authLimiter, AuthController.register);
+  app.post('/api/auth/login', authLimiter, AuthController.login);
+  app.get('/api/auth/me', authMiddleware, AuthController.getMe);
+  app.put('/api/auth/profile', authMiddleware, AuthController.updateProfile);
 
-  // 4. Fallback Single Page Application Route
+  // 5. Health & Pipeline Execution Routes
+  app.get('/api/health', HealthController.getHealth);
+  app.post('/api/trigger', optionalAuthMiddleware, PipelineController.triggerPipeline);
+
+  // 6. Multi-Tenant Jobs & CRM Routes
+  app.get('/api/data.enc', JobsController.getEncryptedData);
+  app.get('/api/data.json', optionalAuthMiddleware, JobsController.getJobsJson);
+  app.get('/api/jobs', optionalAuthMiddleware, JobsController.getMongoJobs);
+  app.patch('/api/jobs/:id/crm', optionalAuthMiddleware, JobsController.updateCrmStatus);
+  app.get('/api/analytics', optionalAuthMiddleware, JobsController.getAnalytics);
+
+  // 7. Fallback Single Page Application Route
   app.get('*', (req, res) => {
     const indexPath = path.join(config.paths.public, 'index.html');
     res.sendFile(indexPath);
   });
 
-  // 5. Error Handler Middleware
+  // 8. Error Handler Middleware
   app.use(errorHandler);
 
   return app;

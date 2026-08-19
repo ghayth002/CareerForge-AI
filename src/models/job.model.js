@@ -1,10 +1,16 @@
 /**
- * CareerForge AI — MongoDB Job Schema
+ * CareerForge AI — MongoDB Multi-Tenant Job Schema
  */
 
 const mongoose = require('mongoose');
 
 const JobSchema = new mongoose.Schema({
+  user_id: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true,
+    index: true
+  },
   source: {
     type: String,
     required: true,
@@ -13,7 +19,6 @@ const JobSchema = new mongoose.Schema({
   source_job_id: {
     type: String,
     required: true,
-    unique: true,
     index: true
   },
   title: {
@@ -126,8 +131,9 @@ const JobSchema = new mongoose.Schema({
   timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' }
 });
 
-// Compound index for high-performance dashboard querying
-JobSchema.index({ match_score: -1, created_at: -1 });
-JobSchema.index({ crm_status: 1, match_score: -1 });
+// Multi-tenant compound indexes
+JobSchema.index({ user_id: 1, source_job_id: 1 }, { unique: true });
+JobSchema.index({ user_id: 1, match_score: -1, created_at: -1 });
+JobSchema.index({ user_id: 1, crm_status: 1, match_score: -1 });
 
 module.exports = mongoose.models.Job || mongoose.model('Job', JobSchema);

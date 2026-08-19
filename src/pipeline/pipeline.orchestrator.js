@@ -1,12 +1,12 @@
 /**
- * CareerForge AI — Pipeline Orchestration Engine
+ * CareerForge AI — Pipeline Orchestration Engine (Multi-Tenant SaaS)
  * Coordinates the 6-Node Autonomous Job Intelligence Workflow:
  * 1. Discovery (Multi-source feeds)
  * 2. Pre-Filter (Deduplication & ATS skill parsing)
  * 3. AI Matcher (OpenRouter LLM candidate scoring)
  * 4. ATS Tailor CV (LaTeX resume & cover letter generation)
  * 5. Auto-Apply & Notify (SMTP router & Telegram alerts)
- * 6. Deploy & Publish (AES-256 encrypted static CDN package)
+ * 6. Deploy & Publish (MongoDB Atlas user sync & encrypted bundle)
  */
 
 const { logger } = require('../core/logger');
@@ -19,6 +19,7 @@ const NotifierService = require('../services/notifier/notifier.service');
 const PublisherService = require('../services/publisher/publisher.service');
 const { connectDB } = require('../core/database');
 const JobRepository = require('../services/db/job.repository');
+const User = require('../models/user.model');
 
 class PipelineOrchestrator {
   constructor(config = defaultConfig) {
@@ -36,11 +37,56 @@ class PipelineOrchestrator {
     this.publisher = new PublisherService(config);
   }
 
-  async run(options = {}) {
+  async resolveUserContext(userParam) {
+    await connectDB();
+
+    if (userParam && userParam._id) return userParam;
+
+    // Look for existing primary tenant user
+    let user = await User.findOne({ email: 'ghaythweslaty002@gmail.com' });
+    if (!user) {
+      const passwordHash = await User.hashPassword('CareerForge2026!');
+      user = new User({
+        email: 'ghaythweslaty002@gmail.com',
+        name: 'Ghaith Oueslati',
+        password_hash: passwordHash,
+        role: 'admin',
+        candidate_profile: this.config.candidate
+      });
+      await user.save();
+      logger.info(`Initialized default primary tenant user: ${user.email} (${user._id})`);
+    }
+    return user;
+  }
+
+  async run(userOrOptions = {}, maybeOptions = {}) {
     const startTime = Date.now();
+    let user = null;
+    let options = {};
+
+    if (userOrOptions && userOrOptions._id) {
+      user = userOrOptions;
+      options = maybeOptions || {};
+    } else {
+      options = userOrOptions || {};
+    }
+
+    user = await this.resolveUserContext(user);
+    const candidate = user.candidate_profile || this.config.candidate;
+
+    // Apply user dynamic keywords if specified
+    if (candidate.target_keywords) {
+      this.filter.setCriteria({
+        targetKeywords: candidate.target_keywords,
+        disallowedKeywords: candidate.negative_keywords,
+        prohibitedSeniority: candidate.prohibited_seniority
+      });
+    }
+
     logger.banner('🚀 CAREERFORGE AI — AUTONOMOUS PIPELINE EXECUTION');
-    logger.info(`Candidate: ${this.config.candidate?.name} (${this.config.candidate?.title})`);
-    logger.info(`Model: ${this.config.openRouter?.model} | Min Score: ${this.config.pipeline?.minMatchScore}%`);
+    logger.info(`Tenant User: ${user.name} <${user.email}> (ID: ${user._id})`);
+    logger.info(`Candidate Target: ${candidate.title || 'DevSecOps Engineer'} (Seniority: ${candidate.seniority_target || 'Junior/Mid'})`);
+    logger.info(`Model: ${this.config.openRouter?.model} | Min Score: ${candidate.min_match_score || this.config.pipeline?.minMatchScore}%`);
 
     const executionLog = {
       nodes: {},
@@ -76,7 +122,7 @@ class PipelineOrchestrator {
       logger.step(3, 'AI Matcher: Evaluating candidate fit with LLM intelligence');
       const node3Start = Date.now();
       const matchedJobs = await this.matcher.evaluateBatch(
-        this.config.candidate,
+        candidate,
         filterResult.jobs,
         { maxJobs: options.maxScoreJobs || 20 }
       );
@@ -96,7 +142,7 @@ class PipelineOrchestrator {
       // ── NODE 4: ATS TAILORED CV COMPILATION ────────────────────────
       logger.step(4, 'Tailor CV: Compiling ATS LaTeX application packages');
       const node4Start = Date.now();
-      const cvPackages = this.cv.generateTailoredPackages(this.config.candidate, matchedJobs);
+      const cvPackages = this.cv.generateTailoredPackages(candidate, matchedJobs);
       executionLog.nodes.tailorCv = {
         status: 'COMPLETED',
         packagesCompiled: cvPackages.length,
@@ -117,11 +163,10 @@ class PipelineOrchestrator {
       // ── NODE 6: DEPLOY & PUBLISH ──────────────────────────────────
       logger.step(6, 'Deploy & Publish: Generating encrypted package & MongoDB Atlas sync');
       const node6Start = Date.now();
-      const publishResult = this.publisher.publishEncryptedBundle(consolidatedJobs, this.config.candidate);
+      const publishResult = this.publisher.publishEncryptedBundle(consolidatedJobs, candidate);
       
-      // Auto-sync to MongoDB Atlas
-      await connectDB();
-      await JobRepository.upsertJobs(consolidatedJobs);
+      // Auto-sync to MongoDB Atlas scoped to current tenant user
+      await JobRepository.upsertJobs(user._id, consolidatedJobs);
 
       executionLog.nodes.deploy = {
         status: 'COMPLETED',
@@ -134,6 +179,8 @@ class PipelineOrchestrator {
       executionLog.durationMs = totalDuration;
       executionLog.summary = {
         success: true,
+        userId: user._id,
+        userEmail: user.email,
         totalDiscovered: crawlerResult.total,
         qualifiedJobs: filterResult.totalPassed,
         strongMatches: matchedJobs.length,
@@ -142,6 +189,7 @@ class PipelineOrchestrator {
 
       // Log telemetry run to MongoDB
       await JobRepository.logPipelineRun({
+        user_id: user._id,
         run_id: `run_${Date.now()}`,
         status: 'COMPLETED',
         sources_crawled: crawlerResult.stats,
@@ -153,7 +201,7 @@ class PipelineOrchestrator {
         duration_ms: totalDuration
       });
 
-      logger.banner(`✅ PIPELINE COMPLETE in ${executionLog.summary.durationSeconds}s (${matchedJobs.length} matches ready)`);
+      logger.banner(`✅ PIPELINE COMPLETE in ${executionLog.summary.durationSeconds}s (${matchedJobs.length} matches ready for ${user.email})`);
       return executionLog;
 
     } catch (err) {

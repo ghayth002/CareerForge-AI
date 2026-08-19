@@ -1,10 +1,15 @@
 /**
- * CareerForge AI — MongoDB Pipeline Run Telemetry Schema
+ * CareerForge AI — MongoDB Pipeline Run Telemetry Schema (Multi-Tenant)
  */
 
 const mongoose = require('mongoose');
 
 const PipelineRunSchema = new mongoose.Schema({
+  user_id: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    index: true
+  },
   run_id: {
     type: String,
     required: true,

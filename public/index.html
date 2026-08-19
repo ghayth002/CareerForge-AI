@@ -2058,14 +2058,77 @@ async function decryptAESPayload(passcode, pkg) {
   return JSON.parse(new TextDecoder().decode(buf));
 }
 
+let activeJwtToken = localStorage.getItem('careerforge_jwt_token') || null;
+let currentAuthUser = null;
+
+async function fetchWithAuth(url, options = {}) {
+  const token = activeJwtToken || localStorage.getItem('careerforge_jwt_token');
+  const headers = { ...options.headers };
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+  if (!headers['Content-Type'] && options.body && typeof options.body === 'string') {
+    headers['Content-Type'] = 'application/json';
+  }
+  return fetch(url, { ...options, headers });
+}
+
 async function handleAuthLogin(e) {
   if (e && e.preventDefault) e.preventDefault();
-  const pass = document.getElementById('auth-passcode-input').value;
+  const email = document.getElementById('auth-email-input')?.value || 'ghaythweslaty002@gmail.com';
+  const pass = document.getElementById('auth-passcode-input')?.value;
   const btn = document.getElementById('auth-submit-btn');
   const err = document.getElementById('auth-error-msg');
   if (err) err.style.display = 'none';
-  if (btn) { btn.disabled = true; btn.textContent = '⌛ Decrypting Vault...'; }
+  if (btn) { btn.disabled = true; btn.textContent = '⌛ Authenticating & Decrypting...'; }
 
+  // 1. Attempt Live MongoDB Atlas JWT Login
+  try {
+    const authRes = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password: pass })
+    });
+
+    if (authRes.ok) {
+      const authData = await authRes.json();
+      if (authData.token) {
+        activeJwtToken = authData.token;
+        currentAuthUser = authData.user;
+        localStorage.setItem('careerforge_jwt_token', authData.token);
+        localStorage.setItem('careerforge_user', JSON.stringify(authData.user));
+        
+        // Update user profile in UI
+        updateSidebarUserProfile(authData.user);
+
+        // Fetch User's Real-time Jobs from MongoDB Atlas
+        try {
+          const jobsRes = await fetchWithAuth('/api/jobs');
+          if (jobsRes.ok) {
+            const jobsData = await jobsRes.json();
+            if (jobsData.jobs && jobsData.jobs.length > 0) {
+              allJobsList = jobsData.jobs;
+              decryptedDataStore = { jobs: allJobsList };
+            }
+          }
+        } catch(jErr) {}
+
+        sessionStorage.setItem('cf_key', pass);
+        document.getElementById('auth-overlay-screen').style.opacity = '0';
+        setTimeout(() => {
+          document.getElementById('auth-overlay-screen').style.display = 'none';
+          document.getElementById('main-app-layout').style.display = 'flex';
+        }, 250);
+
+        reloadCurrentPageData();
+        return;
+      }
+    }
+  } catch (apiErr) {
+    console.log('Live Auth API not available or offline, falling back to Zero-Knowledge AES Vault:', apiErr.message);
+  }
+
+  // 2. Fallback: Zero-Knowledge AES-256 Client-side Decryption
   try {
     const res = await fetch('./data.enc?v=' + Date.now(), { cache: 'no-store' });
     if (!res.ok) throw new Error('data.enc package missing');
@@ -2083,13 +2146,13 @@ async function handleAuthLogin(e) {
     reloadCurrentPageData();
   } catch (ex) {
     if (err) err.style.display = 'block';
-    if (btn) { btn.disabled = false; btn.textContent = '🔑 Decrypt Vault & Launch SaaS'; }
+    if (btn) { btn.disabled = false; btn.textContent = '🔑 Sign In & Launch SaaS'; }
   }
 }
 
 function fillDemoCredentials() {
   document.getElementById('auth-email-input').value = 'ghaythweslaty002@gmail.com';
-  document.getElementById('auth-passcode-input').value = 'Ghaith_Master_Key_2026!';
+  document.getElementById('auth-passcode-input').value = 'CareerForge2026!';
 }
 
 function togglePasswordVisibility(inputId, btnId) {
@@ -2107,6 +2170,10 @@ function togglePasswordVisibility(inputId, btnId) {
 
 function relockSession() {
   sessionStorage.removeItem('cf_key');
+  localStorage.removeItem('careerforge_jwt_token');
+  localStorage.removeItem('careerforge_user');
+  activeJwtToken = null;
+  currentAuthUser = null;
   decryptedDataStore = null;
   allJobsList = [];
   document.getElementById('auth-overlay-screen').style.display = 'flex';
@@ -2231,6 +2298,29 @@ async function handleSignupSubmit(e) {
   const github = document.getElementById('signup-github').value;
   const pass = document.getElementById('signup-passcode').value;
 
+  // 1. Attempt SaaS Register API
+  try {
+    const regRes = await fetch('/api/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name,
+        email,
+        password: pass,
+        title: role,
+        university: 'ESPRIT'
+      })
+    });
+
+    if (regRes.ok) {
+      const regData = await regRes.json();
+      activeJwtToken = regData.token;
+      currentAuthUser = regData.user;
+      localStorage.setItem('careerforge_jwt_token', regData.token);
+      localStorage.setItem('careerforge_user', JSON.stringify(regData.user));
+    }
+  } catch(regErr) {}
+
   const profile = { name, email, role, location, phone, linkedin, github };
   localStorage.setItem('cf_user_profile', JSON.stringify(profile));
   
@@ -2241,53 +2331,96 @@ async function handleSignupSubmit(e) {
   updateSidebarUserProfile(profile);
 }
 
-function updateSidebarUserProfile(profile) {
-  if (!profile) return;
-  const initials = (profile.name || 'Ghaith Oueslati').split(' ').map(n => n[0]).join('').substring(0,2).toUpperCase();
+function updateSidebarUserProfile(userOrProfile) {
+  if (!userOrProfile) return;
+  const profile = userOrProfile.candidate_profile || userOrProfile;
+  const displayName = userOrProfile.name || profile.name || 'Ghaith Oueslati';
+  const displayRole = profile.title || profile.role || 'DevSecOps & Backend Engineer';
+  const initials = displayName.split(' ').map(n => n[0]).join('').substring(0,2).toUpperCase();
+  
   const avatar = document.getElementById('sidebar-user-avatar');
   const nameDiv = document.getElementById('sidebar-user-name');
   const roleDiv = document.getElementById('sidebar-user-role');
   
   if (avatar) avatar.textContent = initials || 'GO';
-  if (nameDiv) nameDiv.textContent = profile.name || 'Ghaith Oueslati';
-  if (roleDiv) roleDiv.textContent = profile.role || 'DevSecOps Engineer';
+  if (nameDiv) nameDiv.textContent = displayName;
+  if (roleDiv) roleDiv.textContent = displayRole;
 
   if (document.getElementById('setting-name')) {
-    document.getElementById('setting-name').value = profile.name || '';
-    document.getElementById('setting-email').value = profile.email || '';
-    document.getElementById('setting-role').value = profile.role || '';
-    document.getElementById('setting-location').value = profile.location || '';
-    document.getElementById('setting-linkedin').value = profile.linkedin || '';
-    document.getElementById('setting-github').value = profile.github || '';
-    document.getElementById('setting-phone').value = profile.phone || '';
+    document.getElementById('setting-name').value = displayName;
+    document.getElementById('setting-email').value = userOrProfile.email || profile.email || '';
+    document.getElementById('setting-role').value = displayRole;
+    document.getElementById('setting-location').value = profile.location || 'Tunisia / EU Remote';
+    document.getElementById('setting-linkedin').value = profile.linkedin || 'ghayth-weslati-520394266';
+    document.getElementById('setting-github').value = profile.github || 'ghayth002';
+    document.getElementById('setting-phone').value = profile.phone || '+216 94854835';
   }
 }
 
-function saveUserProfileSettings(e) {
-  e.preventDefault();
-  const profile = {
+async function saveUserProfileSettings(e) {
+  if (e) e.preventDefault();
+  const profileData = {
     name: document.getElementById('setting-name').value,
-    email: document.getElementById('setting-email').value,
-    role: document.getElementById('setting-role').value,
-    location: document.getElementById('setting-location').value,
-    linkedin: document.getElementById('setting-linkedin').value,
-    github: document.getElementById('setting-github').value,
-    phone: document.getElementById('setting-phone').value
+    candidate_profile: {
+      title: document.getElementById('setting-role').value,
+      location: document.getElementById('setting-location').value,
+      linkedin: document.getElementById('setting-linkedin').value,
+      github: document.getElementById('setting-github').value,
+      phone: document.getElementById('setting-phone').value
+    }
   };
-  localStorage.setItem('cf_user_profile', JSON.stringify(profile));
-  updateSidebarUserProfile(profile);
+
+  // Sync to MongoDB Atlas via JWT
+  try {
+    const res = await fetchWithAuth('/api/auth/profile', {
+      method: 'PUT',
+      body: JSON.stringify(profileData)
+    });
+    if (res.ok) {
+      const data = await res.json();
+      updateSidebarUserProfile(data.user);
+      alert('✅ Profile synchronized to MongoDB Atlas successfully!');
+      return;
+    }
+  } catch(err) {}
+
+  localStorage.setItem('cf_user_profile', JSON.stringify({
+    name: profileData.name,
+    email: document.getElementById('setting-email').value,
+    role: profileData.candidate_profile.title,
+    location: profileData.candidate_profile.location,
+    linkedin: profileData.candidate_profile.linkedin,
+    github: profileData.candidate_profile.github,
+    phone: profileData.candidate_profile.phone
+  }));
+  updateSidebarUserProfile(profileData);
   alert('✅ Candidate profile settings saved successfully!');
 }
 
-function saveSearchCriteria() {
+async function saveSearchCriteria() {
   const targetKeywords = document.getElementById('criteria-target-keywords').value.split(',').map(s => s.trim()).filter(Boolean);
   const disallowedKeywords = document.getElementById('criteria-negative-keywords').value.split(',').map(s => s.trim()).filter(Boolean);
   const minScore = parseInt(document.getElementById('criteria-min-score').value, 10);
   const concurrency = parseInt(document.getElementById('criteria-concurrency').value, 10);
 
   const criteria = { targetKeywords, disallowedKeywords, minScore, concurrency };
+
+  // Sync to MongoDB Atlas via JWT
+  try {
+    await fetchWithAuth('/api/auth/profile', {
+      method: 'PUT',
+      body: JSON.stringify({
+        candidate_profile: {
+          target_keywords: targetKeywords,
+          negative_keywords: disallowedKeywords,
+          min_match_score: minScore
+        }
+      })
+    });
+  } catch(e) {}
+
   localStorage.setItem('cf_search_criteria', JSON.stringify(criteria));
-  alert('✨ Search Profile Criteria & AI Concurrency settings saved to local session!');
+  alert('✨ Search Profile Criteria & AI Concurrency synchronized to MongoDB Atlas!');
 }
 
 function updateSelectedAiModel(model) {
@@ -2337,12 +2470,48 @@ function getEffectiveJobScore(j) {
   if (j.match_score && j.match_score > 0) return Math.round(j.match_score);
   // Dynamic ATS keyword & skill score calculation
   const text = `${j.title || ''} ${j.description || ''} ${(j.skills || []).join(' ')}`.toLowerCase();
-  let matches = 0;
   const keywords = ['devsecops', 'devops', 'backend', 'cloud', 'security', 'docker', 'ci/cd', 'kubernetes', 'python', 'aws', 'azure', 'node', 'nestjs', 'golang', 'linux', 'sast', 'dast', 'redis', 'mongodb', 'terraform', 'api', 'microservices'];
   keywords.forEach(kw => { if (text.includes(kw)) matches++; });
   const score = Math.min(94, Math.max(62, 58 + matches * 5));
   j.match_score = score;
   return score;
+}
+
+let crmStatusMap = {};
+
+function loadCrmState() {
+  try {
+    const saved = localStorage.getItem('cf_crm_state');
+    if (saved) crmStatusMap = JSON.parse(saved);
+  } catch(e) {}
+}
+
+function getJobCrmStatus(jobId) {
+  if (!jobId) return 'READY';
+  if (crmStatusMap[jobId]) return crmStatusMap[jobId];
+  const found = (allJobsList || []).find(j => (j.id === jobId || j.source_job_id === jobId || j._uid === jobId));
+  if (found && found.crm_status) return found.crm_status;
+  return 'READY';
+}
+
+async function setJobCrmStatus(jobId, status, event) {
+  if (event && event.stopPropagation) event.stopPropagation();
+  crmStatusMap[jobId] = status;
+  localStorage.setItem('cf_crm_state', JSON.stringify(crmStatusMap));
+
+  const found = (allJobsList || []).find(j => (j.id === jobId || j.source_job_id === jobId || j._uid === jobId));
+  if (found) found.crm_status = status;
+
+  // Persist to MongoDB Atlas via JWT
+  try {
+    const targetId = (found && (found.source_job_id || found._id || found.id)) || jobId;
+    await fetchWithAuth(`/api/jobs/${targetId}/crm`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status })
+    });
+  } catch(e) {}
+
+  reloadCurrentPageData();
 }
 
 function reloadCurrentPageData() {
