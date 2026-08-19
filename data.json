@@ -1,0 +1,29 @@
+{
+  "stats": {
+    "total_jobs": 0,
+    "discovered_today": 0,
+    "matched_70_plus": 0,
+    "matched_80_plus": 0,
+    "matched_90_plus": 0,
+    "remote_jobs": 0,
+    "last_updated": "2026-08-19T08:41:03.348Z"
+  },
+  "jobs": [],
+  "candidate": {
+    "name": "Ghaith Oueslati",
+    "title": "DevSecOps & Backend Engineer",
+    "email": "ghaythweslaty002@gmail.com",
+    "location": "Tunisia / Remote EU",
+    "linkedin": "ghayth-weslati",
+    "github": "ghayth002",
+    "phone": "+216 94854835"
+  },
+  "dispatch": {
+    "workflow": "job-hunter-pipeline.yml",
+    "repo": "ghayth002/CareerForge-AI",
+    "token": "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",
+    "n8n_webhook": "",
+    "cloud_api": "/api/trigger"
+  },
+  "generated_at": "2026-08-19T08:41:03.348Z"
+}
