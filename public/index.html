@@ -1452,6 +1452,11 @@ sidebar {
       </button>
 
       <div class="nav-group-label">CRM & AUTOMATION</div>
+      <button class="nav-item" id="nav-linkedin" onclick="switchPage('linkedin')">
+        <span class="nav-item-icon" style="background:rgba(10,102,194,0.18);color:#0A66C2;">💼</span>
+        <span>LinkedIn Easy Apply</span>
+        <span class="nav-badge-pill" id="badge-linkedin" style="background:rgba(10,102,194,0.18);color:#38BDF8;border-color:rgba(10,102,194,0.3)">0</span>
+      </button>
       <button class="nav-item" id="nav-applications" onclick="switchPage('applications')">
         <span class="nav-item-icon">📝</span>
         <span>Application CRM</span>
@@ -1827,6 +1832,108 @@ sidebar {
         </div>
       </div>
 
+      <!-- ── PAGE: LINKEDIN EASY APPLY DISCOVERY & AUTO-SOLVER ─ -->
+      <div class="page-view" id="page-linkedin">
+        <!-- Hero Header -->
+        <div class="runner-hero-card" style="margin-bottom:20px;background:linear-gradient(135deg, rgba(10,102,194,0.15), rgba(15,23,42,0.92));border:1px solid rgba(10,102,194,0.35);">
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;">
+            <div>
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+                <span class="chip-tag chip-blue">⚡ DIRECT LINKEDIN EASY APPLY HUB</span>
+                <span class="chip-tag chip-green">Anti-Detection Ready</span>
+              </div>
+              <h1 style="font-size:1.75rem;font-weight:800;color:var(--text-main);">LinkedIn Easy Apply Discovery 💼</h1>
+              <p style="font-size:0.85rem;color:var(--text-muted);margin-top:4px;">Launch targeted LinkedIn Easy Apply searches with 1-click ATS question auto-answers tailored to your profile.</p>
+            </div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;">
+              <button class="ui-btn ui-btn-primary" onclick="launchCustomLinkedInSearch()" style="padding:10px 20px;font-size:0.88rem;background:linear-gradient(135deg, #0A66C2, #0077B5);">
+                ⚡ Launch Live LinkedIn Feed
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Interactive Search Query Builder Bar -->
+        <div class="chart-panel-card" style="margin-bottom:20px;">
+          <div class="chart-panel-title">🎯 Custom LinkedIn Search Query Builder</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));gap:14px;margin-top:14px;">
+            <div class="form-group">
+              <label class="form-label">Role Keywords</label>
+              <input type="text" id="li-search-keywords" class="form-input" value="DevSecOps Engineer" placeholder="e.g. DevSecOps Engineer" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Target Location</label>
+              <select id="li-search-location" class="form-input" style="cursor:pointer;">
+                <option value="Worldwide" selected>🌍 Worldwide (Remote)</option>
+                <option value="European Union">🇪🇺 European Union (Remote)</option>
+                <option value="Germany">🇩🇪 Germany (Remote / Relocation)</option>
+                <option value="United Kingdom">🇬🇧 United Kingdom (Remote)</option>
+                <option value="United States">🇺🇸 United States (Remote)</option>
+                <option value="Tunisia">🇹🇳 Tunisia / North Africa</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Experience Filter</label>
+              <select id="li-search-exp" class="form-input" style="cursor:pointer;">
+                <option value="2,3" selected>🎯 Entry-Level & Associate (0-3 YoE)</option>
+                <option value="2">🌱 Entry-Level Only (0-2 YoE)</option>
+                <option value="3">🚀 Associate Only (1-3 YoE)</option>
+                <option value="all">⚡ All Experience Levels</option>
+              </select>
+            </div>
+            <div class="form-group" style="display:flex;flex-direction:column;justify-content:flex-end;">
+              <button class="ui-btn ui-btn-emerald" onclick="launchCustomLinkedInSearch()" style="width:100%;padding:10px;">
+                🔍 Search LinkedIn Easy Apply
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 1-Click Fast ATS Form Answers Reference Matrix -->
+        <div class="chart-panel-card" style="margin-bottom:20px;border-color:rgba(0,240,255,0.25);">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+            <div class="chart-panel-title" style="color:var(--neon-cyan);margin-bottom:0;">🤖 1-Click LinkedIn ATS Screening Question Solver</div>
+            <span class="chip-tag chip-purple">Instant Copy</span>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(240px, 1fr));gap:12px;">
+            <div style="padding:12px;background:var(--bg-dark);border-radius:var(--radius-sm);border:1px solid var(--border-glass);display:flex;justify-content:space-between;align-items:center;">
+              <div>
+                <div style="font-size:0.7rem;color:var(--text-dim);font-weight:700;">DOCKER / CLOUD YEARS</div>
+                <div style="font-size:0.88rem;color:var(--text-main);font-weight:600;">2 Years</div>
+              </div>
+              <button class="ui-btn ui-btn-ghost" style="padding:3px 10px;font-size:0.75rem;" onclick="copyTextToClipboard(this, '2')">Copy</button>
+            </div>
+            <div style="padding:12px;background:var(--bg-dark);border-radius:var(--radius-sm);border:1px solid var(--border-glass);display:flex;justify-content:space-between;align-items:center;">
+              <div>
+                <div style="font-size:0.7rem;color:var(--text-dim);font-weight:700;">NOTICE PERIOD</div>
+                <div style="font-size:0.88rem;color:var(--text-main);font-weight:600;">2 weeks / Immediate</div>
+              </div>
+              <button class="ui-btn ui-btn-ghost" style="padding:3px 10px;font-size:0.75rem;" onclick="copyTextToClipboard(this, '2 weeks')">Copy</button>
+            </div>
+            <div style="padding:12px;background:var(--bg-dark);border-radius:var(--radius-sm);border:1px solid var(--border-glass);display:flex;justify-content:space-between;align-items:center;">
+              <div>
+                <div style="font-size:0.7rem;color:var(--text-dim);font-weight:700;">VISA SPONSORSHIP</div>
+                <div style="font-size:0.88rem;color:var(--text-main);font-weight:600;">Yes • EU Blue Card Eligible</div>
+              </div>
+              <button class="ui-btn ui-btn-ghost" style="padding:3px 10px;font-size:0.75rem;" onclick="copyTextToClipboard(this, 'Tunisian national. Eligible for EU Blue Card and work visa sponsorship. Open to international relocation and remote work.')">Copy</button>
+            </div>
+            <div style="padding:12px;background:var(--bg-dark);border-radius:var(--radius-sm);border:1px solid var(--border-glass);display:flex;justify-content:space-between;align-items:center;">
+              <div>
+                <div style="font-size:0.7rem;color:var(--text-dim);font-weight:700;">SALARY EXPECTATION (EUR)</div>
+                <div style="font-size:0.88rem;color:var(--text-main);font-weight:600;">50,000 – 55,000 EUR</div>
+              </div>
+              <button class="ui-btn ui-btn-ghost" style="padding:3px 10px;font-size:0.75rem;" onclick="copyTextToClipboard(this, '50000')">Copy</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- LinkedIn Matching Jobs Stack -->
+        <div class="chart-panel-card">
+          <div class="chart-panel-title">💼 Discovered LinkedIn & Easy Apply Positions</div>
+          <div class="jobs-list-stack" id="linkedin-jobs-stack" style="margin-top:14px;"></div>
+        </div>
+      </div>
+
       <!-- ── PAGE 6: ACCOUNT SETTINGS & DYNAMIC SEARCH CRITERIA ─ -->
       <div class="page-view" id="page-settings">
         <div class="runner-hero-card" style="margin-bottom:24px;">
@@ -2191,13 +2298,23 @@ function relockSession() {
 }
 
 const PAGE_DEFINITIONS = {
-  dashboard:    { title: 'Overview',         sub: 'Real-time job intelligence & application metrics' },
-  jobs:         { title: 'All Jobs',          sub: 'Every job discovered from all global sources' },
-  matches:      { title: 'Strong Matches',    sub: 'Jobs scoring ≥70% fit — ready for immediate application' },
-  applications: { title: 'Application CRM',   sub: 'Track recruitment stages & smart ATS form assistance' },
-  runner:       { title: 'Workflow Runner',   sub: 'Interactive visual pipeline orchestrator & live node graph' },
-  settings:     { title: 'Account Settings', sub: 'Manage candidate profile, search criteria, and cloud API keys' }
+  dashboard:    { title: 'Overview',                   sub: 'Real-time job intelligence & application metrics' },
+  jobs:         { title: 'All Jobs',                    sub: 'Every job discovered from all global sources' },
+  matches:      { title: 'Strategy Matches',            sub: 'Jobs scoring ≥70% fit — ready for immediate application' },
+  linkedin:     { title: 'LinkedIn Easy Apply Hub',     sub: 'Live LinkedIn search query builder & 1-click ATS questionnaire auto-solver' },
+  applications: { title: 'Application CRM',             sub: 'Track recruitment stages & smart ATS form assistance' },
+  runner:       { title: 'Workflow Runner',             sub: 'Interactive visual pipeline orchestrator & live node graph' },
+  settings:     { title: 'Account Settings',           sub: 'Manage candidate profile, search criteria, and cloud API keys' }
 };
+
+function launchCustomLinkedInSearch() {
+  const kw = encodeURIComponent(document.getElementById('li-search-keywords')?.value || 'DevSecOps Engineer');
+  const loc = encodeURIComponent(document.getElementById('li-search-location')?.value || 'Worldwide');
+  const expVal = document.getElementById('li-search-exp')?.value || '2,3';
+  const expParam = expVal === 'all' ? '' : `&f_E=${encodeURIComponent(expVal)}`;
+  const targetUrl = `https://www.linkedin.com/jobs/search/?keywords=${kw}&location=${loc}&f_LF=f_AL&f_WT=2${expParam}&sortBy=DD`;
+  window.open(targetUrl, '_blank');
+}
 
 function switchAuthTab(tab) {
   const isSignIn = tab === 'signin';
@@ -2592,6 +2709,12 @@ function reloadCurrentPageData() {
   renderJobsCardsStack('all-jobs-stack', jobs);
   renderJobsCardsStack('strong-matches-stack', matches);
 
+  // Filter LinkedIn / Easy Apply positions
+  const linkedinJobs = jobs.filter(j => (j.source && j.source.includes('linkedin')) || j.is_easy_apply || (j.url && j.url.includes('linkedin')) || (j.match_score || 0) >= 70);
+  renderJobsCardsStack('linkedin-jobs-stack', linkedinJobs);
+  const bLinkedIn = document.getElementById('badge-linkedin');
+  if (bLinkedIn) bLinkedIn.textContent = linkedinJobs.length;
+
   // Filter CRM applications stack by selected tab
   const crmFiltered = jobs.filter(j => {
     if (activeCrmStatusFilter === 'ALL') return true;
@@ -2963,10 +3086,15 @@ function downloadTailoredCvPdf(jobIdentifier) {
   <style>
     @page {
       size: letter;
-      margin: 9mm 12mm 9mm 12mm;
+      margin: 0;
     }
     @media print {
-      html, body { width: 100%; margin: 0; padding: 0; background: #ffffff; }
+      html, body {
+        width: 100%;
+        margin: 0 !important;
+        padding: 0 !important;
+        background: #ffffff;
+      }
       .no-print { display: none; }
     }
     * {
@@ -2977,7 +3105,7 @@ function downloadTailoredCvPdf(jobIdentifier) {
       color: #111111;
       line-height: 1.25;
       margin: 0;
-      padding: 0;
+      padding: 8mm 12mm;
       font-size: 9.6pt;
       background: #ffffff;
       -webkit-font-smoothing: antialiased;
@@ -3277,14 +3405,14 @@ function downloadMotivationLetterPdf(company, title, fullText, filename) {
   <style>
     @page {
       size: A4;
-      margin: 18mm 20mm 18mm 20mm;
+      margin: 0;
     }
     @media print {
       html, body {
         width: 100%;
         height: 100%;
-        margin: 0;
-        padding: 0;
+        margin: 0 !important;
+        padding: 0 !important;
       }
       .no-print { display: none; }
     }
@@ -3293,7 +3421,7 @@ function downloadMotivationLetterPdf(company, title, fullText, filename) {
       color: #1e293b;
       line-height: 1.65;
       margin: 0;
-      padding: 20px 24px;
+      padding: 16mm 20mm;
       font-size: 13px;
       background: #ffffff;
       -webkit-font-smoothing: antialiased;
