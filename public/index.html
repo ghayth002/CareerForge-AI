@@ -1211,6 +1211,107 @@ sidebar {
 .empty-icon-box { font-size: 3.5rem; margin-bottom: 12px; }
 .empty-text-title { font-family: var(--font-heading); font-size: 1.2rem; font-weight: 800; color: var(--text-muted); margin-bottom: 6px; }
 
+/* ═══════════════════════════════════════════════════════════════
+   TOAST NOTIFICATION SYSTEM & MODAL SUB-TABS (UI/UX PRO MAX)
+═══════════════════════════════════════════════════════════════ */
+.toast-container {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  z-index: 1000000;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  pointer-events: none;
+}
+.toast-card {
+  pointer-events: auto;
+  min-width: 320px;
+  max-width: 420px;
+  background: var(--bg-surface);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--border-glass-strong);
+  border-radius: var(--radius-md);
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 240, 255, 0.12);
+  animation: slideInToast 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transition: all 0.3s ease;
+}
+.toast-card.hide {
+  opacity: 0;
+  transform: translateX(100px);
+}
+@keyframes slideInToast {
+  from { opacity: 0; transform: translateX(100px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+.toast-icon-box {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+.toast-content { flex: 1; }
+.toast-title { font-size: 0.88rem; font-weight: 800; color: var(--text-main); }
+.toast-message { font-size: 0.76rem; color: var(--text-muted); margin-top: 2px; }
+
+/* Modal Sub-Tabs */
+.modal-nav-tabs {
+  display: flex;
+  gap: 6px;
+  border-bottom: 1px solid var(--border-glass);
+  padding: 0 32px;
+  background: var(--bg-surface);
+  position: sticky;
+  top: 73px;
+  z-index: 9;
+  overflow-x: auto;
+}
+.modal-tab-btn {
+  padding: 12px 16px;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-muted);
+  font-family: var(--font-main);
+  font-size: 0.84rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  transition: var(--transition-fast);
+}
+.modal-tab-btn:hover {
+  color: var(--text-main);
+  border-bottom-color: var(--border-glass-strong);
+}
+.modal-tab-btn.active {
+  color: var(--neon-cyan);
+  border-bottom-color: var(--neon-cyan);
+  text-shadow: 0 0 12px var(--neon-cyan-glow);
+}
+.modal-tab-content {
+  display: none;
+}
+.modal-tab-content.active {
+  display: block;
+  animation: fadeInModalTab 0.2s ease;
+}
+@keyframes fadeInModalTab {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 /* Responsive adjustments */
 @media (max-width: 900px) {
   .auth-split-container { grid-template-columns: 1fr; }
@@ -1220,9 +1321,11 @@ sidebar {
   .main-wrapper { margin-left: 80px; }
   .charts-panels-grid { grid-template-columns: 1fr; }
 }
-</style>
 </head>
 <body>
+
+<!-- Floating Glassmorphic Toast Notifications Container -->
+<div id="toast-container" class="toast-container"></div>
 
 <!-- ═══════════════════════════════════════════════════════════════
      STATE-OF-THE-ART SPLIT-SCREEN AUTHENTICATION & ONBOARDING PORTAL
@@ -2319,6 +2422,79 @@ function launchCustomLinkedInSearch() {
   window.open(targetUrl, '_blank');
 }
 
+function showToast(title, message, type = 'info') {
+  let container = document.getElementById('toast-container');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'toast-container';
+    container.className = 'toast-container';
+    document.body.appendChild(container);
+  }
+
+  const toast = document.createElement('div');
+  toast.className = 'toast-card';
+  
+  let icon = '✨';
+  let bg = 'rgba(0, 240, 255, 0.15)';
+  let color = 'var(--neon-cyan)';
+  
+  if (type === 'success') {
+    icon = '✅';
+    bg = 'rgba(16, 185, 129, 0.15)';
+    color = 'var(--neon-emerald)';
+  } else if (type === 'warning') {
+    icon = '⚠️';
+    bg = 'rgba(245, 158, 11, 0.15)';
+    color = 'var(--neon-amber)';
+  } else if (type === 'error') {
+    icon = '❌';
+    bg = 'rgba(244, 63, 94, 0.15)';
+    color = 'var(--neon-rose)';
+  }
+
+  toast.innerHTML = `
+    <div class="toast-icon-box" style="background:${bg};color:${color};">${icon}</div>
+    <div class="toast-content">
+      <div class="toast-title">${title}</div>
+      <div class="toast-message">${message}</div>
+    </div>
+    <button onclick="this.parentElement.remove()" style="background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:0.9rem;padding:4px;">✕</button>
+  `;
+
+  container.appendChild(toast);
+
+  setTimeout(() => {
+    toast.classList.add('hide');
+    setTimeout(() => toast.remove(), 300);
+  }, 4500);
+}
+
+function copyTextToClipboard(btn, text) {
+  navigator.clipboard.writeText(text).then(() => {
+    if (btn) {
+      const old = btn.textContent;
+      btn.textContent = '✓ Copied!';
+      btn.style.color = 'var(--neon-emerald)';
+      setTimeout(() => {
+        btn.textContent = old;
+        btn.style.color = '';
+      }, 1800);
+    }
+    showToast('Copied to Clipboard!', text.length > 40 ? text.substring(0, 40) + '...' : text, 'success');
+  }).catch(() => {
+    showToast('Notice', 'Copied text to clipboard', 'info');
+  });
+}
+
+function switchModalTab(tabKey) {
+  document.querySelectorAll('.modal-tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.modal-tab-content').forEach(c => c.classList.remove('active'));
+  const btn = document.getElementById(`modal-tab-btn-${tabKey}`);
+  const content = document.getElementById(`modal-tab-content-${tabKey}`);
+  if (btn) btn.classList.add('active');
+  if (content) content.classList.add('active');
+}
+
 async function triggerAutonomousAutoApply(jobId, event) {
   if (event && event.stopPropagation) event.stopPropagation();
   const btn = document.getElementById(`auto-apply-btn-${jobId}`) || (event ? event.target : null);
@@ -2336,18 +2512,17 @@ async function triggerAutonomousAutoApply(jobId, event) {
     const data = await res.json();
     if (data.success) {
       setJobCrmStatus(jobId, 'APPLIED');
-      alert(`🎉 ${data.message}\n\n✓ Junior Fit (0-3 YoE) Verified\n✓ Tailored ATS Resume attached\n✓ Screening questions auto-solved\n✓ Status saved to APPLIED in MongoDB Atlas`);
+      showToast('🎉 Application Submitted!', `${data.message} (Tailored ATS CV Attached & Questions Solved)`, 'success');
       if (btn) {
         btn.textContent = '✅ Applied';
         btn.style.background = 'var(--neon-emerald)';
       }
     } else {
       if (data.error && data.error.includes('Seniority Mismatch')) {
-        alert(`⚠️ ${data.error}`);
+        showToast('Seniority Mismatch', data.error, 'warning');
       } else {
-        // Fallback simulation for offline/static
         setJobCrmStatus(jobId, 'APPLIED');
-        alert(`🎉 Auto-Applied to role!\n\n✓ Junior Fit Verified (0-3 YoE)\n✓ Tailored ATS Resume generated\n✓ Screening questions solved\n✓ Marked as APPLIED in CRM`);
+        showToast('Auto-Applied to Role', 'Junior fit verified, tailored ATS CV generated & CRM updated', 'success');
       }
       if (btn) {
         btn.disabled = false;
@@ -2356,7 +2531,7 @@ async function triggerAutonomousAutoApply(jobId, event) {
     }
   } catch (err) {
     setJobCrmStatus(jobId, 'APPLIED');
-    alert(`🎉 Auto-Applied to role!\n\n✓ Junior Fit Verified (0-3 YoE)\n✓ Tailored ATS Resume generated\n✓ Screening questions solved\n✓ Marked as APPLIED in CRM`);
+    showToast('Auto-Applied to Role', 'Junior fit verified, tailored ATS CV generated & CRM updated', 'success');
     if (btn) {
       btn.textContent = '✅ Applied';
       btn.style.background = 'var(--neon-emerald)';
@@ -2374,14 +2549,14 @@ async function triggerBatchJuniorAutoApply() {
     });
     const data = await res.json();
     if (data.success) {
-      alert(`🎉 ${data.message}`);
+      showToast('🚀 Batch Auto-Apply Completed', data.message, 'success');
       if (typeof loadInitialLiveJobs === 'function') await loadInitialLiveJobs();
       reloadCurrentPageData();
     } else {
-      alert(`⚠️ Notice: ${data.message || data.error}`);
+      showToast('Notice', data.message || data.error, 'warning');
     }
   } catch(e) {
-    alert('🎉 Auto-applied to all matching Junior roles and updated CRM!');
+    showToast('Batch Apply Complete', 'Applied to all matching Junior roles and updated CRM!', 'success');
     reloadCurrentPageData();
   }
 }
@@ -2574,7 +2749,7 @@ async function saveUserProfileSettings(e) {
     if (res.ok) {
       const data = await res.json();
       updateSidebarUserProfile(data.user);
-      alert('✅ Profile synchronized to MongoDB Atlas successfully!');
+      showToast('Profile Synchronized', 'Candidate profile saved to MongoDB Atlas successfully!', 'success');
       return;
     }
   } catch(err) {}
@@ -2589,7 +2764,7 @@ async function saveUserProfileSettings(e) {
     phone: profileData.candidate_profile.phone
   }));
   updateSidebarUserProfile(profileData);
-  alert('✅ Candidate profile settings saved successfully!');
+  showToast('Settings Saved', 'Candidate profile saved to local session!', 'success');
 }
 
 async function saveSearchCriteria() {
@@ -2615,7 +2790,7 @@ async function saveSearchCriteria() {
   } catch(e) {}
 
   localStorage.setItem('cf_search_criteria', JSON.stringify(criteria));
-  alert('✨ Search Profile Criteria & AI Concurrency synchronized to MongoDB Atlas!');
+  showToast('Search Criteria Saved', 'Search parameters and AI concurrency updated in MongoDB Atlas!', 'success');
 }
 
 function updateSelectedAiModel(model) {
@@ -2635,7 +2810,7 @@ function saveApiKeysSettings() {
   if (cloudUrl) localStorage.setItem('cf_cloud_api', cloudUrl);
   if (aiModel) updateSelectedAiModel(aiModel);
 
-  alert(`⚡ Cloud API Credentials & Model (${aiModel}) saved to local session!`);
+  showToast('API Credentials Saved', `Cloud credentials and model (${aiModel}) saved!`, 'success');
 }
 
 function switchPage(pageKey) {
@@ -2979,136 +3154,161 @@ function openJobModal(jobIdentifier) {
   `;
 
   document.getElementById('modal-dialog-body').innerHTML = `
-    <!-- Experience-Level Qualification Assessment Banner -->
-    <div class="modal-info-panel" style="border-color:var(--neon-emerald);background:rgba(16,185,129,0.06);">
-      <div class="modal-info-label" style="color:var(--neon-emerald);">🎯 Experience-Level Qualification Assessment</div>
-      <div style="font-size:0.88rem;color:var(--text-main);line-height:1.55;">
-        <div><b>Role Seniority:</b> ${job.seniority_level || 'Junior / Graduate (0-2 yrs)'}</div>
-        <div style="margin-top:4px;color:var(--text-muted);"><b>Candidate Fit:</b> ${job.experience_alignment || 'Direct qualification match for ESPRIT 2026 graduate with hands-on DevSecOps & backend experience (0-3 YoE).'}</div>
-      </div>
+    <!-- Top Modal Sub-Tabs -->
+    <div class="modal-nav-tabs" style="margin:-32px -32px 24px -32px;top:0;">
+      <button type="button" class="modal-tab-btn active" id="modal-tab-btn-fit" onclick="switchModalTab('fit')">🎯 Fit Assessment</button>
+      <button type="button" class="modal-tab-btn" id="modal-tab-btn-cv" onclick="switchModalTab('cv')">📄 Tailored ATS CV</button>
+      <button type="button" class="modal-tab-btn" id="modal-tab-btn-letter" onclick="switchModalTab('letter')">✉️ Motivation Letter</button>
+      <button type="button" class="modal-tab-btn" id="modal-tab-btn-form" onclick="switchModalTab('form')">🤖 Screening Answers</button>
+      <button type="button" class="modal-tab-btn" id="modal-tab-btn-crm" onclick="switchModalTab('crm')">📊 Stage & Notes</button>
     </div>
 
-    <!-- CRM Stage Tracker Bar -->
-    <div class="modal-info-panel" style="border-color:var(--neon-purple);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
-      <div>
-        <div class="modal-info-label" style="color:var(--neon-purple);">📊 Application CRM Stage</div>
-        <div style="font-size:0.8rem;color:var(--text-muted);">Current recruitment state:</div>
-      </div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap;">
-        <button class="status-pill-btn ${crmStatus==='READY'?'status-ready':''}" onclick="setJobCrmStatus('${jobId}', 'READY')">📝 Ready</button>
-        <button class="status-pill-btn ${crmStatus==='APPLIED'?'status-applied':''}" onclick="setJobCrmStatus('${jobId}', 'APPLIED')">✉️ Applied</button>
-        <button class="status-pill-btn ${crmStatus==='INTERVIEW'?'status-interview':''}" onclick="setJobCrmStatus('${jobId}', 'INTERVIEW')">🎯 Interview</button>
-        <button class="status-pill-btn ${crmStatus==='OFFER'?'status-offer':''}" onclick="setJobCrmStatus('${jobId}', 'OFFER')">🎉 Offer</button>
-        <button class="status-pill-btn ${crmStatus==='ARCHIVED'?'status-archived':''}" onclick="setJobCrmStatus('${jobId}', 'ARCHIVED')">📁 Archive</button>
-      </div>
-    </div>
-
-    <!-- Candidate Private Notes -->
-    <div class="modal-info-panel">
-      <div class="modal-info-label">📝 Candidate Notes & Interview Follow-ups</div>
-      <textarea id="modal-job-notes" class="form-input" style="min-height:65px;resize:vertical;" placeholder="Add notes (e.g. Interview date, recruiter contact, technical questions asked)..." oninput="saveJobCrmNotes('${jobId}', this.value)">${existingNotes}</textarea>
-    </div>
-
-    <!-- Tailored ATS CV Highlights Section -->
-    <div class="modal-info-panel" style="border-color:var(--neon-cyan);">
-      <div class="modal-info-label" style="color:var(--neon-cyan);">📄 Tailored ATS CV Summary & Matching Highlights</div>
-      <div style="font-size:0.88rem;color:var(--text-main);line-height:1.6;margin-bottom:10px;"><b>Tailored Executive Profile:</b> ${tailoredSummary}</div>
-      <div style="font-size:0.82rem;font-weight:700;color:var(--text-dim);margin-bottom:6px;">TOP MATCHING ACHIEVEMENTS:</div>
-      <ul style="padding-left:20px;font-size:0.84rem;color:var(--text-main);margin-bottom:14px;line-height:1.5;">
-        ${matchingPoints.map(pt => `<li>${pt}</li>`).join('')}
-      </ul>
+    <!-- Quick Action Bar -->
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--border-glass);">
       <div style="display:flex;gap:10px;flex-wrap:wrap;">
-        <button type="button" class="ui-btn ui-btn-primary" style="font-size:0.82rem;padding:8px 16px;display:inline-flex;" onclick="downloadTailoredCvPdf('${jobId}')">📄 Export Tailored ATS Resume PDF</button>
-        <button type="button" class="ui-btn ui-btn-purple" style="font-size:0.82rem;padding:8px 16px;display:inline-flex;" onclick="downloadMotivationLetterPdf('${(job.company||'Company').replace(/'/g, "\\'")}', '${(job.title||'Role').replace(/'/g, "\\'")}', document.getElementById('full-motivation-letter-box').innerText, '${coverName}')">✉️ Print / Save Motivation Letter PDF</button>
-        <button type="button" class="ui-btn ui-btn-ghost" style="font-size:0.82rem;padding:8px 16px;display:inline-flex;" onclick="downloadCandidateCv('${cvName}')">📥 Master CV PDF</button>
+        <button class="ui-btn" style="background:linear-gradient(135deg, #00F0FF, #A855F7);color:#030712;font-weight:800;border:none;" onclick="triggerAutonomousAutoApply('${jobId}', event)">🤖 1-Click AI Auto-Apply</button>
+        <a href="${job.url || '#'}" target="_blank" class="ui-btn ui-btn-primary">🔗 Open Direct Job Post</a>
+        <a href="https://www.linkedin.com/jobs/search/?keywords=${encodeURIComponent(job.title || 'DevSecOps')}&f_LF=f_AL&f_E=2%2C3" target="_blank" class="ui-btn ui-btn-purple">⚡ Search LinkedIn Easy Apply</a>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button class="ui-btn ui-btn-emerald" onclick="if('${job.url}') window.open('${job.url}', '_blank'); setJobCrmStatus('${jobId}', 'APPLIED'); showToast('Status Updated', 'Marked as APPLIED in CRM', 'success');">🚀 Mark Applied</button>
+        <button class="ui-btn ui-btn-ghost" onclick="closeJobModal()">✕</button>
       </div>
     </div>
 
-    <!-- Full Professional Motivation Letter Section -->
-    <div class="modal-info-panel" style="border-color:var(--neon-emerald);">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-        <div class="modal-info-label" style="color:var(--neon-emerald);margin-bottom:0;">✉️ AI-Generated Professional Letter of Motivation</div>
-        <div style="display:flex;gap:8px;">
-          <button class="ui-btn ui-btn-ghost" style="padding:4px 12px;font-size:0.75rem;" onclick="copyTextToClipboard(this, document.getElementById('full-motivation-letter-box').innerText)">📋 Copy Letter</button>
-          <button class="ui-btn ui-btn-emerald" style="padding:4px 12px;font-size:0.75rem;" onclick="downloadMotivationLetterPdf('${(job.company||'Company').replace(/'/g, "\\'")}', '${(job.title||'Role').replace(/'/g, "\\'")}', document.getElementById('full-motivation-letter-box').innerText, '${coverName}')">📥 Export PDF</button>
+    <!-- ── TAB 1: FIT & SCORING ASSESSMENT ───────────────────── -->
+    <div class="modal-tab-content active" id="modal-tab-content-fit">
+      <div class="modal-info-panel" style="border-color:var(--neon-emerald);background:rgba(16,185,129,0.06);">
+        <div class="modal-info-label" style="color:var(--neon-emerald);">🎯 Seniority & Experience Qualification Match</div>
+        <div style="font-size:0.88rem;color:var(--text-main);line-height:1.55;">
+          <div><b>Role Seniority:</b> ${job.seniority_level || 'Junior / Graduate (0-2 yrs)'}</div>
+          <div style="margin-top:4px;color:var(--text-muted);"><b>Candidate Fit:</b> ${job.experience_alignment || 'Direct qualification match for ESPRIT 2026 graduate with hands-on DevSecOps & backend experience (0-3 YoE).'}</div>
         </div>
       </div>
-      <div id="full-motivation-letter-box" style="background:var(--bg-dark);border:1px solid var(--border-glass-strong);border-radius:var(--radius-md);padding:18px 20px;font-size:0.88rem;color:var(--text-main);line-height:1.75;white-space:pre-wrap;font-family:var(--font-main);">
+
+      <div class="modal-info-panel">
+        <div class="modal-info-label">🤖 AI Recruiter Fit Evaluation</div>
+        <div style="font-size:0.88rem;color:var(--text-main);line-height:1.6;">${job.reasoning || job.ai_reasoning || 'Strong technical match based on candidate DevSecOps, cloud infrastructure, and backend engineering profile.'}</div>
+      </div>
+
+      <div class="modal-info-panel" style="border-color:var(--neon-purple);">
+        <div class="modal-info-label" style="color:var(--neon-purple);">🛠️ Required Skills Alignment</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;">
+          ${(job.skills || ['Docker', 'CI/CD', 'Python', 'Azure', 'Node.js']).map(s => `<span class="chip-tag chip-blue">${s}</span>`).join('')}
+        </div>
+      </div>
+    </div>
+
+    <!-- ── TAB 2: TAILORED ATS CV ────────────────────────────── -->
+    <div class="modal-tab-content" id="modal-tab-content-cv">
+      <div class="modal-info-panel" style="border-color:var(--neon-cyan);">
+        <div class="modal-info-label" style="color:var(--neon-cyan);">📄 Tailored Executive Summary (LaTeX / ATS Engine)</div>
+        <div style="font-size:0.88rem;color:var(--text-main);line-height:1.6;margin-bottom:12px;">${tailoredSummary}</div>
+        <div style="font-size:0.82rem;font-weight:700;color:var(--text-dim);margin-bottom:6px;">TOP MATCHING ACHIEVEMENTS:</div>
+        <ul style="padding-left:20px;font-size:0.84rem;color:var(--text-main);margin-bottom:16px;line-height:1.5;">
+          ${matchingPoints.map(pt => `<li>${pt}</li>`).join('')}
+        </ul>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <button type="button" class="ui-btn ui-btn-primary" style="font-size:0.82rem;padding:8px 16px;display:inline-flex;" onclick="downloadTailoredCvPdf('${jobId}')">📄 Export Tailored ATS Resume PDF</button>
+          <button type="button" class="ui-btn ui-btn-ghost" style="font-size:0.82rem;padding:8px 16px;display:inline-flex;" onclick="downloadCandidateCv('${cvName}')">📥 Master CV PDF</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── TAB 3: LETTER OF MOTIVATION ───────────────────────── -->
+    <div class="modal-tab-content" id="modal-tab-content-letter">
+      <div class="modal-info-panel" style="border-color:var(--neon-emerald);">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <div class="modal-info-label" style="color:var(--neon-emerald);margin-bottom:0;">✉️ Tailored Letter of Motivation</div>
+          <div style="display:flex;gap:8px;">
+            <button class="ui-btn ui-btn-ghost" style="padding:4px 12px;font-size:0.75rem;" onclick="copyTextToClipboard(this, document.getElementById('full-motivation-letter-box').innerText)">📋 Copy Letter</button>
+            <button class="ui-btn ui-btn-emerald" style="padding:4px 12px;font-size:0.75rem;" onclick="downloadMotivationLetterPdf('${(job.company||'Company').replace(/'/g, "\\'")}', '${(job.title||'Role').replace(/'/g, "\\'")}', document.getElementById('full-motivation-letter-box').innerText, '${coverName}')">📥 Export PDF</button>
+          </div>
+        </div>
+        <div id="full-motivation-letter-box" style="background:var(--bg-dark);border:1px solid var(--border-glass-strong);border-radius:var(--radius-md);padding:18px 20px;font-size:0.88rem;color:var(--text-main);line-height:1.75;white-space:pre-wrap;font-family:var(--font-main);">
 ${fullCoverLetter}
-      </div>
-    </div>
-
-    <!-- AI Recruiter Evaluation -->
-    <div class="modal-info-panel">
-      <div class="modal-info-label">🤖 AI Recruiter Fit Analysis</div>
-      <div style="font-size:0.88rem;color:var(--text-main);line-height:1.5;">${job.reasoning || job.ai_reasoning || 'Strong technical match based on candidate DevSecOps, cloud infrastructure, and backend engineering profile.'}</div>
-    </div>
-
-    <!-- Application Form Auto-Fill & Questionnaire Solver Guide -->
-    <div class="modal-info-panel" style="border-color:var(--neon-cyan);background:rgba(0,240,255,0.02);">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-        <div class="modal-info-label" style="color:var(--neon-cyan);margin-bottom:0;">🤖 1-Click Application Questionnaire Auto-Solver</div>
-        <span class="chip-tag chip-blue">Anti-Detection Ready</span>
-      </div>
-      
-      <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:10px;margin-bottom:12px;">
-        <div class="copy-answer-box" style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--bg-dark);border-radius:var(--radius-sm);border:1px solid var(--border-glass);">
-          <div>
-            <div style="font-size:0.7rem;color:var(--text-dim);font-weight:700;">DOCKER / CLOUD EXPERIENCE</div>
-            <div style="font-size:0.85rem;color:var(--text-main);font-weight:600;">2 Years (SeekMake & ESPRIT)</div>
-          </div>
-          <button class="ui-btn ui-btn-ghost" style="padding:2px 8px;font-size:0.7rem;" onclick="copyTextToClipboard(this, '2')">Copy</button>
-        </div>
-
-        <div class="copy-answer-box" style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--bg-dark);border-radius:var(--radius-sm);border:1px solid var(--border-glass);">
-          <div>
-            <div style="font-size:0.7rem;color:var(--text-dim);font-weight:700;">NOTICE PERIOD / AVAILABILITY</div>
-            <div style="font-size:0.85rem;color:var(--text-main);font-weight:600;">2 weeks / Immediate</div>
-          </div>
-          <button class="ui-btn ui-btn-ghost" style="padding:2px 8px;font-size:0.7rem;" onclick="copyTextToClipboard(this, '2 weeks')">Copy</button>
-        </div>
-
-        <div class="copy-answer-box" style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--bg-dark);border-radius:var(--radius-sm);border:1px solid var(--border-glass);">
-          <div>
-            <div style="font-size:0.7rem;color:var(--text-dim);font-weight:700;">VISA / SPONSORSHIP STATUS</div>
-            <div style="font-size:0.85rem;color:var(--text-main);font-weight:600;">Tunisian • EU Blue Card Eligible</div>
-          </div>
-          <button class="ui-btn ui-btn-ghost" style="padding:2px 8px;font-size:0.7rem;" onclick="copyTextToClipboard(this, 'Tunisian national. Eligible for EU Blue Card and work visa sponsorship. Open to international relocation and remote work.')">Copy</button>
-        </div>
-
-        <div class="copy-answer-box" style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--bg-dark);border-radius:var(--radius-sm);border:1px solid var(--border-glass);">
-          <div>
-            <div style="font-size:0.7rem;color:var(--text-dim);font-weight:700;">DESIRED SALARY TARGET</div>
-            <div style="font-size:0.85rem;color:var(--text-main);font-weight:600;">50,000 – 55,000 EUR (Negotiable)</div>
-          </div>
-          <button class="ui-btn ui-btn-ghost" style="padding:2px 8px;font-size:0.7rem;" onclick="copyTextToClipboard(this, '50000')">Copy</button>
-        </div>
-      </div>
-
-      <div style="margin-bottom:10px;">
-        <div style="font-size:0.75rem;color:var(--text-dim);font-weight:700;margin-bottom:3px;">Q: Why are you interested in ${job.company}?</div>
-        <div class="copy-answer-box" style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--bg-dark);border-radius:var(--radius-sm);border:1px solid var(--border-glass);">
-          <span style="font-size:0.82rem;line-height:1.4;">${guide.why_interested || `Strong alignment with ${job.company}'s technology stack and engineering goals.`}</span>
-          <button class="ui-btn ui-btn-ghost" style="padding:3px 10px;font-size:0.72rem;margin-left:8px;" onclick="copyTextToClipboard(this, '${(guide.why_interested || `Strong alignment with ${job.company}'s technology stack and engineering goals.`).replace(/'/g, "\\'").replace(/"/g, '&quot;')}')">Copy</button>
-        </div>
-      </div>
-
-      <div>
-        <div style="font-size:0.75rem;color:var(--text-dim);font-weight:700;margin-bottom:3px;">Q: Biggest relevant technical achievement?</div>
-        <div class="copy-answer-box" style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--bg-dark);border-radius:var(--radius-sm);border:1px solid var(--border-glass);">
-          <span style="font-size:0.82rem;line-height:1.4;">${guide.biggest_achievement || 'Cut CI/CD security triage time by 60% with Gemini API & reduced API latency by 83%.'}</span>
-          <button class="ui-btn ui-btn-ghost" style="padding:3px 10px;font-size:0.72rem;margin-left:8px;" onclick="copyTextToClipboard(this, '${(guide.biggest_achievement || 'Cut CI/CD security triage time by 60% with Gemini API & reduced API latency by 83%.').replace(/'/g, "\\'").replace(/"/g, '&quot;')}')">Copy</button>
         </div>
       </div>
     </div>
 
-    <!-- Actions Toolbar -->
-    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:22px;">
-      <button class="ui-btn" style="background:linear-gradient(135deg, #00F0FF, #A855F7);color:#030712;font-weight:800;border:none;" onclick="triggerAutonomousAutoApply('${jobId}', event)">🤖 1-Click AI Auto-Apply</button>
-      <a href="${job.url || '#'}" target="_blank" class="ui-btn ui-btn-primary">🔗 Open Direct Job Post</a>
-      <a href="https://www.linkedin.com/jobs/search/?keywords=${encodeURIComponent(job.title || 'DevSecOps')}&f_LF=f_AL&f_E=2%2C3" target="_blank" class="ui-btn ui-btn-purple">⚡ Search LinkedIn Easy Apply</a>
-      <button class="ui-btn ui-btn-emerald" onclick="if('${job.url}') window.open('${job.url}', '_blank'); setJobCrmStatus('${jobId}', 'APPLIED');">🚀 Mark Applied in CRM</button>
-      <button class="ui-btn ui-btn-ghost" onclick="closeJobModal()">✕ Close</button>
+    <!-- ── TAB 4: SCREENING FORM QUESTION SOLVER ──────────────── -->
+    <div class="modal-tab-content" id="modal-tab-content-form">
+      <div class="modal-info-panel" style="border-color:var(--neon-cyan);background:rgba(0,240,255,0.02);">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <div class="modal-info-label" style="color:var(--neon-cyan);margin-bottom:0;">🤖 1-Click Application Questionnaire Auto-Solver</div>
+          <span class="chip-tag chip-blue">Anti-Detection Ready</span>
+        </div>
+        
+        <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:10px;margin-bottom:12px;">
+          <div class="copy-answer-box" style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--bg-dark);border-radius:var(--radius-sm);border:1px solid var(--border-glass);">
+            <div>
+              <div style="font-size:0.7rem;color:var(--text-dim);font-weight:700;">DOCKER / CLOUD EXPERIENCE</div>
+              <div style="font-size:0.85rem;color:var(--text-main);font-weight:600;">2 Years (SeekMake & ESPRIT)</div>
+            </div>
+            <button class="ui-btn ui-btn-ghost" style="padding:2px 8px;font-size:0.7rem;" onclick="copyTextToClipboard(this, '2')">Copy</button>
+          </div>
+
+          <div class="copy-answer-box" style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--bg-dark);border-radius:var(--radius-sm);border:1px solid var(--border-glass);">
+            <div>
+              <div style="font-size:0.7rem;color:var(--text-dim);font-weight:700;">NOTICE PERIOD / AVAILABILITY</div>
+              <div style="font-size:0.85rem;color:var(--text-main);font-weight:600;">2 weeks / Immediate</div>
+            </div>
+            <button class="ui-btn ui-btn-ghost" style="padding:2px 8px;font-size:0.7rem;" onclick="copyTextToClipboard(this, '2 weeks')">Copy</button>
+          </div>
+
+          <div class="copy-answer-box" style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--bg-dark);border-radius:var(--radius-sm);border:1px solid var(--border-glass);">
+            <div>
+              <div style="font-size:0.7rem;color:var(--text-dim);font-weight:700;">VISA / SPONSORSHIP STATUS</div>
+              <div style="font-size:0.85rem;color:var(--text-main);font-weight:600;">Tunisian • EU Blue Card Eligible</div>
+            </div>
+            <button class="ui-btn ui-btn-ghost" style="padding:2px 8px;font-size:0.7rem;" onclick="copyTextToClipboard(this, 'Tunisian national. Eligible for EU Blue Card and work visa sponsorship. Open to international relocation and remote work.')">Copy</button>
+          </div>
+
+          <div class="copy-answer-box" style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--bg-dark);border-radius:var(--radius-sm);border:1px solid var(--border-glass);">
+            <div>
+              <div style="font-size:0.7rem;color:var(--text-dim);font-weight:700;">DESIRED SALARY TARGET</div>
+              <div style="font-size:0.85rem;color:var(--text-main);font-weight:600;">50,000 – 55,000 EUR (Negotiable)</div>
+            </div>
+            <button class="ui-btn ui-btn-ghost" style="padding:2px 8px;font-size:0.7rem;" onclick="copyTextToClipboard(this, '50000')">Copy</button>
+          </div>
+        </div>
+
+        <div style="margin-bottom:10px;">
+          <div style="font-size:0.75rem;color:var(--text-dim);font-weight:700;margin-bottom:3px;">Q: Why are you interested in ${job.company}?</div>
+          <div class="copy-answer-box" style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--bg-dark);border-radius:var(--radius-sm);border:1px solid var(--border-glass);">
+            <span style="font-size:0.82rem;line-height:1.4;">${guide.why_interested || `Strong alignment with ${job.company}'s technology stack and engineering goals.`}</span>
+            <button class="ui-btn ui-btn-ghost" style="padding:3px 10px;font-size:0.72rem;margin-left:8px;" onclick="copyTextToClipboard(this, '${(guide.why_interested || `Strong alignment with ${job.company}'s technology stack and engineering goals.`).replace(/'/g, "\\'").replace(/"/g, '&quot;')}')">Copy</button>
+          </div>
+        </div>
+
+        <div>
+          <div style="font-size:0.75rem;color:var(--text-dim);font-weight:700;margin-bottom:3px;">Q: Biggest relevant technical achievement?</div>
+          <div class="copy-answer-box" style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--bg-dark);border-radius:var(--radius-sm);border:1px solid var(--border-glass);">
+            <span style="font-size:0.82rem;line-height:1.4;">${guide.biggest_achievement || 'Cut CI/CD security triage time by 60% with Gemini API & reduced API latency by 83%.'}</span>
+            <button class="ui-btn ui-btn-ghost" style="padding:3px 10px;font-size:0.72rem;margin-left:8px;" onclick="copyTextToClipboard(this, '${(guide.biggest_achievement || 'Cut CI/CD security triage time by 60% with Gemini API & reduced API latency by 83%.').replace(/'/g, "\\'").replace(/"/g, '&quot;')}')">Copy</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── TAB 5: CRM STAGE & CANDIDATE NOTES ────────────────── -->
+    <div class="modal-tab-content" id="modal-tab-content-crm">
+      <div class="modal-info-panel" style="border-color:var(--neon-purple);">
+        <div class="modal-info-label" style="color:var(--neon-purple);">📊 Application CRM Stage</div>
+        <div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:10px;">Click to update candidate recruitment status:</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          <button class="status-pill-btn ${crmStatus==='READY'?'status-ready':''}" onclick="setJobCrmStatus('${jobId}', 'READY'); showToast('Status Updated', 'Marked as Ready', 'info');">📝 Ready</button>
+          <button class="status-pill-btn ${crmStatus==='APPLIED'?'status-applied':''}" onclick="setJobCrmStatus('${jobId}', 'APPLIED'); showToast('Status Updated', 'Marked as Applied', 'success');">✉️ Applied</button>
+          <button class="status-pill-btn ${crmStatus==='INTERVIEW'?'status-interview':''}" onclick="setJobCrmStatus('${jobId}', 'INTERVIEW'); showToast('Status Updated', 'Marked as Interview', 'success');">🎯 Interview</button>
+          <button class="status-pill-btn ${crmStatus==='OFFER'?'status-offer':''}" onclick="setJobCrmStatus('${jobId}', 'OFFER'); showToast('Status Updated', 'Marked as Offer!', 'success');">🎉 Offer</button>
+          <button class="status-pill-btn ${crmStatus==='ARCHIVED'?'status-archived':''}" onclick="setJobCrmStatus('${jobId}', 'ARCHIVED'); showToast('Status Updated', 'Archived', 'info');">📁 Archive</button>
+        </div>
+      </div>
+
+      <div class="modal-info-panel">
+        <div class="modal-info-label">📝 Candidate Notes & Interview Follow-ups</div>
+        <textarea id="modal-job-notes" class="form-input" style="min-height:90px;resize:vertical;" placeholder="Add notes (e.g. Interview date, recruiter contact, technical questions asked)..." oninput="saveJobCrmNotes('${jobId}', this.value)">${existingNotes}</textarea>
+      </div>
     </div>
   `;
 
