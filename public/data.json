@@ -6,7 +6,7 @@
     "matched_80_plus": 1,
     "matched_90_plus": 0,
     "remote_jobs": 1,
-    "last_updated": "2026-08-19T22:01:19.863Z"
+    "last_updated": "2026-08-19T22:13:49.778Z"
   },
   "jobs": [
     {
@@ -42,5 +42,5 @@
     "n8n_webhook": "",
     "cloud_api": "/api/trigger"
   },
-  "generated_at": "2026-08-19T22:01:19.863Z"
+  "generated_at": "2026-08-19T22:13:49.778Z"
 }
