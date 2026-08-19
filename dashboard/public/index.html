@@ -3437,10 +3437,6 @@ function downloadTailoredCvPdf(jobIdentifier) {
       margin-bottom: 1pt;
       page-break-inside: avoid;
     }
-    table.item-table td {
-      padding: 0;
-      vertical-align: baseline;
-    }
     .td-left-title {
       font-size: 10.2pt;
       font-weight: 700;
@@ -3628,18 +3624,15 @@ function downloadTailoredCvPdf(jobIdentifier) {
   <ul class="bullet-list" style="margin-bottom:0;">
     <li><b>Arabic:</b> Native • <b>French:</b> Professional Working Proficiency • <b>English:</b> Professional Working Proficiency • <b>Italian:</b> Upper Intermediate (CISIA B2)</li>
   </ul>
-
-  <script>
-    window.onload = function() {
-      setTimeout(function() { window.print(); }, 180);
-    };
-  <\/script>
 </body>
 </html>`;
 
   printWindow.document.open();
   printWindow.document.write(htmlContent);
   printWindow.document.close();
+  setTimeout(function() {
+    try { printWindow.focus(); printWindow.print(); } catch(e) {}
+  }, 250);
 }
 
 function downloadMotivationLetterPdf(company, title, fullText, filename) {
@@ -3805,18 +3798,15 @@ ${cleanBody}
     <div class="sign-name">${candName}</div>
     <div style="font-size:11px;color:#64748b;">${candRole}</div>
   </div>
-
-  <script>
-    window.onload = function() {
-      setTimeout(function() { window.print(); }, 180);
-    };
-  <\/script>
 </body>
 </html>`;
 
   printWindow.document.open();
   printWindow.document.write(htmlContent);
   printWindow.document.close();
+  setTimeout(function() {
+    try { printWindow.focus(); printWindow.print(); } catch(e) {}
+  }, 250);
 }
 
 function downloadCandidateCv(fileName) {
