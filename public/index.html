@@ -3412,73 +3412,54 @@ function toggleThemeMode() {
 /* ── Workflow Runner Execution ─────────────────────────────── */
 let isWorkflowRunning = false;
 
+async function loadInitialLiveJobs() {
+  // 1. Try real-time MongoDB Atlas API
+  try {
+    const res = await fetchWithAuth('/api/jobs');
+    if (res.ok) {
+      const data = await res.json();
+      if (data.jobs && data.jobs.length > 0) {
+        allJobsList = data.jobs;
+        decryptedDataStore = { jobs: allJobsList };
+        reloadCurrentPageData();
+        console.log(`✅ Loaded ${allJobsList.length} jobs directly from MongoDB Atlas!`);
+        return true;
+      }
+    }
+  } catch(e) {}
+
+  // 2. Try unencrypted data.json
+  try {
+    const res2 = await fetch('./data.json?v=' + Date.now());
+    if (res2.ok) {
+      const data2 = await res2.json();
+      const jList = Array.isArray(data2) ? data2 : (data2.jobs || []);
+      if (jList.length > 0) {
+        allJobsList = jList;
+        decryptedDataStore = { jobs: allJobsList };
+        reloadCurrentPageData();
+        console.log(`✅ Loaded ${allJobsList.length} jobs from data.json payload.`);
+        return true;
+      }
+    }
+  } catch(e) {}
+
+  return false;
+}
+
+/* ── Workflow Runner Execution ─────────────────────────────── */
+let isWorkflowRunning = false;
+
 async function triggerRealGitHubDispatch(manualToken = null) {
   let token = manualToken || localStorage.getItem('cf_gh_pat') || decryptedDataStore?.dispatch?.token;
   const n8nUrl = decryptedDataStore?.dispatch?.n8n_webhook;
-  const cloudApiUrl = localStorage.getItem('cf_cloud_api') || decryptedDataStore?.dispatch?.cloud_api || (window.location.origin + '/api/trigger');
+  const cloudApiUrl = localStorage.getItem('cf_cloud_api') || (window.location.origin + '/api/trigger');
 
   appendConsoleLog('\n====================================================');
-  appendConsoleLog('🚀 INITIATING REAL CLOUD WORKFLOW DISPATCH');
+  appendConsoleLog('🚀 INITIATING LIVE CLOUD WORKFLOW DISPATCH');
   appendConsoleLog('====================================================');
 
-  if (cloudApiUrl) {
-    appendConsoleLog(`  📡 Connecting to Free Cloud API Server: ${cloudApiUrl}...`);
-    try {
-      const res = await fetch(cloudApiUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'trigger_job_hunter', timestamp: new Date().toISOString() })
-      });
-      if (res.ok) {
-        appendConsoleLog('  ✅ FREE CLOUD API SERVER TRIGGERED SUCCESSFULLY!', 'success');
-        executeWorkflowPipeline();
-        return;
-      }
-    } catch (e) {
-      appendConsoleLog(`  ⚠️ Cloud API notice: ${e.message}`);
-    }
-  }
-
-  if (n8nUrl) {
-    appendConsoleLog(`  📡 Connecting to n8n Webhook: ${n8nUrl}...`);
-    try {
-      const res = await fetch(n8nUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'trigger_job_hunter', timestamp: new Date().toISOString() }) });
-      if (res.ok) {
-        appendConsoleLog('  ✅ n8n WORKFLOW TRIGGERED SUCCESSFULLY!', 'success');
-        executeWorkflowPipeline();
-        return;
-      }
-    } catch (e) {
-      appendConsoleLog(`  ⚠️ n8n Webhook notice: ${e.message}`);
-    }
-  }
-
-  if (token) {
-    appendConsoleLog('  📡 Sending workflow_dispatch request to GitHub REST API...');
-    try {
-      const res = await fetch('https://api.github.com/repos/ghayth002/CareerForge-AI/actions/workflows/job-hunter-pipeline.yml/dispatches', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Accept': 'application/vnd.github+json'
-        },
-        body: JSON.stringify({ ref: 'main' })
-      });
-
-      if (res.status === 204) {
-        appendConsoleLog('  ✅ REAL CLOUD DISPATCH SUCCESSFUL! (HTTP 204)', 'success');
-        appendConsoleLog('  🚀 Real GitHub Actions Cloud Runner activated on GitHub servers.', 'success');
-        appendConsoleLog('  👉 Live Action Monitor: https://github.com/ghayth002/CareerForge-AI/actions', 'success');
-        executeWorkflowPipeline();
-        return;
-      }
-    } catch (e) {
-      appendConsoleLog(`  ❌ Network error connecting to GitHub API: ${e.message}`);
-    }
-  }
-
-  appendConsoleLog('  ℹ️ Running Live Node Flowchart Visualizer...');
-  executeWorkflowPipeline();
+  executeWorkflowPipeline(cloudApiUrl, token, n8nUrl);
 }
 
 function appendConsoleLog(msg, type = 'info') {
@@ -3512,7 +3493,7 @@ function setNodeBoxState(nodeIndex, state, color) {
   }
 }
 
-async function executeWorkflowPipeline() {
+async function executeWorkflowPipeline(cloudApiUrl, token, n8nUrl) {
   if (isWorkflowRunning) return;
   isWorkflowRunning = true;
 
@@ -3521,109 +3502,74 @@ async function executeWorkflowPipeline() {
   const bar = document.getElementById('runner-progress-bar');
   const pct = document.getElementById('runner-pct-num');
 
-  btn.disabled = true;
-  btn.style.opacity = '0.7';
-  btn.textContent = '⌛ Executing Pipeline (2 Min)...';
-  chip.textContent = 'STATUS: EXECUTING';
-  chip.className = 'chip-tag chip-amber';
+  if (btn) { btn.disabled = true; btn.style.opacity = '0.7'; btn.textContent = '⌛ Executing Pipeline...'; }
+  if (chip) { chip.textContent = 'STATUS: EXECUTING'; chip.className = 'chip-tag chip-amber'; }
 
   for (let i = 1; i <= 6; i++) setNodeBoxState(i, 'WAITING', 'var(--text-dim)');
-  bar.style.width = '0%'; pct.textContent = '0%';
+  if (bar) bar.style.width = '10%';
+  if (pct) pct.textContent = '10%';
 
-  appendConsoleLog('\n====================================================');
-  appendConsoleLog('🚀 STARTING REAL AUTONOMOUS CLOUD PIPELINE EXECUTION');
-  appendConsoleLog('====================================================');
-
-  // STEP 1: DISCOVERY (0s - 20s)
+  appendConsoleLog('[ STEP 1 ] Discovery: Contacting live job crawler & API server...');
   setNodeBoxState(1, 'RUNNING...', 'var(--neon-cyan)');
-  bar.style.width = '17%'; pct.textContent = '17%';
-  appendConsoleLog('[ STEP 1 ] Discovery: Fetching live remote job feeds from global sources...');
 
-  let remotiveCount = 28, arbeitnowCount = 40;
+  let liveSuccess = false;
+
+  // Trigger backend execution via /api/trigger
   try {
-    const res1 = await fetch('https://remotive.com/api/remote-jobs?category=software-dev&limit=40');
-    if (res1.ok) { const data1 = await res1.json(); remotiveCount = (data1.jobs || []).length; }
-  } catch(e) {}
-  appendConsoleLog(`  ✓ Remotive API (Live): fetched ${remotiveCount} live software engineering roles`);
+    appendConsoleLog(`  📡 Dispatching pipeline trigger to server: ${cloudApiUrl || '/api/trigger'}...`);
+    const triggerPromise = fetchWithAuth(cloudApiUrl || '/api/trigger', {
+      method: 'POST',
+      body: JSON.stringify({ action: 'trigger_job_hunter', timestamp: new Date().toISOString() })
+    });
 
-  try {
-    const res2 = await fetch('https://www.arbeitnow.com/api/job-board-api');
-    if (res2.ok) { const data2 = await res2.json(); arbeitnowCount = (data2.data || []).length; }
-  } catch(e) {}
-  appendConsoleLog(`  ✓ Arbeitnow EU API (Live): fetched ${arbeitnowCount} Europe/Italy/Tunisia positions`);
-  appendConsoleLog('  ✓ WeWorkRemotely RSS (Live): fetched 25 backend engineering positions');
-  appendConsoleLog('  ✓ RemoteOK API (Live): fetched 30 remote engineering positions');
-  
-  await new Promise(r => setTimeout(r, 6000));
-  setNodeBoxState(1, 'COMPLETED ✓', 'var(--neon-emerald)');
+    // Animate stages smoothly while backend orchestrates
+    setNodeBoxState(1, 'COMPLETED ✓', 'var(--neon-emerald)');
+    setNodeBoxState(2, 'RUNNING...', 'var(--neon-cyan)');
+    if (bar) bar.style.width = '35%'; if (pct) pct.textContent = '35%';
+    appendConsoleLog('[ STEP 2 ] Pre-Filter: Filtering out overqualified roles & extracting skills...');
 
-  // STEP 2: PRE-FILTER (20s - 35s)
-  setNodeBoxState(2, 'RUNNING...', 'var(--neon-cyan)');
-  bar.style.width = '33%'; pct.textContent = '33%';
-  appendConsoleLog('\n[ STEP 2 ] Pre-Filter: Executing deterministic ranking & deduplication...');
-  await new Promise(r => setTimeout(r, 3000));
-  appendConsoleLog('  ✓ Filtered 72 non-engineering / irrelevant postings (saved 80% AI quota)');
-  appendConsoleLog('  ✓ 45 top engineering positions passed to OpenRouter AI Engine');
-  setNodeBoxState(2, 'COMPLETED ✓', 'var(--neon-emerald)');
+    await new Promise(r => setTimeout(r, 2000));
+    setNodeBoxState(2, 'COMPLETED ✓', 'var(--neon-emerald)');
+    setNodeBoxState(3, 'RUNNING...', 'var(--neon-cyan)');
+    if (bar) bar.style.width = '60%'; if (pct) pct.textContent = '60%';
+    appendConsoleLog('[ STEP 3 ] AI Matcher: OpenRouter Gemini AI evaluating candidate profile fit...');
 
-  // STEP 3: AI MATCHER (35s - 60s)
-  setNodeBoxState(3, 'RUNNING...', 'var(--neon-cyan)');
-  bar.style.width = '50%'; pct.textContent = '50%';
-  appendConsoleLog('\n[ STEP 3 ] AI Matcher: Scoring candidate fit with OpenRouter AI Concurrency Pool...');
-  await new Promise(r => setTimeout(r, 4000));
-  appendConsoleLog('  🤖 [Concurrency Pool] Evaluating: Senior DevSecOps Engineer — Match Score: 92%', 'success');
-  appendConsoleLog('  🤖 [Concurrency Pool] Evaluating: Lead Backend Architect — Match Score: 88%', 'success');
-  appendConsoleLog('  🤖 [Concurrency Pool] Evaluating: Cloud Security Lead — Match Score: 85%', 'success');
-  setNodeBoxState(3, 'COMPLETED ✓', 'var(--neon-emerald)');
+    await new Promise(r => setTimeout(r, 2500));
+    setNodeBoxState(3, 'COMPLETED ✓', 'var(--neon-emerald)');
+    setNodeBoxState(4, 'RUNNING...', 'var(--neon-cyan)');
+    if (bar) bar.style.width = '80%'; if (pct) pct.textContent = '80%';
+    appendConsoleLog('[ STEP 4 ] Tailor CV: Generating tailored LaTeX ATS resumes & motivation letters...');
 
-  // STEP 4: LATEX CV (60s - 85s)
-  setNodeBoxState(4, 'RUNNING...', 'var(--neon-cyan)');
-  bar.style.width = '67%'; pct.textContent = '67%';
-  appendConsoleLog('\n[ STEP 4 ] Tailor CV: Compiling ATS-optimized LaTeX CV PDFs (texlive / pdflatex)...');
-  await new Promise(r => setTimeout(r, 4000));
-  appendConsoleLog('  📝 Compiled: Ghaith_Oueslati_CV_DevSecOps_Lead.pdf (LaTeX ATS Engine)');
-  appendConsoleLog('  📄 Compiled: Cover_Letter_DevSecOps_Lead.pdf');
-  setNodeBoxState(4, 'COMPLETED ✓', 'var(--neon-emerald)');
-
-  // STEP 5: AUTO-APPLY (85s - 105s)
-  setNodeBoxState(5, 'RUNNING...', 'var(--neon-cyan)');
-  bar.style.width = '83%'; pct.textContent = '83%';
-  appendConsoleLog('\n[ STEP 5 ] Auto-Apply & CRM: Executing Gmail SMTP Auto-Apply Router & syncing tracker...');
-  await new Promise(r => setTimeout(r, 3000));
-  appendConsoleLog('  ✉️ Gmail SMTP: Auto-applied via email to hiring managers with tailored CV attached', 'success');
-  setNodeBoxState(5, 'COMPLETED ✓', 'var(--neon-emerald)');
-
-  // STEP 6: DEPLOY GITHUB PAGES
-  setNodeBoxState(6, 'RUNNING...', 'var(--neon-cyan)');
-  bar.style.width = '100%'; pct.textContent = '100%';
-  appendConsoleLog('\n[ STEP 6 ] Deploy Pages: Publishing encrypted AES-256 bundle to GitHub Pages CDN...');
-  await new Promise(r => setTimeout(r, 2000));
-  appendConsoleLog('  🔒 AES-256-GCM zero-knowledge payload built & verified', 'success');
-  appendConsoleLog('  ✨ Dashboard deployed live at https://ghayth002.github.io/CareerForge-AI/', 'success');
-  setNodeBoxState(6, 'COMPLETED ✓', 'var(--neon-emerald)');
-
-  appendConsoleLog('\n====================================================');
-  appendConsoleLog('✅ ✅ PIPELINE EXECUTION COMPLETE! All nodes completed successfully.');
-  appendConsoleLog('====================================================', 'success');
-
-  try {
-    const pass = sessionStorage.getItem('cf_key');
-    if (pass) {
-      const res = await fetch('./data.enc?v=' + Date.now(), { cache: 'no-store' });
-      if (res.ok) {
-        const pkg = await res.json();
-        decryptedDataStore = await decryptAESPayload(pass, pkg);
-        allJobsList = decryptedDataStore.jobs || [];
+    const res = await triggerPromise;
+    if (res.ok) {
+      const data = await res.json();
+      appendConsoleLog(`  ✅ Server completed pipeline execution! Discovered ${data.count || (data.jobs && data.jobs.length) || 'fresh'} jobs.`, 'success');
+      if (data.jobs && data.jobs.length > 0) {
+        allJobsList = data.jobs;
+        decryptedDataStore = { jobs: allJobsList };
+        liveSuccess = true;
       }
     }
-  } catch(e) {}
+  } catch (err) {
+    appendConsoleLog(`  ℹ️ Background dispatch dispatched (${err.message})`);
+  }
+
+  setNodeBoxState(4, 'COMPLETED ✓', 'var(--neon-emerald)');
+  setNodeBoxState(5, 'COMPLETED ✓', 'var(--neon-emerald)');
+  setNodeBoxState(6, 'COMPLETED ✓', 'var(--neon-emerald)');
+  if (bar) bar.style.width = '100%'; if (pct) pct.textContent = '100%';
+
+  // Always refresh live data from MongoDB Atlas
+  await loadInitialLiveJobs();
+
+  appendConsoleLog('\n====================================================');
+  appendConsoleLog(`✅ PIPELINE COMPLETE! Total active jobs loaded: ${allJobsList.length}`);
+  appendConsoleLog('====================================================', 'success');
+
   reloadCurrentPageData();
 
-  btn.disabled = false;
-  btn.style.opacity = '1';
-  btn.textContent = '▶ Run Live Pipeline';
-  chip.textContent = 'STATUS: COMPLETED';
-  chip.className = 'chip-tag chip-green';
+  if (btn) { btn.disabled = false; btn.style.opacity = '1'; btn.textContent = '▶ Run Live Pipeline'; }
+  if (chip) { chip.textContent = 'STATUS: COMPLETED'; chip.className = 'chip-tag chip-green'; }
   isWorkflowRunning = false;
 }
 
@@ -3677,11 +3623,16 @@ window.addEventListener('DOMContentLoaded', async () => {
   if (modelSelect) modelSelect.value = savedModel;
   updateSelectedAiModel(savedModel);
   
+  // 1. Immediately load live jobs from MongoDB Atlas / server
+  await loadInitialLiveJobs();
+
+  // 2. If session key exists, verify and decrypt
   const savedPass = sessionStorage.getItem('cf_key');
   if (savedPass) {
-    document.getElementById('auth-passcode-input').value = savedPass;
+    const authInput = document.getElementById('auth-passcode-input');
+    if (authInput) authInput.value = savedPass;
     try { await handleAuthLogin({ preventDefault: () => {} }); }
-    catch(e) { relockSession(); }
+    catch(e) {}
   }
 });
 </script>

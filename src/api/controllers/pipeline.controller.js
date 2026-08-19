@@ -1,8 +1,9 @@
 /**
- * Pipeline Controller
+ * CareerForge AI — Pipeline Controller (Multi-Tenant)
  */
 
 const PipelineOrchestrator = require('../../pipeline/pipeline.orchestrator');
+const JobRepository = require('../../services/db/job.repository');
 const config = require('../../core/config');
 
 class PipelineController {
@@ -20,13 +21,18 @@ class PipelineController {
 
     try {
       const orchestrator = new PipelineOrchestrator(runtimeConfig);
-      const executionResult = await orchestrator.run({ maxJobs: max_jobs || 30 });
+      const executionResult = await orchestrator.run(req.user, { maxJobs: max_jobs || 40 });
+
+      // Fetch fresh updated jobs directly from MongoDB Atlas
+      const freshJobs = await JobRepository.getJobs(req.user?.id);
 
       return res.status(200).json({
         success: true,
         message: 'Autonomous AI Job Hunter pipeline executed successfully!',
         timestamp: new Date().toISOString(),
-        execution: executionResult
+        execution: executionResult,
+        count: freshJobs.length,
+        jobs: freshJobs
       });
     } catch (err) {
       return next(err);
