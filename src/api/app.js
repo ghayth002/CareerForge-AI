@@ -12,6 +12,7 @@ const HealthController = require('./controllers/health.controller');
 const PipelineController = require('./controllers/pipeline.controller');
 const JobsController = require('./controllers/jobs.controller');
 const AuthController = require('./controllers/auth.controller');
+const AutoApplyController = require('./controllers/auto_apply.controller');
 const { authMiddleware, optionalAuthMiddleware } = require('./middleware/auth.middleware');
 const errorHandler = require('./middleware/error.middleware');
 
@@ -58,7 +59,11 @@ function createApp() {
   app.patch('/api/jobs/:id/crm', optionalAuthMiddleware, JobsController.updateCrmStatus);
   app.get('/api/analytics', optionalAuthMiddleware, JobsController.getAnalytics);
 
-  // 7. Fallback Single Page Application Route
+  // 7. Autonomous AI Auto-Applier Routes
+  app.post('/api/auto-apply/job/:id', optionalAuthMiddleware, AutoApplyController.applySingleJob);
+  app.post('/api/auto-apply/batch', optionalAuthMiddleware, AutoApplyController.applyBatchJuniorMatches);
+
+  // 8. Fallback Single Page Application Route
   app.get('*', (req, res) => {
     const indexPath = path.join(config.paths.public, 'index.html');
     res.sendFile(indexPath);
