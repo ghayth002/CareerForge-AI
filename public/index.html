@@ -2669,31 +2669,69 @@ ${fullCoverLetter}
       <div style="font-size:0.88rem;color:var(--text-main);line-height:1.5;">${job.reasoning || job.ai_reasoning || 'Strong technical match based on candidate DevSecOps, cloud infrastructure, and backend engineering profile.'}</div>
     </div>
 
-    <!-- Application Form Auto-Fill Guide -->
-    <div class="modal-info-panel" style="border-color:var(--border-glow);">
-      <div class="modal-info-label">📋 Application Form Answers — 1-Click Copy</div>
+    <!-- Application Form Auto-Fill & Questionnaire Solver Guide -->
+    <div class="modal-info-panel" style="border-color:var(--neon-cyan);background:rgba(0,240,255,0.02);">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <div class="modal-info-label" style="color:var(--neon-cyan);margin-bottom:0;">🤖 1-Click Application Questionnaire Auto-Solver</div>
+        <span class="chip-tag chip-blue">Anti-Detection Ready</span>
+      </div>
       
-      <div style="margin-bottom:12px;">
-        <div style="font-size:0.75rem;color:var(--text-dim);font-weight:700;">Q: Why are you interested in ${job.company}?</div>
-        <div class="copy-answer-box">
-          <span>${guide.why_interested || `Strong alignment with ${job.company}'s technology stack and engineering goals.`}</span>
-          <button class="ui-btn ui-btn-ghost" style="padding:3px 10px;font-size:0.72rem;" onclick="copyTextToClipboard(this, '${(guide.why_interested || `Strong alignment with ${job.company}'s technology stack and engineering goals.`).replace(/'/g, "\\'").replace(/"/g, '&quot;')}')">Copy</button>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:10px;margin-bottom:12px;">
+        <div class="copy-answer-box" style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--bg-dark);border-radius:var(--radius-sm);border:1px solid var(--border-glass);">
+          <div>
+            <div style="font-size:0.7rem;color:var(--text-dim);font-weight:700;">DOCKER / CLOUD EXPERIENCE</div>
+            <div style="font-size:0.85rem;color:var(--text-main);font-weight:600;">2 Years (SeekMake & ESPRIT)</div>
+          </div>
+          <button class="ui-btn ui-btn-ghost" style="padding:2px 8px;font-size:0.7rem;" onclick="copyTextToClipboard(this, '2')">Copy</button>
+        </div>
+
+        <div class="copy-answer-box" style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--bg-dark);border-radius:var(--radius-sm);border:1px solid var(--border-glass);">
+          <div>
+            <div style="font-size:0.7rem;color:var(--text-dim);font-weight:700;">NOTICE PERIOD / AVAILABILITY</div>
+            <div style="font-size:0.85rem;color:var(--text-main);font-weight:600;">2 weeks / Immediate</div>
+          </div>
+          <button class="ui-btn ui-btn-ghost" style="padding:2px 8px;font-size:0.7rem;" onclick="copyTextToClipboard(this, '2 weeks')">Copy</button>
+        </div>
+
+        <div class="copy-answer-box" style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--bg-dark);border-radius:var(--radius-sm);border:1px solid var(--border-glass);">
+          <div>
+            <div style="font-size:0.7rem;color:var(--text-dim);font-weight:700;">VISA / SPONSORSHIP STATUS</div>
+            <div style="font-size:0.85rem;color:var(--text-main);font-weight:600;">Tunisian • EU Blue Card Eligible</div>
+          </div>
+          <button class="ui-btn ui-btn-ghost" style="padding:2px 8px;font-size:0.7rem;" onclick="copyTextToClipboard(this, 'Tunisian national. Eligible for EU Blue Card and work visa sponsorship. Open to international relocation and remote work.')">Copy</button>
+        </div>
+
+        <div class="copy-answer-box" style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--bg-dark);border-radius:var(--radius-sm);border:1px solid var(--border-glass);">
+          <div>
+            <div style="font-size:0.7rem;color:var(--text-dim);font-weight:700;">DESIRED SALARY TARGET</div>
+            <div style="font-size:0.85rem;color:var(--text-main);font-weight:600;">50,000 – 55,000 EUR (Negotiable)</div>
+          </div>
+          <button class="ui-btn ui-btn-ghost" style="padding:2px 8px;font-size:0.7rem;" onclick="copyTextToClipboard(this, '50000')">Copy</button>
         </div>
       </div>
 
-      <div style="margin-bottom:12px;">
-        <div style="font-size:0.75rem;color:var(--text-dim);font-weight:700;">Q: Biggest relevant technical achievement?</div>
-        <div class="copy-answer-box">
-          <span>${guide.biggest_achievement || 'Cut CI/CD security triage time by 60% with Gemini API & reduced API latency by 83%.'}</span>
-          <button class="ui-btn ui-btn-ghost" style="padding:3px 10px;font-size:0.72rem;" onclick="copyTextToClipboard(this, '${(guide.biggest_achievement || 'Cut CI/CD security triage time by 60% with Gemini API & reduced API latency by 83%.').replace(/'/g, "\\'").replace(/"/g, '&quot;')}')">Copy</button>
+      <div style="margin-bottom:10px;">
+        <div style="font-size:0.75rem;color:var(--text-dim);font-weight:700;margin-bottom:3px;">Q: Why are you interested in ${job.company}?</div>
+        <div class="copy-answer-box" style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--bg-dark);border-radius:var(--radius-sm);border:1px solid var(--border-glass);">
+          <span style="font-size:0.82rem;line-height:1.4;">${guide.why_interested || `Strong alignment with ${job.company}'s technology stack and engineering goals.`}</span>
+          <button class="ui-btn ui-btn-ghost" style="padding:3px 10px;font-size:0.72rem;margin-left:8px;" onclick="copyTextToClipboard(this, '${(guide.why_interested || `Strong alignment with ${job.company}'s technology stack and engineering goals.`).replace(/'/g, "\\'").replace(/"/g, '&quot;')}')">Copy</button>
+        </div>
+      </div>
+
+      <div>
+        <div style="font-size:0.75rem;color:var(--text-dim);font-weight:700;margin-bottom:3px;">Q: Biggest relevant technical achievement?</div>
+        <div class="copy-answer-box" style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--bg-dark);border-radius:var(--radius-sm);border:1px solid var(--border-glass);">
+          <span style="font-size:0.82rem;line-height:1.4;">${guide.biggest_achievement || 'Cut CI/CD security triage time by 60% with Gemini API & reduced API latency by 83%.'}</span>
+          <button class="ui-btn ui-btn-ghost" style="padding:3px 10px;font-size:0.72rem;margin-left:8px;" onclick="copyTextToClipboard(this, '${(guide.biggest_achievement || 'Cut CI/CD security triage time by 60% with Gemini API & reduced API latency by 83%.').replace(/'/g, "\\'").replace(/"/g, '&quot;')}')">Copy</button>
         </div>
       </div>
     </div>
 
     <!-- Actions Toolbar -->
-    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:24px;">
-      <a href="${job.url || '#'}" target="_blank" class="ui-btn ui-btn-primary">🔗 View Full Job Post</a>
-      <button class="ui-btn ui-btn-purple" onclick="if('${job.url}') window.open('${job.url}', '_blank'); setJobCrmStatus('${jobId}', 'APPLIED');">🚀 Open & Mark Applied</button>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:22px;">
+      <a href="${job.url || '#'}" target="_blank" class="ui-btn ui-btn-primary">🔗 Open Direct Job Post</a>
+      <a href="https://www.linkedin.com/jobs/search/?keywords=${encodeURIComponent(job.title || 'DevSecOps')}&f_LF=f_AL&f_E=2%2C3" target="_blank" class="ui-btn ui-btn-purple">⚡ Search LinkedIn Easy Apply</a>
+      <button class="ui-btn ui-btn-emerald" onclick="if('${job.url}') window.open('${job.url}', '_blank'); setJobCrmStatus('${jobId}', 'APPLIED');">🚀 Mark Applied in CRM</button>
       <button class="ui-btn ui-btn-ghost" onclick="closeJobModal()">✕ Close</button>
     </div>
   `;

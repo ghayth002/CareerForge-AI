@@ -6,12 +6,14 @@ const WeWorkRemotelyAdapter = require('./adapters/weworkremotely.adapter');
 const JobicyAdapter = require('./adapters/jobicy.adapter');
 const HackerNewsAdapter = require('./adapters/hackernews.adapter');
 const WorkingNomadsAdapter = require('./adapters/workingnomads.adapter');
+const LinkedInAdapter = require('./adapters/linkedin.adapter');
 
 class CrawlerService {
   constructor(adapters = {}) {
     this.adapters = {
       remotive: adapters.remotive || RemotiveAdapter,
       jobicy: adapters.jobicy || JobicyAdapter,
+      linkedin: adapters.linkedin || LinkedInAdapter,
       hackernews: adapters.hackernews || HackerNewsAdapter,
       workingnomads: adapters.workingnomads || WorkingNomadsAdapter,
       remoteok: adapters.remoteok || RemoteOkAdapter,
