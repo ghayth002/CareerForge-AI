@@ -1,0 +1,23 @@
+{
+  "name": "ui-ux-pro-max",
+  "version": "2.13.0",
+  "displayName": "UI/UX Pro Max",
+  "description": "AI-powered design intelligence with 84 UI styles, 192 color palettes, 74 font pairings, 98 UX guidelines, 25 chart types, and GSAP motion presets across 22 tech stacks.",
+  "author": "NextLevelBuilder",
+  "skills": [
+    "ui-ux-pro-max",
+    "design",
+    "design-system",
+    "ui-styling",
+    "brand",
+    "banner-design",
+    "slides"
+  ],
+  "commands": {
+    "search-style": "python .agents/skills/ui-ux-pro-max/scripts/search.py \"<query>\" --domain style",
+    "search-color": "python .agents/skills/ui-ux-pro-max/scripts/search.py \"<query>\" --domain color",
+    "search-typography": "python .agents/skills/ui-ux-pro-max/scripts/search.py \"<query>\" --domain typography",
+    "search-ux": "python .agents/skills/ui-ux-pro-max/scripts/search.py \"<query>\" --domain ux",
+    "design-system": "python .agents/skills/ui-ux-pro-max/scripts/search.py \"<query>\" --design-system"
+  }
+}

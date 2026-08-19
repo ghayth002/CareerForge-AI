@@ -1,0 +1,14 @@
+{
+  "name": "careerforge-ai",
+  "version": "2.0.0",
+  "description": "Autonomous AI Job Hunter, ATS Resume Generator, and LinkedIn Easy Apply Engine for Antigravity.",
+  "author": "Ghaith Oueslati",
+  "skills": ["careerforge-ai"],
+  "rules": ["careerforge-standards"],
+  "commands": {
+    "discover": "node src/pipeline/pipeline.orchestrator.js",
+    "search": "node .agents/skills/careerforge-ai/scripts/search.js",
+    "tailor": "node .agents/skills/careerforge-ai/scripts/tailor.js",
+    "apply-bot": "python scripts/auto_apply_linkedin.py --mode assisted --limit 5"
+  }
+}
