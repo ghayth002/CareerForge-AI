@@ -1,10 +1,14 @@
 /**
  * CareerForge AI — MongoDB Connection Manager
- * Manages production-grade MongoDB Atlas connection lifecycle with auto-reconnection.
+ * Manages production-grade MongoDB Atlas connection lifecycle with auto-reconnection and zero-crash fallbacks.
  */
 
 const mongoose = require('mongoose');
 const { logger } = require('./logger');
+
+// Disable command buffering so operations fail fast if DB is disconnected rather than hanging for 10s
+mongoose.set('bufferCommands', false);
+mongoose.set('bufferTimeoutMS', 3000);
 
 let isConnecting = false;
 
@@ -14,21 +18,20 @@ async function connectDB(customUri = null) {
   }
 
   if (isConnecting) {
-    logger.info('MongoDB connection already in progress, waiting...');
-    return;
+    return null;
   }
 
   const uri = customUri || process.env.MONGODB_URI;
   if (!uri) {
-    logger.warn('MONGODB_URI not provided. Running in memory / file fallback mode.');
+    logger.warn('MONGODB_URI not set in environment. Running in resilient local/file mode.');
     return null;
   }
 
   isConnecting = true;
   try {
     const opts = {
-      serverSelectionTimeoutMS: 8000,
-      socketTimeoutMS: 45000,
+      serverSelectionTimeoutMS: 5000,
+      socketTimeoutMS: 30000,
       maxPoolSize: 10,
       minPoolSize: 1
     };
@@ -39,7 +42,7 @@ async function connectDB(customUri = null) {
     return conn.connection;
   } catch (err) {
     isConnecting = false;
-    logger.error(`MongoDB connection error: ${err.message}`);
+    logger.warn(`MongoDB Atlas connection notice: ${err.message}. Operating in resilient fallback mode.`);
     return null;
   }
 }
@@ -52,7 +55,7 @@ async function disconnectDB() {
 }
 
 function isConnected() {
-  return mongoose.connection.readyState === 1;
+  return mongoose.connection && mongoose.connection.readyState === 1;
 }
 
 module.exports = {

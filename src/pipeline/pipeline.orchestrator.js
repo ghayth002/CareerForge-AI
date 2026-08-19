@@ -38,25 +38,38 @@ class PipelineOrchestrator {
   }
 
   async resolveUserContext(userParam) {
-    await connectDB();
-
     if (userParam && userParam._id) return userParam;
 
-    // Look for existing primary tenant user
-    let user = await User.findOne({ email: 'ghaythweslaty002@gmail.com' });
-    if (!user) {
-      const passwordHash = await User.hashPassword('CareerForge2026!');
-      user = new User({
-        email: 'ghaythweslaty002@gmail.com',
-        name: 'Ghaith Oueslati',
-        password_hash: passwordHash,
-        role: 'admin',
-        candidate_profile: this.config.candidate
-      });
-      await user.save();
-      logger.info(`Initialized default primary tenant user: ${user.email} (${user._id})`);
+    try {
+      await connectDB();
+      const { isConnected } = require('../core/database');
+      if (isConnected()) {
+        let user = await User.findOne({ email: 'ghaythweslaty002@gmail.com' });
+        if (!user) {
+          const passwordHash = await User.hashPassword('CareerForge2026!');
+          user = new User({
+            email: 'ghaythweslaty002@gmail.com',
+            name: 'Ghaith Oueslati',
+            password_hash: passwordHash,
+            role: 'admin',
+            candidate_profile: this.config.candidate
+          });
+          await user.save();
+          logger.info(`Initialized default primary tenant user: ${user.email} (${user._id})`);
+        }
+        return user;
+      }
+    } catch (err) {
+      logger.warn(`resolveUserContext DB notice: ${err.message}. Using default in-memory candidate profile.`);
     }
-    return user;
+
+    // Default tenant user fallback
+    return {
+      _id: '6a85cf900f514f72532b2876',
+      name: this.config.candidate?.name || 'Ghaith Oueslati',
+      email: this.config.candidate?.email || 'ghaythweslaty002@gmail.com',
+      candidate_profile: this.config.candidate
+    };
   }
 
   async run(userOrOptions = {}, maybeOptions = {}) {

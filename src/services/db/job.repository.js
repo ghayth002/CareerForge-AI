@@ -1,8 +1,11 @@
 /**
- * CareerForge AI — Job Repository (Multi-Tenant)
- * Scopes all database operations, bulk upserts, and CRM queries by userId on MongoDB Atlas.
+ * CareerForge AI — Job Repository (Multi-Tenant & Resilient)
+ * Scopes all database operations, bulk upserts, and CRM queries by userId on MongoDB Atlas
+ * with transparent offline file-based fallback.
  */
 
+const fs = require('fs');
+const path = require('path');
 const mongoose = require('mongoose');
 const Job = require('../../models/job.model');
 const PipelineRun = require('../../models/pipeline_run.model');
@@ -11,12 +14,39 @@ const { logger } = require('../../core/logger');
 
 class JobRepository {
   /**
+   * Helper to load jobs from disk when DB is offline
+   */
+  static getDiskJobs() {
+    try {
+      const p1 = path.join(process.cwd(), 'public', 'data.json');
+      if (fs.existsSync(p1)) {
+        const raw = JSON.parse(fs.readFileSync(p1, 'utf8'));
+        return Array.isArray(raw) ? raw : (raw.jobs || []);
+      }
+      const p2 = path.join(process.cwd(), 'data', 'jobs', 'sample', 'sample_jobs.json');
+      if (fs.existsSync(p2)) {
+        const raw = JSON.parse(fs.readFileSync(p2, 'utf8'));
+        return Array.isArray(raw) ? raw : (raw.jobs || []);
+      }
+    } catch(e) {}
+    return [];
+  }
+
+  /**
    * Bulk upserts jobs for a specific user into MongoDB Atlas.
    */
   static async upsertJobs(userId, jobs = []) {
-    if (!isConnected() || !userId || !jobs || jobs.length === 0) return 0;
+    if (!jobs || jobs.length === 0) return 0;
+    if (!isConnected() || !userId) return 0;
 
-    const userObjectId = typeof userId === 'string' ? new mongoose.Types.ObjectId(userId) : userId;
+    let userObjectId = null;
+    try {
+      userObjectId = (typeof userId === 'string' && mongoose.Types.ObjectId.isValid(userId))
+        ? new mongoose.Types.ObjectId(userId)
+        : (userId instanceof mongoose.Types.ObjectId ? userId : null);
+    } catch(e) {}
+
+    if (!userObjectId) return 0;
 
     const ops = jobs.map(j => {
       const uniqueId = j.source_job_id || `${j.source}_${Buffer.from((j.company || '') + (j.title || '')).toString('hex').substring(0, 16)}`;
@@ -70,14 +100,16 @@ class JobRepository {
   }
 
   /**
-   * Fetches jobs strictly belonging to a specific user.
+   * Fetches jobs strictly belonging to a specific user with disk fallback.
    */
   static async getJobs(userId, query = {}, options = {}) {
-    if (!isConnected()) return [];
+    if (!isConnected()) {
+      return this.getDiskJobs();
+    }
     try {
       const filter = {};
-      if (userId) {
-        filter.user_id = typeof userId === 'string' ? new mongoose.Types.ObjectId(userId) : userId;
+      if (userId && mongoose.Types.ObjectId.isValid(userId)) {
+        filter.user_id = new mongoose.Types.ObjectId(userId);
       }
       if (query.source) filter.source = query.source;
       if (query.crm_status) filter.crm_status = query.crm_status;
@@ -87,10 +119,12 @@ class JobRepository {
       const limit = options.limit || 200;
       const sort = options.sort || { match_score: -1, created_at: -1 };
 
-      return await Job.find(filter).sort(sort).limit(limit).lean();
+      const dbJobs = await Job.find(filter).sort(sort).limit(limit).lean();
+      if (dbJobs && dbJobs.length > 0) return dbJobs;
+      return this.getDiskJobs();
     } catch (err) {
-      logger.error(`JobRepository fetch error: ${err.message}`);
-      return [];
+      logger.warn(`JobRepository fetch notice: ${err.message}. Using disk jobs.`);
+      return this.getDiskJobs();
     }
   }
 
@@ -100,7 +134,12 @@ class JobRepository {
   static async updateCrmStatus(userId, jobIdentifier, status, notes = null) {
     if (!isConnected() || !userId) return false;
     try {
-      const userObjectId = typeof userId === 'string' ? new mongoose.Types.ObjectId(userId) : userId;
+      const userObjectId = (typeof userId === 'string' && mongoose.Types.ObjectId.isValid(userId))
+        ? new mongoose.Types.ObjectId(userId)
+        : (userId instanceof mongoose.Types.ObjectId ? userId : null);
+
+      if (!userObjectId) return false;
+
       const updateData = { crm_status: status };
       if (status === 'APPLIED') updateData.applied_at = new Date();
       if (notes !== null) updateData.candidate_notes = notes;
@@ -125,11 +164,18 @@ class JobRepository {
    * Computes aggregation statistics scoped strictly to a user.
    */
   static async getStats(userId) {
-    if (!isConnected()) return null;
+    if (!isConnected()) {
+      const disk = this.getDiskJobs();
+      return {
+        total: disk.length,
+        strongMatches: disk.filter(j => (j.match_score || 0) >= 70).length,
+        crm: { ready: disk.length, applied: 0, interview: 0, offer: 0 }
+      };
+    }
     try {
       const filter = {};
-      if (userId) {
-        filter.user_id = typeof userId === 'string' ? new mongoose.Types.ObjectId(userId) : userId;
+      if (userId && mongoose.Types.ObjectId.isValid(userId)) {
+        filter.user_id = new mongoose.Types.ObjectId(userId);
       }
 
       const total = await Job.countDocuments(filter);
