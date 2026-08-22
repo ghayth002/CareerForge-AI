@@ -67,36 +67,52 @@
 }
 
 [data-theme="light"] {
-  --bg-dark: #F8FAFC;
-  --bg-dark-rgb: 248, 250, 252;
-  --bg-surface: rgba(255, 255, 255, 0.88);
-  --bg-card: rgba(255, 255, 255, 0.95);
-  --bg-card-hover: #F1F5F9;
-  --bg-card-solid: #FFFFFF;
-  --border-glass: rgba(226, 232, 240, 0.95);
-  --border-glass-strong: rgba(203, 213, 225, 0.9);
-  --border-glow: rgba(2, 132, 199, 0.35);
-  
-  --neon-cyan: #0284C7;
-  --neon-cyan-glow: rgba(2, 132, 199, 0.18);
-  --neon-purple: #7C3AED;
-  --neon-purple-glow: rgba(124, 58, 237, 0.18);
-  --neon-emerald: #059669;
-  --neon-emerald-glow: rgba(5, 150, 105, 0.18);
-  --neon-amber: #D97706;
-  --neon-rose: #E11D48;
-  --neon-blue: #2563EB;
-  --neon-indigo: #4F46E5;
-  
-  --text-main: #0F172A;
-  --text-muted: #475569;
-  --text-dim: #64748B;
-  
-  --shadow-main: 0 12px 36px rgba(15, 23, 42, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04);
-  --shadow-card: 0 6px 20px rgba(15, 23, 42, 0.05);
-  --shadow-glow-cyan: 0 0 25px rgba(2, 132, 199, 0.15);
-  --shadow-glow-purple: 0 0 25px rgba(124, 58, 237, 0.15);
-  --shadow-glow-emerald: 0 0 25px rgba(5, 150, 105, 0.15);
+  /* ── Autumn Orchard Brand Palette ────────────────────── */
+  --color-primary:        #2E6F40;  /* Forest Green */
+  --color-primary-hover:  #245533;
+  --color-primary-bg:     rgba(46, 111, 64, 0.08);
+  --color-accent:         #DAA520;  /* Goldenrod */
+  --color-accent-bg:      rgba(218, 165, 32, 0.12);
+  --color-secondary:      #8E4585;  /* Plum */
+  --color-secondary-hover:#7A3A72;
+  --color-secondary-bg:   rgba(142, 69, 133, 0.08);
+  --color-critical:       #660033;  /* Deep Maroon */
+  --color-critical-bg:    rgba(102, 0, 51, 0.08);
+
+  /* ── Neutral Canvas ──────────────────────────────────── */
+  --bg-dark:              #FAFAF8;
+  --bg-dark-rgb:          250, 250, 248;
+  --bg-surface:           rgba(255, 255, 255, 0.92);
+  --bg-card:              rgba(255, 255, 255, 0.98);
+  --bg-card-hover:        #F4F1EE;
+  --bg-card-solid:        #FFFFFF;
+  --border-glass:         rgba(46, 111, 64, 0.12);
+  --border-glass-strong:  rgba(46, 111, 64, 0.22);
+  --border-glow:          rgba(46, 111, 64, 0.30);
+
+  /* ── Neon vars remapped to Autumn Orchard ────────────── */
+  --neon-cyan:            #2E6F40;
+  --neon-cyan-glow:       rgba(46, 111, 64, 0.15);
+  --neon-purple:          #8E4585;
+  --neon-purple-glow:     rgba(142, 69, 133, 0.15);
+  --neon-emerald:         #2E6F40;
+  --neon-emerald-glow:    rgba(46, 111, 64, 0.15);
+  --neon-amber:           #DAA520;
+  --neon-rose:            #660033;
+  --neon-blue:            #2E6F40;
+  --neon-indigo:          #8E4585;
+
+  /* ── Typography ──────────────────────────────────────── */
+  --text-main:            #1A1A1A;
+  --text-muted:           #5C5C5C;
+  --text-dim:             #8A8A8A;
+
+  /* ── Shadows ─────────────────────────────────────────── */
+  --shadow-main:          0 8px 24px rgba(46, 111, 64, 0.08), 0 1px 3px rgba(0,0,0,0.04);
+  --shadow-card:          0 4px 16px rgba(46, 111, 64, 0.06);
+  --shadow-glow-cyan:     0 0 20px rgba(46, 111, 64, 0.12);
+  --shadow-glow-purple:   0 0 20px rgba(142, 69, 133, 0.12);
+  --shadow-glow-emerald:  0 0 20px rgba(46, 111, 64, 0.12);
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -124,10 +140,11 @@ body {
 }
 
 [data-theme="light"] body {
+  /* Autumn Orchard: warm forest-green radials on off-white canvas */
   background-image: 
-    radial-gradient(circle at 10% 10%, rgba(2, 132, 199, 0.07) 0%, transparent 45%),
-    radial-gradient(circle at 90% 90%, rgba(124, 58, 237, 0.06) 0%, transparent 45%),
-    radial-gradient(circle at 50% 50%, rgba(5, 150, 105, 0.03) 0%, transparent 60%);
+    radial-gradient(circle at 88% 8%, rgba(46, 111, 64, 0.10) 0%, transparent 40%),
+    radial-gradient(circle at 8% 92%, rgba(142, 69, 133, 0.07) 0%, transparent 40%),
+    radial-gradient(circle at 50% 50%, rgba(218, 165, 32, 0.03) 0%, transparent 60%);
   background-attachment: fixed;
 }
 
@@ -234,6 +251,87 @@ a:hover { opacity: 0.85; }
   box-shadow: var(--shadow-glow-cyan);
   transform: translateY(-2px);
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   AUTUMN ORCHARD — LIGHT MODE OVERRIDES
+   All scoped to [data-theme="light"] — dark mode untouched.
+═══════════════════════════════════════════════════════════════ */
+[data-theme="light"] .ui-btn-primary {
+  background: linear-gradient(135deg, #2E6F40 0%, #245533 100%);
+  color: #FFFFFF;
+  box-shadow: 0 4px 20px rgba(46, 111, 64, 0.25);
+}
+[data-theme="light"] .ui-btn-primary:hover {
+  box-shadow: 0 6px 28px rgba(46, 111, 64, 0.40);
+  color: #FFFFFF;
+}
+
+[data-theme="light"] .ui-btn-purple {
+  background: linear-gradient(135deg, #8E4585 0%, #7A3A72 100%);
+  color: #FFFFFF;
+  box-shadow: 0 4px 20px rgba(142, 69, 133, 0.25);
+}
+[data-theme="light"] .ui-btn-purple:hover {
+  box-shadow: 0 6px 28px rgba(142, 69, 133, 0.40);
+}
+
+[data-theme="light"] .ui-btn-emerald {
+  background: linear-gradient(135deg, #2E6F40 0%, #245533 100%);
+  color: #FFFFFF;
+  box-shadow: 0 4px 20px rgba(46, 111, 64, 0.25);
+}
+
+[data-theme="light"] .ui-btn-danger {
+  background: rgba(102, 0, 51, 0.10);
+  color: #660033;
+  border: 1px solid rgba(102, 0, 51, 0.30);
+}
+[data-theme="light"] .ui-btn-danger:hover {
+  background: rgba(102, 0, 51, 0.18);
+  border-color: #660033;
+}
+
+[data-theme="light"] .action-icon-btn:hover {
+  border-color: #2E6F40;
+  color: #2E6F40;
+  box-shadow: 0 0 20px rgba(46, 111, 64, 0.15);
+}
+
+/* Autumn Orchard — Signature Card Left-Accent Bar
+   Cards get a colored 4px left border that expands to 8px on hover.
+   Green (#2E6F40) for high matches (score >= 80), Goldenrod (#DAA520) for lower. */
+[data-theme="light"] .card, 
+[data-theme="light"] [class*="card"],
+[data-theme="light"] [class*="job-"] {
+  position: relative;
+  overflow: visible;
+}
+[data-theme="light"] .card::before,
+[data-theme="light"] [class*="card"]::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 12px;
+  bottom: 12px;
+  width: 4px;
+  border-radius: 2px;
+  background: #DAA520;
+  opacity: 0.5;
+  transition: width 0.25s cubic-bezier(0.16,1,0.3,1), opacity 0.25s ease;
+}
+[data-theme="light"] .card:hover::before,
+[data-theme="light"] [class*="card"]:hover::before {
+  width: 8px;
+  opacity: 1.0;
+}
+
+/* Pro badge — Plum signature */
+[data-theme="light"] .pro-badge,
+[data-theme="light"] [class*="pro-"] {
+  background: #8E4585 !important;
+  color: #fff !important;
+}
+
 
 /* ═══════════════════════════════════════════════════════════════
    CHIP & BADGE TAGS

@@ -23,7 +23,8 @@ function authMiddleware(req, res, next) {
       id: decoded.id,
       email: decoded.email,
       name: decoded.name,
-      role: decoded.role || 'user'
+      role: decoded.role || 'user',
+      tier: decoded.tier || 'free'
     };
     next();
   } catch (err) {
@@ -48,7 +49,8 @@ function optionalAuthMiddleware(req, res, next) {
         id: decoded.id,
         email: decoded.email,
         name: decoded.name,
-        role: decoded.role || 'user'
+        role: decoded.role || 'user',
+        tier: decoded.tier || 'free'
       };
     } catch (err) {
       // Ignore token decode error in optional mode

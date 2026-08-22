@@ -16,7 +16,8 @@ function signUserToken(user) {
       id: user._id.toString(),
       email: user.email,
       name: user.name,
-      role: user.role || 'user'
+      role: user.role || 'user',
+      tier: user.tier || 'free'
     },
     JWT_SECRET,
     { expiresIn: JWT_EXPIRES_IN }
@@ -81,6 +82,7 @@ class AuthController {
           name: newUser.name,
           email: newUser.email,
           role: newUser.role,
+          tier: newUser.tier || 'free',
           candidate_profile: newUser.candidate_profile
         }
       });
@@ -136,6 +138,7 @@ class AuthController {
           name: user.name,
           email: user.email,
           role: user.role,
+          tier: user.tier || 'free',
           candidate_profile: user.candidate_profile
         }
       });
@@ -208,6 +211,41 @@ class AuthController {
       return res.status(500).json({ success: false, error: err.message });
     }
   }
-}
 
+  /**
+   * Promotes a user account to Pro tier.
+   * Gated by x-admin-secret header matching ADMIN_SECRET env var.
+   */
+  static async promoteUser(req, res) {
+    const adminSecret = process.env.ADMIN_SECRET || '';
+    const providedSecret = req.headers['x-admin-secret'] || '';
+
+    if (!adminSecret || providedSecret !== adminSecret) {
+      return res.status(403).json({ success: false, error: 'Forbidden: invalid admin secret.' });
+    }
+
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({ success: false, error: 'Email is required.' });
+    }
+
+    try {
+      const user = await User.findOne({ email: email.toLowerCase().trim() });
+      if (!user) {
+        return res.status(404).json({ success: false, error: 'User not found.' });
+      }
+
+      user.tier = 'pro';
+      await user.save();
+
+      return res.json({
+        success: true,
+        message: `User ${user.email} promoted to Pro tier.`,
+        user: { id: user._id, email: user.email, tier: user.tier }
+      });
+    } catch (err) {
+      return res.status(500).json({ success: false, error: err.message });
+    }
+  }
+}
 module.exports = AuthController;

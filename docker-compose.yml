@@ -6,6 +6,24 @@ version: "3.9"
 # ==================================================
 
 services:
+  # ── Redis (BullMQ queue backend for LinkedIn Mode B worker) ────────
+  redis:
+    image: redis:7-alpine
+    container_name: careerforge-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    volumes:
+      - redis-data:/data
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - job-hunter-net
+
   # ── PostgreSQL ────────────────────────────────────
   postgres:
     image: postgres:16-alpine
@@ -89,6 +107,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      redis:
+        condition: service_healthy
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://localhost:5678/healthz || exit 1"]
       interval: 30s
@@ -113,6 +133,7 @@ services:
       POSTGRES_PORT: 5432
       DASHBOARD_PORT: ${DASHBOARD_PORT:-3000}
       DASHBOARD_SECRET: ${DASHBOARD_SECRET:-changeme}
+      REDIS_URL: redis://redis:6379
       TZ: ${TZ:-Europe/London}
     ports:
       - "${DASHBOARD_PORT:-3000}:3000"
@@ -121,6 +142,8 @@ services:
       - ./config:/app/config:ro
     depends_on:
       postgres:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://localhost:3000/health || exit 1"]
@@ -136,6 +159,8 @@ volumes:
   postgres-data:
     driver: local
   n8n-data:
+    driver: local
+  redis-data:
     driver: local
 
 # ── Networks ─────────────────────────────────────────

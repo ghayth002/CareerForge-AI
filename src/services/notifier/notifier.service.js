@@ -1,6 +1,7 @@
 /**
  * CareerForge AI — Notification & Auto-Apply Service
- * Manages Telegram alerts and automated email applications.
+ * Dispatches high-relevance job matches to the user's signup email via SMTP,
+ * with optional fallback/duplicate to Telegram if configured.
  */
 
 const { logger } = require('../../core/logger');
@@ -14,23 +15,40 @@ class NotifierService {
     this.autoApplyEnabled = config.pipeline?.enableEmailApply || false;
   }
 
-  async notifyJobMatches(matchedJobs = []) {
-    logger.info(`Sending notifications for ${matchedJobs.length} top matches...`);
-    let sentCount = 0;
-
-    for (const job of matchedJobs.slice(0, 5)) {
-      const sent = await this.telegram.sendJobMatchAlert(job);
-      if (sent) sentCount++;
+  /**
+   * Notifies the candidate of newly matched jobs via their signup email address.
+   * If Telegram bot token & chat ID are configured, also sends Telegram alerts.
+   */
+  async notifyJobMatches(matchedJobs = [], recipientEmail = null, recipientName = 'Candidate') {
+    if (!matchedJobs || matchedJobs.length === 0) {
+      logger.info('Notification: No high-match jobs to alert.');
+      return;
     }
 
-    if (sentCount > 0) {
-      logger.success(`Telegram: Dispatched ${sentCount} job alert notifications.`);
+    logger.info(`Sending notifications for ${matchedJobs.length} top matches...`);
+
+    // 1. Email Notification to user's registered signup email
+    if (recipientEmail) {
+      logger.info(`[Notifier] Sending job match digest to user email: ${recipientEmail}`);
+      await this.smtp.sendJobMatchAlertEmail(recipientEmail, recipientName, matchedJobs);
     } else {
-      logger.info('Telegram: Alerts bypassed or token not configured.');
+      logger.info('[Notifier] No user recipient email provided — skipping email notification.');
+    }
+
+    // 2. Telegram Alert (optional/supplementary)
+    if (this.telegram.botToken && this.telegram.chatId) {
+      let sentCount = 0;
+      for (const job of matchedJobs.slice(0, 5)) {
+        const sent = await this.telegram.sendJobMatchAlert(job);
+        if (sent) sentCount++;
+      }
+      if (sentCount > 0) {
+        logger.success(`Telegram: Dispatched ${sentCount} supplementary job alerts.`);
+      }
     }
   }
 
-  async processAutoApplications(matchedJobs = []) {
+  async processAutoApplications(matchedJobs = [], senderName = 'Ghaith Oueslati') {
     if (!this.autoApplyEnabled) {
       logger.info('Auto-Apply: Disabled in config (safe mode active).');
       return { totalApplied: 0 };
@@ -41,8 +59,8 @@ class NotifierService {
 
     for (const job of matchedJobs) {
       if (job.application_email) {
-        const subject = `Application for ${job.title} — Ghaith Oueslati`;
-        const body = job.cover_note || `Dear Hiring Team,\n\nI am writing to express my strong interest in the ${job.title} position at ${job.company}.\n\nPlease find attached my tailored CV.\n\nBest regards,\nGhaith Oueslati`;
+        const subject = `Application for ${job.title} — ${senderName}`;
+        const body = job.cover_note || `Dear Hiring Team,\n\nI am writing to express my strong interest in the ${job.title} position at ${job.company}.\n\nPlease find attached my tailored CV.\n\nBest regards,\n${senderName}`;
         
         const result = await this.smtp.sendApplicationEmail(job.application_email, subject, body);
         if (result.success) {

@@ -119,6 +119,20 @@ const JobSchema = new mongoose.Schema({
     default: 'READY',
     index: true
   },
+  // System lifecycle field (distinct from crm_status)
+  // READY = active, APPLIED = user applied, ARCHIVED = user archived, EXPIRED = auto-deleted
+  status: {
+    type: String,
+    enum: ['READY', 'APPLIED', 'ARCHIVED', 'EXPIRED'],
+    default: 'READY',
+    index: true
+  },
+  // Auto-cleanup TTL: computed at upsert as createdAt + retentionDays (7=free, 30=pro)
+  expiresAt: {
+    type: Date,
+    default: null,
+    index: true
+  },
   candidate_notes: {
     type: String,
     default: ''
@@ -135,5 +149,7 @@ const JobSchema = new mongoose.Schema({
 JobSchema.index({ user_id: 1, source_job_id: 1 }, { unique: true });
 JobSchema.index({ user_id: 1, match_score: -1, created_at: -1 });
 JobSchema.index({ user_id: 1, crm_status: 1, match_score: -1 });
+// Cleanup engine index: find expiring READY jobs efficiently
+JobSchema.index({ status: 1, expiresAt: 1 });
 
 module.exports = mongoose.models.Job || mongoose.model('Job', JobSchema);

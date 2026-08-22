@@ -111,7 +111,10 @@ class PipelineOrchestrator {
       // ── NODE 1: DISCOVERY ──────────────────────────────────────────
       logger.step(1, 'Discovery: Fetching live multi-source job feeds');
       const node1Start = Date.now();
-      const crawlerResult = await this.crawler.fetchAllSources({ limit: options.maxJobs || 40 });
+      const crawlerResult = await this.crawler.fetchAllSources({ 
+        limit: options.maxJobs || 40,
+        concurrency: options.concurrency || 2
+      });
       executionLog.nodes.discovery = {
         status: 'COMPLETED',
         discoveredCount: crawlerResult.total,
@@ -163,10 +166,10 @@ class PipelineOrchestrator {
       };
 
       // ── NODE 5: AUTO-APPLY & NOTIFICATIONS ─────────────────────────
-      logger.step(5, 'Auto-Apply & Notify: Dispatching alerts & email router');
+      logger.step(5, 'Auto-Apply & Notify: Dispatching alerts to candidate email & SMTP router');
       const node5Start = Date.now();
-      await this.notifier.notifyJobMatches(matchedJobs);
-      const applyResult = await this.notifier.processAutoApplications(matchedJobs);
+      await this.notifier.notifyJobMatches(matchedJobs, user.email, user.name);
+      const applyResult = await this.notifier.processAutoApplications(matchedJobs, user.name);
       executionLog.nodes.autoApply = {
         status: 'COMPLETED',
         appliedCount: applyResult.totalApplied,
@@ -178,8 +181,9 @@ class PipelineOrchestrator {
       const node6Start = Date.now();
       const publishResult = this.publisher.publishEncryptedBundle(consolidatedJobs, candidate);
       
-      // Auto-sync to MongoDB Atlas scoped to current tenant user
-      await JobRepository.upsertJobs(user._id, consolidatedJobs);
+      // Auto-sync to MongoDB Atlas scoped to current tenant user, with tier-aware retention
+      const retentionDays = options.retentionDays || 7;
+      await JobRepository.upsertJobs(user._id, consolidatedJobs, retentionDays);
 
       executionLog.nodes.deploy = {
         status: 'COMPLETED',

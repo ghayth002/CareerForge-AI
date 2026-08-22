@@ -96,6 +96,25 @@ const config = {
     data: path.join(rootDir, 'data'),
     cvs: path.join(rootDir, 'public', 'cvs'),
     sampleJobs: path.join(rootDir, 'data', 'jobs', 'sample', 'sample_jobs.json')
+  },
+  // ── Tier Limits ────────────────────────────────────────────────
+  tiers: {
+    free: {
+      retentionDays: 7,      // Job auto-expires after 7 days
+      maxDailyRuns: 3,       // Max pipeline runs per day
+      concurrency: 3,        // Parallel AI matcher slots
+      maxJobs: 30            // Max jobs discovered per run
+    },
+    pro: {
+      retentionDays: 30,     // Job auto-expires after 30 days
+      maxDailyRuns: -1,      // Unlimited
+      concurrency: 5,
+      maxJobs: 100
+    }
+  },
+  // ── Redis (for BullMQ LinkedIn worker queue) ───────────────────
+  redis: {
+    url: process.env.REDIS_URL || 'redis://localhost:6379'
   }
 };
 

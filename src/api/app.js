@@ -13,7 +13,9 @@ const PipelineController = require('./controllers/pipeline.controller');
 const JobsController = require('./controllers/jobs.controller');
 const AuthController = require('./controllers/auth.controller');
 const AutoApplyController = require('./controllers/auto_apply.controller');
+const WebhooksController = require('./controllers/webhooks.controller');
 const { authMiddleware, optionalAuthMiddleware } = require('./middleware/auth.middleware');
+const { attachTier, requirePro } = require('./middleware/tier.middleware');
 const errorHandler = require('./middleware/error.middleware');
 
 function createApp() {
@@ -27,16 +29,22 @@ function createApp() {
 
   app.use(cors({
     origin: '*',
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'x-admin-secret', 'x-webhook-signature']
   }));
   app.use(express.json());
 
   // 2. Rate Limiting for Auth endpoints
   const authLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 60, // Limit each IP to 60 requests per windowMs
+    max: 60,
     message: { success: false, error: 'Too many authentication attempts. Please try again later.' }
+  });
+
+  const pipelineLimiter = rateLimit({
+    windowMs: 60 * 1000, // 1 minute
+    max: 5,
+    message: { success: false, error: 'Too many pipeline requests. Please wait before running again.' }
   });
 
   // 3. Static Asset Hosting
@@ -48,28 +56,46 @@ function createApp() {
   app.get('/api/auth/me', authMiddleware, AuthController.getMe);
   app.put('/api/auth/profile', authMiddleware, AuthController.updateProfile);
 
+  // 4b. Admin Routes (gated by x-admin-secret header)
+  app.post('/api/admin/promote', AuthController.promoteUser);
+
   // 5. Health & Pipeline Execution Routes
   app.get('/api/health', HealthController.getHealth);
-  app.post('/api/trigger', optionalAuthMiddleware, PipelineController.triggerPipeline);
+  app.post('/api/trigger',
+    optionalAuthMiddleware,
+    attachTier,       // Sets req.userTier from JWT; must run after optionalAuthMiddleware
+    pipelineLimiter,
+    PipelineController.triggerPipeline
+  );
 
   // 6. Multi-Tenant Jobs & CRM Routes
   app.get('/api/data.enc', JobsController.getEncryptedData);
-  app.get('/api/data.json', optionalAuthMiddleware, JobsController.getJobsJson);
-  app.get('/api/jobs', optionalAuthMiddleware, JobsController.getMongoJobs);
+  app.get('/api/data.json', optionalAuthMiddleware, attachTier, JobsController.getJobsJson);
+  app.get('/api/jobs', optionalAuthMiddleware, attachTier, JobsController.getMongoJobs);
   app.patch('/api/jobs/:id/crm', optionalAuthMiddleware, JobsController.updateCrmStatus);
-  app.get('/api/analytics', optionalAuthMiddleware, JobsController.getAnalytics);
+  app.delete('/api/jobs/:id', authMiddleware, JobsController.deleteJob);   // Auth required for delete
+  app.get('/api/analytics', optionalAuthMiddleware, attachTier, JobsController.getAnalytics);
 
   // 7. Autonomous AI Auto-Applier Routes
-  app.post('/api/auto-apply/job/:id', optionalAuthMiddleware, AutoApplyController.applySingleJob);
-  app.post('/api/auto-apply/batch', optionalAuthMiddleware, AutoApplyController.applyBatchJuniorMatches);
+  app.post('/api/auto-apply/job/:id', optionalAuthMiddleware, attachTier, AutoApplyController.applySingleJob);
+  // Batch auto-apply is Pro-only
+  app.post('/api/auto-apply/batch',
+    authMiddleware,
+    attachTier,
+    requirePro,
+    AutoApplyController.applyBatchJuniorMatches
+  );
 
-  // 8. Fallback Single Page Application Route
+  // 8. Mode B Webhook (HMAC-validated, no JWT — called by the self-hosted Python worker)
+  app.post('/api/webhooks/linkedin-apply', WebhooksController.receiverLinkedInResult);
+
+  // 9. Fallback Single Page Application Route
   app.get('*', (req, res) => {
     const indexPath = path.join(config.paths.public, 'index.html');
     res.sendFile(indexPath);
   });
 
-  // 8. Error Handler Middleware
+  // 10. Error Handler Middleware
   app.use(errorHandler);
 
   return app;

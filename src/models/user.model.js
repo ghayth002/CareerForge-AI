@@ -29,6 +29,12 @@ const UserSchema = new mongoose.Schema({
     enum: ['user', 'admin'],
     default: 'user'
   },
+  tier: {
+    type: String,
+    enum: ['free', 'pro'],
+    default: 'free',
+    index: true
+  },
   candidate_profile: {
     title: { type: String, default: 'DevSecOps & Backend Engineer' },
     university: { type: String, default: 'ESPRIT' },

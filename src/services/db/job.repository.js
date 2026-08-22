@@ -8,6 +8,7 @@ const fs = require('fs');
 const path = require('path');
 const mongoose = require('mongoose');
 const Job = require('../../models/job.model');
+const TailoredApplication = require('../../models/tailored_application.model');
 const PipelineRun = require('../../models/pipeline_run.model');
 const { isConnected } = require('../../core/database');
 const { logger } = require('../../core/logger');
@@ -34,8 +35,11 @@ class JobRepository {
 
   /**
    * Bulk upserts jobs for a specific user into MongoDB Atlas.
+   * @param {string} userId - The user's ObjectId string
+   * @param {Array} jobs - Array of job objects to upsert
+   * @param {number} retentionDays - Days before a READY job auto-expires (7=free, 30=pro)
    */
-  static async upsertJobs(userId, jobs = []) {
+  static async upsertJobs(userId, jobs = [], retentionDays = 7) {
     if (!jobs || jobs.length === 0) return 0;
     if (!isConnected() || !userId) return 0;
 
@@ -76,13 +80,21 @@ class JobRepository {
         key_matching_points: j.key_matching_points || [],
         cover_letter: j.cover_letter || '',
         cover_note: j.cover_note || '',
-        form_field_guide: j.form_field_guide || {}
+        form_field_guide: j.form_field_guide || {},
+        // Tier-aware retention: set expiresAt only on new inserts ($setOnInsert)
+        // We handle this via the upsert setOnInsert below
       };
+
+      // expiresAt is computed once at creation, not updated on every upsert
+      const expiresAt = new Date(Date.now() + retentionDays * 24 * 60 * 60 * 1000);
 
       return {
         updateOne: {
           filter: { user_id: userObjectId, source_job_id: uniqueId },
-          update: { $set: updateDoc },
+          update: {
+            $set: updateDoc,
+            $setOnInsert: { expiresAt, status: 'READY' }
+          },
           upsert: true
         }
       };
@@ -206,6 +218,49 @@ class JobRepository {
     } catch (err) {
       logger.warn(`Failed to log pipeline run to MongoDB: ${err.message}`);
       return null;
+    }
+  }
+
+  /**
+   * Cascade-deletes a job and its associated TailoredApplication.
+   * Scoped to the user to prevent cross-tenant deletion.
+   */
+  static async deleteJobById(userId, jobId) {
+    if (!isConnected() || !userId) return false;
+    try {
+      const userObjectId = mongoose.Types.ObjectId.isValid(userId)
+        ? new mongoose.Types.ObjectId(userId) : null;
+      const jobObjectId = mongoose.Types.ObjectId.isValid(jobId)
+        ? new mongoose.Types.ObjectId(jobId) : null;
+
+      if (!userObjectId || !jobObjectId) return false;
+
+      // 1. Delete associated tailored applications first
+      await TailoredApplication.deleteMany({ job_id: jobObjectId });
+
+      // 2. Delete the job (scoped to user for tenant isolation)
+      const result = await Job.deleteOne({ _id: jobObjectId, user_id: userObjectId });
+      return result.deletedCount > 0;
+    } catch (err) {
+      logger.error(`JobRepository deleteJobById error: ${err.message}`);
+      return false;
+    }
+  }
+
+  /**
+   * Finds all READY jobs that have passed their expiresAt date.
+   * Used by the weekly cleanup cron.
+   */
+  static async getExpiringJobs(beforeDate = new Date()) {
+    if (!isConnected()) return [];
+    try {
+      return await Job.find({
+        status: 'READY',
+        expiresAt: { $lt: beforeDate, $ne: null }
+      }).select('_id user_id company title match_score expiresAt').lean();
+    } catch (err) {
+      logger.error(`JobRepository getExpiringJobs error: ${err.message}`);
+      return [];
     }
   }
 }

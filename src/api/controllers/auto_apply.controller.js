@@ -9,8 +9,10 @@ const JobRepository = require('../../services/db/job.repository');
 const FormSolverService = require('../../services/applier/form_solver.service');
 const CvService = require('../../services/cv/cv.service');
 const NotifierService = require('../../services/notifier/notifier.service');
+const AppliedHistory = require('../../models/applied_history.model');
 const config = require('../../core/config');
 const { logger } = require('../../core/logger');
+const { isConnected } = require('../../core/database');
 
 class AutoApplyController {
   /**
@@ -46,6 +48,43 @@ class AutoApplyController {
         });
       }
 
+      // ── MODE A: Easy Apply Assist ──────────────────────────────────────
+      // For LinkedIn Easy Apply jobs, return assist payload instead of automating.
+      // The frontend opens the URL in a new tab and shows the copy matrix.
+      if (job.source === 'linkedin_easy_apply' || job.is_easy_apply === true) {
+        const solver = new FormSolverService();
+        const commonQuestions = [
+          { q: 'How many years of work experience do you have with Docker?', type: 'number' },
+          { q: 'How many years of Python development experience do you have?', type: 'number' },
+          { q: 'Will you now or in the future require visa sponsorship for employment?', type: 'select' },
+          { q: 'What is your current notice period?', type: 'select' },
+          { q: 'What are your gross annual salary expectations in EUR?', type: 'number' },
+          { q: 'Are you comfortable working remotely?', type: 'select' }
+        ];
+        const screeningAnswers = commonQuestions.map(item => ({
+          question: item.q,
+          answer: solver.solveQuestion(item.q, item.type).answer
+        }));
+
+        logger.info(`[AutoApply] Easy Apply Assist mode for ${job.company} — ${job.title}`);
+
+        return res.status(200).json({
+          success: true,
+          mode: 'easy_apply_assist',
+          message: `LinkedIn Easy Apply Assist ready for ${job.company} (${job.title}). Open the URL and use the answer matrix below.`,
+          canonical_url: job.url,
+          url_type: job.url_type || 'search',
+          job: {
+            id: String(job._id || job.source_job_id),
+            title: job.title,
+            company: job.company,
+            location: job.location,
+            match_score: job.match_score
+          },
+          screening_answers: screeningAnswers
+        });
+      }
+
       const candidateProfile = req.user?.candidate_profile || config.candidate;
       const cvService = new CvService({ outputDir: config.paths.cvs });
       const solver = new FormSolverService();
@@ -73,6 +112,31 @@ class AutoApplyController {
       const applyNote = customNotes || `Auto-applied autonomously with tailored ATS CV (${tailoredPkg?.cv_filename || 'PDF'}). Screening questions auto-resolved.`;
       const targetId = job.source_job_id || job._id || job.id;
       await JobRepository.updateCrmStatus(userId, targetId, 'APPLIED', applyNote);
+
+      // 5b. Write permanent AppliedHistory snapshot
+      if (isConnected() && userId) {
+        try {
+          await AppliedHistory.create({
+            user_id: userId,
+            job_id: job._id || null,
+            company: job.company,
+            title: job.title,
+            url: job.url,
+            location: job.location,
+            match_score: job.match_score,
+            source: job.source,
+            cv_snapshot: {
+              custom_summary: tailoredPkg?.custom_summary || job.custom_summary || '',
+              cover_note: tailoredPkg?.cover_note || job.cover_note || '',
+              tailored_skills: tailoredPkg?.tailored_skills || job.tailored_skills || []
+            },
+            apply_mode: 'auto',
+            candidate_notes: applyNote
+          });
+        } catch (histErr) {
+          logger.warn(`[AutoApply] AppliedHistory write failed: ${histErr.message}`);
+        }
+      }
 
       // 6. Notify via Telegram if configured
       await notifier.notifyJobMatches([{ ...job, match_score: job.match_score || 85 }]);
