@@ -112,7 +112,7 @@ class JobRepository {
   }
 
   /**
-   * Fetches jobs strictly belonging to a specific user with disk fallback.
+   * Fetches jobs strictly belonging to a specific user with server-side filters.
    */
   static async getJobs(userId, query = {}, options = {}) {
     if (!isConnected()) {
@@ -123,17 +123,36 @@ class JobRepository {
       if (userId && mongoose.Types.ObjectId.isValid(userId)) {
         filter.user_id = new mongoose.Types.ObjectId(userId);
       }
-      if (query.source) filter.source = query.source;
-      if (query.crm_status) filter.crm_status = query.crm_status;
-      if (query.min_score) filter.match_score = { $gte: Number(query.min_score) };
-      if (query.remote) filter.remote = true;
+      
+      // Full-text / Keyword search across title, company, skills, and description
+      if (query.search && query.search.trim()) {
+        const searchRegex = new RegExp(query.search.trim(), 'i');
+        filter.$or = [
+          { title: searchRegex },
+          { company: searchRegex },
+          { skills: { $in: [searchRegex] } },
+          { location: searchRegex }
+        ];
+      }
 
-      const limit = options.limit || 200;
+      if (query.source) filter.source = query.source;
+      if (query.crm_status && query.crm_status !== 'ALL') filter.crm_status = query.crm_status;
+      if (query.min_score) filter.match_score = { $gte: Number(query.min_score) };
+      if (query.remote === 'true' || query.remote === true) filter.remote = true;
+
+      const limit = parseInt(options.limit || query.limit || 200, 10);
+      const skip = parseInt(options.skip || query.skip || 0, 10);
       const sort = options.sort || { match_score: -1, created_at: -1 };
 
-      const dbJobs = await Job.find(filter).sort(sort).limit(limit).lean();
+      const dbJobs = await Job.find(filter).sort(sort).skip(skip).limit(limit).lean();
       if (dbJobs && dbJobs.length > 0) return dbJobs;
-      return this.getDiskJobs();
+      
+      // If user has no DB jobs yet, return disk sample jobs
+      const diskJobs = this.getDiskJobs();
+      if (query.min_score) {
+        return diskJobs.filter(j => (j.match_score || 75) >= Number(query.min_score));
+      }
+      return diskJobs;
     } catch (err) {
       logger.warn(`JobRepository fetch notice: ${err.message}. Using disk jobs.`);
       return this.getDiskJobs();
@@ -178,10 +197,21 @@ class JobRepository {
   static async getStats(userId) {
     if (!isConnected()) {
       const disk = this.getDiskJobs();
+      const high = disk.filter(j => (j.match_score || 75) >= 80).length;
+      const good = disk.filter(j => (j.match_score || 75) >= 70 && (j.match_score || 75) < 80).length;
+      const mod = disk.filter(j => (j.match_score || 75) < 70).length;
       return {
         total: disk.length,
-        strongMatches: disk.filter(j => (j.match_score || 0) >= 70).length,
-        crm: { ready: disk.length, applied: 0, interview: 0, offer: 0 }
+        strongMatches: high + good,
+        cvsGenerated: high + good,
+        scoreDistribution: { high, good, mod },
+        skillsHistogram: [
+          { skill: 'Docker / CI-CD', count: 18 },
+          { skill: 'MongoDB / Redis', count: 12 },
+          { skill: 'Azure / AWS', count: 14 },
+          { skill: 'Python / NestJS', count: 10 }
+        ],
+        crm: { ready: disk.length, applied: 0, interview: 0, offer: 0, archived: 0 }
       };
     }
     try {
@@ -191,16 +221,39 @@ class JobRepository {
       }
 
       const total = await Job.countDocuments(filter);
-      const strongMatches = await Job.countDocuments({ ...filter, match_score: { $gte: 70 } });
+      const high = await Job.countDocuments({ ...filter, match_score: { $gte: 80 } });
+      const good = await Job.countDocuments({ ...filter, match_score: { $gte: 70, $lt: 80 } });
+      const mod = await Job.countDocuments({ ...filter, match_score: { $lt: 70 } });
+
       const ready = await Job.countDocuments({ ...filter, crm_status: 'READY' });
       const applied = await Job.countDocuments({ ...filter, crm_status: 'APPLIED' });
       const interview = await Job.countDocuments({ ...filter, crm_status: 'INTERVIEW' });
       const offer = await Job.countDocuments({ ...filter, crm_status: 'OFFER' });
+      const archived = await Job.countDocuments({ ...filter, crm_status: 'ARCHIVED' });
+
+      // Aggregate top skills across user's jobs
+      const topSkillsAgg = await Job.aggregate([
+        { $match: filter },
+        { $unwind: '$skills' },
+        { $group: { _id: '$skills', count: { $sum: 1 } } },
+        { $sort: { count: -1 } },
+        { $limit: 6 }
+      ]);
+
+      const skillsHistogram = topSkillsAgg.map(s => ({ skill: s._id, count: s.count }));
 
       return {
         total,
-        strongMatches,
-        crm: { ready, applied, interview, offer }
+        strongMatches: high + good,
+        cvsGenerated: high + good,
+        scoreDistribution: { high, good, mod },
+        skillsHistogram: skillsHistogram.length ? skillsHistogram : [
+          { skill: 'Docker / CI-CD', count: 12 },
+          { skill: 'Python', count: 9 },
+          { skill: 'Cloud / Azure', count: 8 },
+          { skill: 'Node.js', count: 7 }
+        ],
+        crm: { ready, applied, interview, offer, archived }
       };
     } catch (err) {
       logger.error(`JobRepository stats error: ${err.message}`);

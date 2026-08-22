@@ -67,11 +67,20 @@ function createApp() {
     pipelineLimiter,
     PipelineController.triggerPipeline
   );
+  // Real-Time Server-Sent Events (SSE) Live Pipeline Stream
+  app.get('/api/trigger/stream',
+    optionalAuthMiddleware,
+    attachTier,
+    PipelineController.streamPipeline
+  );
 
   // 6. Multi-Tenant Jobs & CRM Routes
   app.get('/api/data.enc', JobsController.getEncryptedData);
   app.get('/api/data.json', optionalAuthMiddleware, attachTier, JobsController.getJobsJson);
   app.get('/api/jobs', optionalAuthMiddleware, attachTier, JobsController.getMongoJobs);
+  app.get('/api/jobs/:id/tailored', optionalAuthMiddleware, JobsController.getJobTailoredArtifacts);
+  app.post('/api/jobs/:id/feedback', optionalAuthMiddleware, JobsController.submitJobFeedback);
+  app.post('/api/jobs/:id/interview-prep', optionalAuthMiddleware, JobsController.generateInterviewPrep);
   app.patch('/api/jobs/:id/crm', optionalAuthMiddleware, JobsController.updateCrmStatus);
   app.delete('/api/jobs/:id', authMiddleware, JobsController.deleteJob);   // Auth required for delete
   app.get('/api/analytics', optionalAuthMiddleware, attachTier, JobsController.getAnalytics);

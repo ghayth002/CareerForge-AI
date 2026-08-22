@@ -107,8 +107,11 @@ class PipelineOrchestrator {
       durationMs: 0
     };
 
+    const emit = typeof options.onEvent === 'function' ? options.onEvent : () => {};
+
     try {
       // ── NODE 1: DISCOVERY ──────────────────────────────────────────
+      emit({ type: 'node_start', nodeIndex: 1, nodeName: 'Discovery', message: 'Fetching live multi-source feeds...' });
       logger.step(1, 'Discovery: Fetching live multi-source job feeds');
       const node1Start = Date.now();
       const crawlerResult = await this.crawler.fetchAllSources({ 
@@ -121,8 +124,10 @@ class PipelineOrchestrator {
         sourceBreakdown: crawlerResult.stats,
         durationMs: Date.now() - node1Start
       };
+      emit({ type: 'node_complete', nodeIndex: 1, nodeName: 'Discovery', count: crawlerResult.total, stats: crawlerResult.stats, durationMs: Date.now() - node1Start });
 
       // ── NODE 2: PRE-FILTER & DEDUPLICATION ─────────────────────────
+      emit({ type: 'node_start', nodeIndex: 2, nodeName: 'Pre-Filter', message: 'Deduplicating and filtering jobs...' });
       logger.step(2, 'Pre-Filter: Deterministic ranking, deduplication & skill extraction');
       const node2Start = Date.now();
       const filterResult = this.filter.filterAndDeduplicate(crawlerResult.jobs);
@@ -133,21 +138,28 @@ class PipelineOrchestrator {
         irrelevantRemoved: filterResult.irrelevantRemoved,
         durationMs: Date.now() - node2Start
       };
+      emit({ type: 'node_complete', nodeIndex: 2, nodeName: 'Pre-Filter', count: filterResult.totalPassed, durationMs: Date.now() - node2Start });
 
       // ── NODE 3: AI FIT MATCHER ────────────────────────────────────
+      emit({ type: 'node_start', nodeIndex: 3, nodeName: 'AI Matcher', message: `Evaluating candidate fit with ${this.config.openRouter?.model}...` });
       logger.step(3, 'AI Matcher: Evaluating candidate fit with LLM intelligence');
       const node3Start = Date.now();
       const matchedJobs = await this.matcher.evaluateBatch(
-        candidate,
         filterResult.jobs,
-        { maxJobs: options.maxScoreJobs || 20 }
+        candidate,
+        {
+          minScore: candidate.min_match_score || this.config.pipeline?.minMatchScore || 70,
+          concurrency: options.concurrency || this.config.pipeline?.aiConcurrency || 3,
+          maxJobsToEvaluate: options.maxScoreJobs || this.config.pipeline?.maxScoreJobs || 25
+        }
       );
-      executionLog.nodes.aiMatcher = {
+      executionLog.nodes.matcher = {
         status: 'COMPLETED',
         evaluatedCount: filterResult.jobs.length,
-        strongMatchesCount: matchedJobs.length,
+        matchedCount: matchedJobs.length,
         durationMs: Date.now() - node3Start
       };
+      emit({ type: 'node_complete', nodeIndex: 3, nodeName: 'AI Matcher', count: matchedJobs.length, durationMs: Date.now() - node3Start });
 
       // Merge all jobs (both high-match and all passed) for comprehensive dashboard view
       const allJobsMap = new Map();
@@ -155,17 +167,20 @@ class PipelineOrchestrator {
       matchedJobs.forEach(j => allJobsMap.set(this.filter.generateJobFingerprint(j), j));
       const consolidatedJobs = Array.from(allJobsMap.values());
 
-      // ── NODE 4: ATS TAILORED CV COMPILATION ────────────────────────
-      logger.step(4, 'Tailor CV: Compiling ATS LaTeX application packages');
+      // ── NODE 4: TAILOR CV & COVER LETTER ──────────────────────────
+      emit({ type: 'node_start', nodeIndex: 4, nodeName: 'Tailor CV', message: 'Compiling tailored ATS resumes & LaTeX packages...' });
+      logger.step(4, 'Tailor CV: Compiling ATS-optimized CVs and Cover Letters');
       const node4Start = Date.now();
-      const cvPackages = this.cv.generateTailoredPackages(candidate, matchedJobs);
+      const tailoredJobs = await this.cv.generateTailoredPackages(matchedJobs, candidate);
       executionLog.nodes.tailorCv = {
         status: 'COMPLETED',
-        packagesCompiled: cvPackages.length,
+        tailoredCount: tailoredJobs.length,
         durationMs: Date.now() - node4Start
       };
+      emit({ type: 'node_complete', nodeIndex: 4, nodeName: 'Tailor CV', count: tailoredJobs.length, durationMs: Date.now() - node4Start });
 
       // ── NODE 5: AUTO-APPLY & NOTIFICATIONS ─────────────────────────
+      emit({ type: 'node_start', nodeIndex: 5, nodeName: 'Auto-Apply', message: 'Routing email applications & dispatching alerts...' });
       logger.step(5, 'Auto-Apply & Notify: Dispatching alerts to candidate email & SMTP router');
       const node5Start = Date.now();
       await this.notifier.notifyJobMatches(matchedJobs, user.email, user.name);
@@ -175,9 +190,11 @@ class PipelineOrchestrator {
         appliedCount: applyResult.totalApplied,
         durationMs: Date.now() - node5Start
       };
+      emit({ type: 'node_complete', nodeIndex: 5, nodeName: 'Auto-Apply', count: applyResult.totalApplied, durationMs: Date.now() - node5Start });
 
-      // ── NODE 6: DEPLOY & PUBLISH ──────────────────────────────────
-      logger.step(6, 'Deploy & Publish: Generating encrypted package & MongoDB Atlas sync');
+      // ── NODE 6: PUBLISH, ENCRYPT & DEPLOY ──────────────────────────
+      emit({ type: 'node_start', nodeIndex: 6, nodeName: 'Deploy', message: 'Publishing encrypted bundle & syncing MongoDB Atlas...' });
+      logger.step(6, 'Publish & Encrypt: Zero-knowledge bundle & MongoDB sync');
       const node6Start = Date.now();
       const publishResult = this.publisher.publishEncryptedBundle(consolidatedJobs, candidate);
       
@@ -187,10 +204,11 @@ class PipelineOrchestrator {
 
       executionLog.nodes.deploy = {
         status: 'COMPLETED',
+        publishedCount: consolidatedJobs.length,
         encryptedPath: publishResult.encryptedPath,
-        stats: publishResult.stats,
         durationMs: Date.now() - node6Start
       };
+      emit({ type: 'node_complete', nodeIndex: 6, nodeName: 'Deploy', count: consolidatedJobs.length, durationMs: Date.now() - node6Start });
 
       const totalDuration = Date.now() - startTime;
       executionLog.durationMs = totalDuration;
